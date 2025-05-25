@@ -4,10 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { 
   Plus, 
   Edit, 
@@ -19,6 +15,7 @@ import {
   Star
 } from 'lucide-react';
 import { AppraisalTemplate, AppraisalGoal, RatingCriteria } from '@/types/performance';
+import TemplateBuilder from './TemplateBuilder';
 
 const AppraisalTemplateManager = () => {
   const [templates, setTemplates] = useState<AppraisalTemplate[]>([
@@ -199,6 +196,37 @@ const AppraisalTemplateManager = () => {
     setIsCreateDialogOpen(false);
   };
 
+  const handleEditTemplate = (template: AppraisalTemplate) => {
+    setEditingTemplate(template);
+    setNewTemplate({
+      name: template.name,
+      description: template.description || '',
+      goals: [...template.goals],
+      rating_criteria: [...template.rating_criteria]
+    });
+  };
+
+  const handleUpdateTemplate = () => {
+    if (editingTemplate) {
+      setTemplates(templates.map(t => 
+        t.id === editingTemplate.id 
+          ? { 
+              ...t, 
+              ...newTemplate, 
+              modified_at: new Date() 
+            }
+          : t
+      ));
+      setEditingTemplate(null);
+      setNewTemplate({
+        name: '',
+        description: '',
+        goals: [],
+        rating_criteria: []
+      });
+    }
+  };
+
   const handleDeleteTemplate = (id: string) => {
     setTemplates(templates.filter(t => t.id !== id));
   };
@@ -235,46 +263,54 @@ const AppraisalTemplateManager = () => {
                   สร้างเทมเพลตใหม่
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>สร้างเทมเพลตการประเมินใหม่</DialogTitle>
                   <DialogDescription>
-                    กรอกข้อมูลพื้นฐานของเทมเพลต
+                    สร้างเทมเพลตการประเมินพร้อมกำหนด KRA และเกณฑ์การประเมิน
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="name">ชื่อเทมเพลต</Label>
-                    <Input
-                      id="name"
-                      value={newTemplate.name}
-                      onChange={(e) => setNewTemplate({...newTemplate, name: e.target.value})}
-                      placeholder="เช่น เทมเพลตพนักงานใหม่"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="description">คำอธิบาย</Label>
-                    <Textarea
-                      id="description"
-                      value={newTemplate.description}
-                      onChange={(e) => setNewTemplate({...newTemplate, description: e.target.value})}
-                      placeholder="อธิบายการใช้งานของเทมเพลตนี้"
-                    />
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                      ยกเลิก
-                    </Button>
-                    <Button onClick={handleCreateTemplate}>
-                      สร้างเทมเพลต
-                    </Button>
-                  </div>
-                </div>
+                <TemplateBuilder
+                  templateName={newTemplate.name}
+                  description={newTemplate.description}
+                  goals={newTemplate.goals}
+                  ratingCriteria={newTemplate.rating_criteria}
+                  onTemplateNameChange={(name) => setNewTemplate({...newTemplate, name})}
+                  onDescriptionChange={(description) => setNewTemplate({...newTemplate, description})}
+                  onGoalsChange={(goals) => setNewTemplate({...newTemplate, goals})}
+                  onRatingCriteriaChange={(rating_criteria) => setNewTemplate({...newTemplate, rating_criteria})}
+                  onSave={handleCreateTemplate}
+                  onCancel={() => setIsCreateDialogOpen(false)}
+                />
               </DialogContent>
             </Dialog>
           </div>
         </CardHeader>
       </Card>
+
+      {/* Edit Template Dialog */}
+      <Dialog open={!!editingTemplate} onOpenChange={(open) => !open && setEditingTemplate(null)}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>แก้ไขเทมเพลตการประเมิน</DialogTitle>
+            <DialogDescription>
+              แก้ไขข้อมูลเทมเพลตการประเมิน KRA และเกณฑ์การประเมิน
+            </DialogDescription>
+          </DialogHeader>
+          <TemplateBuilder
+            templateName={newTemplate.name}
+            description={newTemplate.description}
+            goals={newTemplate.goals}
+            ratingCriteria={newTemplate.rating_criteria}
+            onTemplateNameChange={(name) => setNewTemplate({...newTemplate, name})}
+            onDescriptionChange={(description) => setNewTemplate({...newTemplate, description})}
+            onGoalsChange={(goals) => setNewTemplate({...newTemplate, goals})}
+            onRatingCriteriaChange={(rating_criteria) => setNewTemplate({...newTemplate, rating_criteria})}
+            onSave={handleUpdateTemplate}
+            onCancel={() => setEditingTemplate(null)}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Templates List */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -300,7 +336,11 @@ const AppraisalTemplateManager = () => {
                   </div>
                 </div>
                 <div className="flex gap-1">
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => handleEditTemplate(template)}
+                  >
                     <Edit className="w-4 h-4" />
                   </Button>
                   <Button variant="ghost" size="sm">
@@ -388,7 +428,11 @@ const AppraisalTemplateManager = () => {
                 >
                   {template.is_active ? 'ปิดการใช้งาน' : 'เปิดการใช้งาน'}
                 </Button>
-                <Button size="sm" className="flex-1">
+                <Button 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => handleEditTemplate(template)}
+                >
                   <Settings className="w-4 h-4 mr-2" />
                   จัดการรายละเอียด
                 </Button>
