@@ -14,12 +14,14 @@ import {
   BarChart3,
   ClipboardList,
   MessageSquare,
-  Award
+  Award,
+  GitBranch
 } from 'lucide-react';
 import AppraisalTemplateManager from '@/components/performance/AppraisalTemplateManager';
 import AppraisalCycleManager from '@/components/performance/AppraisalCycleManager';
 import AppraisalManager from '@/components/performance/AppraisalManager';
 import PerformanceDashboard from '@/components/performance/PerformanceDashboard';
+import { Link } from 'react-router-dom';
 
 const PerformanceManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -53,6 +55,12 @@ const PerformanceManagement: React.FC = () => {
               </p>
             </div>
             <div className="flex gap-3">
+              <Link to="/workflows">
+                <Button size="lg" variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                  <GitBranch className="w-5 h-5 mr-2" />
+                  Workflows
+                </Button>
+              </Link>
               <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                 <Plus className="w-5 h-5 mr-2" />
                 สร้างการประเมินใหม่
@@ -237,9 +245,15 @@ const PerformanceManagement: React.FC = () => {
                   <h3 className="text-lg font-medium text-gray-600 mb-2">
                     ระบบ Feedback กำลังพัฒนา
                   </h3>
-                  <p className="text-gray-500">
-                    ฟีเจอร์นี้จะเปิดใช้งานในเร็วๆ นี้
+                  <p className="text-gray-500 mb-4">
+                    ใช้หน้า Workflows สำหรับการให้ feedback
                   </p>
+                  <Link to="/workflows">
+                    <Button>
+                      <GitBranch className="w-4 h-4 mr-2" />
+                      ไปที่ Workflows
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
