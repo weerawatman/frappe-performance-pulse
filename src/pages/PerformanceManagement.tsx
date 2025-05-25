@@ -21,7 +21,7 @@ import AppraisalCycleManager from '@/components/performance/AppraisalCycleManage
 import AppraisalManager from '@/components/performance/AppraisalManager';
 import PerformanceDashboard from '@/components/performance/PerformanceDashboard';
 
-const PerformanceManagement = () => {
+const PerformanceManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   // Mock data for demonstration
@@ -160,7 +160,7 @@ const PerformanceManagement = () => {
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <div className="text-2xl font-bold text-gray-600">{stats.poor_performers}</div>
-                  <div className="text-sm text-gray-600">ต้องปรับปรุง (<70%)</div>
+                  <div className="text-sm text-gray-600">ต้องปรับปรุง (&lt;70%)</div>
                 </div>
               </div>
             </div>
