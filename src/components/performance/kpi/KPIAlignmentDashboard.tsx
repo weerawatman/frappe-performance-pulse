@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -297,6 +296,7 @@ const KPIAlignmentDashboard: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const overallCorporateAchievement = calculateOverallAchievement();
+  const totalCorporateWeight = mockCorporateKPIData.reduce((sum, kpi) => sum + kpi.weight, 0);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -414,7 +414,12 @@ const KPIAlignmentDashboard: React.FC = () => {
         <TabsContent value="overview" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Corporate KPI Overview</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Corporate KPI Overview</CardTitle>
+                <Badge variant="outline" className="text-sm">
+                  Total Weight: {totalCorporateWeight}%
+                </Badge>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -423,17 +428,17 @@ const KPIAlignmentDashboard: React.FC = () => {
                     <TableHead>Category</TableHead>
                     <TableHead>KPI Name</TableHead>
                     <TableHead>Target</TableHead>
-                    <TableHead>Weight</TableHead>
-                    <TableHead>Achievement</TableHead>
+                    <TableHead>Weight (%)</TableHead>
+                    <TableHead>Achievement (%)</TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockCorporateKPIData.slice(0, 10).map((kpi) => (
+                  {mockCorporateKPIData.map((kpi) => (
                     <TableRow key={kpi.id}>
                       <TableCell className="font-medium">{kpi.category}</TableCell>
                       <TableCell>{kpi.name}</TableCell>
-                      <TableCell>{kpi.target}</TableCell>
+                      <TableCell className="text-sm">{kpi.target}</TableCell>
                       <TableCell>{kpi.weight}%</TableCell>
                       <TableCell>{kpi.achievement_percentage?.toFixed(1)}%</TableCell>
                       <TableCell>
