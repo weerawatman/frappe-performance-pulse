@@ -6,10 +6,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import { MainLayout } from '@/layouts/MainLayout';
 import LoginPage from '@/pages/LoginPage';
 import DashboardPage from '@/pages/DashboardPage';
-import KpiPage from '@/pages/KpiPage';
 import PerformanceEvaluationPage from '@/pages/PerformanceEvaluationPage';
-import AppraisalManagementPage from '@/pages/AppraisalManagementPage';
-import ReportPage from '@/pages/ReportPage';
 import AdminReportsDashboard from '@/components/performance/reports/AdminReportsDashboard';
 import EmployeeDashboard from '@/pages/EmployeeDashboard';
 
@@ -29,11 +26,6 @@ function App() {
               <EmployeeDashboard />
             </ProtectedRoute>
           } />
-          <Route path="/kpi" element={
-            <ProtectedRoute>
-              <MainLayout><KpiPage /></MainLayout>
-            </ProtectedRoute>
-          } />
           <Route path="/employee/evaluation" element={
             <ProtectedRoute requireEmployee>
               <MainLayout><PerformanceEvaluationPage userRole="employee" /></MainLayout>
@@ -47,16 +39,6 @@ function App() {
           <Route path="/admin/evaluation" element={
             <ProtectedRoute requireAdmin>
               <MainLayout><PerformanceEvaluationPage userRole="admin" /></MainLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/appraisal-management" element={
-            <ProtectedRoute>
-              <MainLayout><AppraisalManagementPage /></MainLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/reports" element={
-            <ProtectedRoute>
-              <MainLayout><ReportPage /></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/admin/reports" element={
