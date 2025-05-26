@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Shield, Users, Settings, Plus, Edit, Trash2, Eye } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,7 +32,7 @@ const RoleManager: React.FC = () => {
     setUsers(authService.getUsers());
     setRoles(authService.getRoles());
     setPermissions(authService.getPermissions());
-    setAccessLogs(authService.getAccessLogs(undefined, undefined, 50));
+    setAccessLogs(authService.getAccessLogs(undefined, 50));
   };
 
   const handleCreateUser = () => {
@@ -354,7 +353,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, roles, onSave, onCancel }) =>
     if (user) {
       authService.updateUser(user.id, formData);
     } else {
-      authService.createUser(formData);
+      authService.createUser(formData as Omit<User, 'id'>);
     }
     
     onSave();

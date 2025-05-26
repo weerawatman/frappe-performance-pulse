@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Shield, Lock, Database, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,7 +22,7 @@ const SecurityDashboard: React.FC = () => {
 
   const loadData = () => {
     const securitySettings = authService.getSecuritySettings();
-    const logs = authService.getAccessLogs(undefined, undefined, 20);
+    const logs = authService.getAccessLogs(undefined, 20);
     
     setSettings(securitySettings);
     setRecentLogs(logs);
