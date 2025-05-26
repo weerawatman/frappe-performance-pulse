@@ -36,7 +36,7 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
   // Mock competency data based on the image
   const competencyItems: CompetencyItem[] = [
     {
-      id: 'PC43',
+      id: 'FC43',
       type: 'Strategic Driven Functional Competency',
       item: 'การบริหาร HR ศูนย์รวมข้อมูลสำหรับหน้าที่งาน (HRDP (HR Business Partnership))',
       weight: 7.50,
@@ -44,7 +44,7 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
       output: '1) e-PMS : มีการนำเอาข้อมูล Manager up เข้าระบบ e-PMS 100%\n2) HR E-Request และ/หรือ HR Connect Application มีผู้ใช้งาน, ลดเวลาในกระบวนการ (Man-Hour) ลงมากกว่า 10%\nKPI2 : New PMS System 2025 (E-PMS)\nKPI3 : HR One Data Center'
     },
     {
-      id: 'PC50',
+      id: 'FC50',
       type: 'Strategic Driven Functional Competency',
       item: 'การจัดองค์การองการและบริหารจัดการ HR - สำนักงานวิสาหกิจเพื่อการพึ่งตนเอง (OD) (COE - Organization (Center of Excellence))',
       weight: 7.50,
@@ -167,28 +167,22 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
           <Card key={item.id} className="border border-gray-300">
             <CardContent className="p-6">
               {/* Header Table */}
-              <div className="grid grid-cols-4 gap-4 mb-6 border border-gray-300">
-                <div className="border-r border-gray-300 p-3 bg-gray-50">
+              <div className="grid grid-cols-12 gap-0 mb-6 border border-gray-300">
+                <div className="col-span-3 border-r border-gray-300 p-3 bg-gray-50">
                   <div className="font-medium text-sm">ประเภท Competency (Competency Type)</div>
                   <div className="text-sm mt-2">{item.type}</div>
                 </div>
-                <div className="border-r border-gray-300 p-3 bg-gray-50">
+                <div className="col-span-7 border-r border-gray-300 p-3 bg-gray-50">
                   <div className="font-medium text-sm">Item (หัวข้อ)</div>
                   <div className="text-sm mt-2">
                     <div className="font-medium text-blue-600 mb-1">{item.id}</div>
                     {item.item}
                   </div>
                 </div>
-                <div className="border-r border-gray-300 p-3 bg-gray-50 text-center">
+                <div className="col-span-2 p-3 bg-gray-50 text-center">
                   <div className="font-medium text-sm">Weight% (น้ำหนัก)</div>
                   <div className="mt-2">
                     <Badge variant="outline">{item.weight}%</Badge>
-                  </div>
-                </div>
-                <div className="p-3 bg-red-50">
-                  <div className="font-medium text-sm text-red-700">เป้าหมาย</div>
-                  <div className="text-sm mt-2 text-red-600">
-                    ข้อมูลจากการวิเคราะห์เพื่อเชื่อมโยงเป้าหมายและผลลัพธ์ (เป้าหมายจาก KPI Bonus, KPI)
                   </div>
                 </div>
               </div>
@@ -261,25 +255,9 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
                         <SelectItem value="5">5</SelectItem>
                       </SelectContent>
                     </Select>
-                    <div className="text-xs text-gray-500 mt-1">%</div>
+                    <div className="text-xs text-gray-500 mt-1">การคำนวณ: {evaluation.selfScore}% × {item.weight}% ÷ 5 = {((evaluation.selfScore / 5) * item.weight).toFixed(2)} คะแนน</div>
                   </div>
                 </div>
-                <div className="text-xs text-gray-500">
-                  การคำนวณ: X% × 7.5% ÷ 5 = 0.00 คะแนน
-                </div>
-              </div>
-
-              {/* Feedback Section */}
-              <div className="border border-gray-300 p-4 mb-4">
-                <div className="font-medium text-sm mb-2">หลักฐานการดำเนินการประกอบการประเมิน</div>
-                <Textarea
-                  value={evaluation.feedback}
-                  onChange={(e) => updateEvaluation(item.id, 'feedback', e.target.value)}
-                  placeholder="ข้อมูลเพิ่มเติม ระบุ อีเมล หรือ เอกสารอ้างอิง..."
-                  rows={3}
-                  className="text-sm"
-                  disabled={!canEdit('feedback')}
-                />
               </div>
 
               {/* Checker Feedback */}
@@ -311,11 +289,8 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
                         <SelectItem value="5">5</SelectItem>
                       </SelectContent>
                     </Select>
-                    <div className="text-xs text-gray-500 mt-1">%</div>
+                    <div className="text-xs text-gray-500 mt-1">การคำนวณ: {evaluation.checkerScore || 0}% × {item.weight}% ÷ 5 = {(((evaluation.checkerScore || 0) / 5) * item.weight).toFixed(2)} คะแนน</div>
                   </div>
-                </div>
-                <div className="text-xs text-gray-500">
-                  การคำนวณ: X% × 7.5% ÷ 5 = 0.00 คะแนน
                 </div>
               </div>
 
@@ -348,11 +323,8 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
                         <SelectItem value="5">5</SelectItem>
                       </SelectContent>
                     </Select>
-                    <div className="text-xs text-gray-500 mt-1">%</div>
+                    <div className="text-xs text-gray-500 mt-1">การคำนวณ: {evaluation.approverScore || 0}% × {item.weight}% ÷ 5 = {(((evaluation.approverScore || 0) / 5) * item.weight).toFixed(2)} คะแนน</div>
                   </div>
-                </div>
-                <div className="text-xs text-gray-500">
-                  การคำนวณ: X% × 7.5% ÷ 5 = 0.00 คะแนน
                 </div>
               </div>
             </CardContent>
