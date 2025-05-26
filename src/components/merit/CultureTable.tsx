@@ -2,12 +2,9 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Heart, Eye, Info } from 'lucide-react';
+import { Heart, Info } from 'lucide-react';
 import { CultureItem } from '@/types/merit';
 
 interface CultureTableProps {
@@ -15,7 +12,6 @@ interface CultureTableProps {
 }
 
 const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
-  const [selectedCulture, setSelectedCulture] = useState<CultureItem | null>(null);
   const [expectedBehaviors, setExpectedBehaviors] = useState<{[key: string]: string}>({});
 
   const getLevelBadgeColor = (level: number) => {
@@ -50,12 +46,67 @@ const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
         </p>
       </CardHeader>
       <CardContent>
+        {/* Evaluation Level Reference Table */}
+        <div className="mb-6">
+          <h4 className="font-semibold mb-3 text-gray-800">ส่วนที่ 3 : การประเมิน Culture</h4>
+          <p className="text-sm text-gray-600 mb-3">
+            หลักเกณฑ์การประเมิน (Evaluation Score System) โดยกำหนดจากเกณฑ์เปี้าหมายกิจกรรม (Expected Key Result) และเปรียบเทียบกับ หลักเกณฑ์การประเมินผลการปฏิบัติงาน/ความสอดคล้อง ของ Competency และ วัฒนธรรมองค์กร ลงใน ช่อง ระดับที่ 1 - 5 คะแนน 2
+          </p>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-800 text-white">
+                  <TableHead className="text-white font-semibold">Level : 1</TableHead>
+                  <TableHead className="text-white font-semibold">Level : 2</TableHead>
+                  <TableHead className="text-white font-semibold">Level : 3</TableHead>
+                  <TableHead className="text-white font-semibold">Level : 4</TableHead>
+                  <TableHead className="text-white font-semibold">Level : 5</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell className="align-top p-3">
+                    <div className="text-sm whitespace-normal break-words leading-relaxed">
+                      เข้าใจความหมายและสอดคล้อง Culture ข้อนั้นๆ ได้
+                    </div>
+                  </TableCell>
+                  <TableCell className="align-top p-3">
+                    <div className="text-sm whitespace-normal break-words leading-relaxed">
+                      เข้าใจ/ทดลองปฏิบัติได้ และสอดคล้องตามกิจกรรมที่ 
+                      กำหนดของ Culture ข้อนั้นๆ
+                    </div>
+                  </TableCell>
+                  <TableCell className="align-top p-3">
+                    <div className="text-sm whitespace-normal break-words leading-relaxed">
+                      ปฏิบัติตาม/และสอดคล้องกิจกรรมที่กำหนดของ 
+                      Culture ข้อนั้นๆ ได้เป็นอย่างดี
+                    </div>
+                  </TableCell>
+                  <TableCell className="align-top p-3">
+                    <div className="text-sm whitespace-normal break-words leading-relaxed">
+                      มีความเป็นไปตามกิจกรรมอันเป็นปฏิบัติตามกิจกรรมที่
+                      กำหนดของ Culture ข้อนั้นๆ
+                    </div>
+                  </TableCell>
+                  <TableCell className="align-top p-3">
+                    <div className="text-sm whitespace-normal break-words leading-relaxed">
+                      เป็นแบบอย่างในตามกิจกรรมอันเป็นปฏิบัติตาม
+                      กิจกรรมที่กำหนดของ Culture ข้อนั้นๆ
+                    </div>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+
+        {/* Culture Items Table */}
         <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-1/6">Culture</TableHead>
-                <TableHead className="w-1/4">รายละเอียด</TableHead>
+                <TableHead className="w-1/4">นิยาม</TableHead>
                 <TableHead className="text-center w-16">น้ำหนัก (%)</TableHead>
                 <TableHead className="text-center w-20">ระดับการประเมิน</TableHead>
                 <TableHead className="w-1/3">
@@ -63,7 +114,6 @@ const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
                   <br />
                   <span className="text-sm text-gray-600">พนักงานกำหนดรายละเอียดพฤติกรรมที่ต้องการวัดผล</span>
                 </TableHead>
-                <TableHead className="text-center w-20">การดำเนินการ</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -103,74 +153,6 @@ const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
                       className="min-h-[80px] text-sm"
                       rows={4}
                     />
-                  </TableCell>
-                  <TableCell className="text-center align-top">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => setSelectedCulture(culture)}
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          เกณฑ์
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle className="flex items-center gap-2">
-                            <Heart className="w-5 h-5" />
-                            {selectedCulture?.name}
-                          </DialogTitle>
-                        </DialogHeader>
-                        {selectedCulture && (
-                          <div className="space-y-4">
-                            <div className="bg-purple-50 p-4 rounded-lg">
-                              <p className="text-sm text-purple-700 whitespace-normal break-words leading-relaxed">
-                                <strong>รายละเอียด:</strong> {selectedCulture.description}
-                              </p>
-                              <p className="text-sm text-purple-700 mt-2">
-                                <strong>น้ำหนัก:</strong> {selectedCulture.weight}%
-                              </p>
-                            </div>
-                            <div>
-                              <h4 className="font-semibold mb-3">เกณฑ์การประเมิน</h4>
-                              <div className="space-y-3">
-                                {selectedCulture.evaluation_levels.map((level) => (
-                                  <div key={level.level} className="border rounded-lg p-4">
-                                    <div className="flex items-center gap-3 mb-3">
-                                      <Badge 
-                                        variant="secondary"
-                                        className={getLevelBadgeColor(level.level)}
-                                      >
-                                        Level {level.level}
-                                      </Badge>
-                                      <h5 className="font-medium">{level.title}</h5>
-                                    </div>
-                                    <p className="text-sm text-gray-600 mb-3 whitespace-normal break-words leading-relaxed">
-                                      {level.description}
-                                    </p>
-                                    <div>
-                                      <h6 className="text-sm font-medium text-gray-700 mb-2">ตัวอย่างพฤติกรรม:</h6>
-                                      <ul className="text-sm text-gray-600 space-y-1">
-                                        {level.behavioral_examples.map((example, index) => (
-                                          <li key={index} className="flex items-start gap-2">
-                                            <span className="text-purple-500 mt-1">•</span>
-                                            <span className="whitespace-normal break-words leading-relaxed">
-                                              {example}
-                                            </span>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </DialogContent>
-                    </Dialog>
                   </TableCell>
                 </TableRow>
               ))}
