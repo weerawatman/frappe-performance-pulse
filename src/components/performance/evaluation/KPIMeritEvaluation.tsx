@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Users, FileText } from 'lucide-react';
 import MeritEvaluationTable from './MeritEvaluationTable';
+import CultureEvaluationTable from './CultureEvaluationTable';
 
 interface KPIMeritEvaluationProps {
   period: 'mid' | 'end';
@@ -108,14 +109,7 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({
         </TabsContent>
 
         <TabsContent value="culture">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center py-8 text-gray-500">
-                <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p>Culture Assessment จะพัฒนาในเวอร์ชันถัดไป</p>
-              </div>
-            </CardContent>
-          </Card>
+          <CultureEvaluationTable period={period} userRole={userRole} />
         </TabsContent>
       </Tabs>
     </div>
