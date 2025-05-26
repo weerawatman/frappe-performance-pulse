@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,13 +10,21 @@ import { CompetencyItem } from '@/types/merit';
 
 interface CompetencyTableProps {
   competencyItems: CompetencyItem[];
+  onUpdate?: (items: CompetencyItem[]) => void;
+  readonly?: boolean;
 }
 
-const CompetencyTable: React.FC<CompetencyTableProps> = ({ competencyItems }) => {
+const CompetencyTable: React.FC<CompetencyTableProps> = ({ 
+  competencyItems, 
+  onUpdate, 
+  readonly = false 
+}) => {
   const [selectedCompetency, setSelectedCompetency] = useState<CompetencyItem | null>(null);
   const [expectedBehaviors, setExpectedBehaviors] = useState<{[key: string]: string}>({});
 
   const handleBehaviorChange = (competencyId: string, value: string) => {
+    if (readonly) return;
+    
     setExpectedBehaviors(prev => ({
       ...prev,
       [competencyId]: value
@@ -245,6 +252,7 @@ const CompetencyTable: React.FC<CompetencyTableProps> = ({ competencyItems }) =>
               <p className="text-sm text-yellow-700 whitespace-normal break-words leading-relaxed">
                 <strong>หมายเหตุ:</strong> การประเมิน Competency จะดำเนินการโดยผู้บังคับบัญชาโดยตรง 
                 พนักงานสามารถดูรายละเอียดเกณฑ์การประเมินเพื่อเตรียมความพร้อมได้
+                {readonly && " (โหมดดูอย่างเดียว)"}
               </p>
               <p className="text-sm text-yellow-600 mt-1">
                 รวมคะแนน Competency: <strong>{competencyItems.reduce((sum, item) => sum + item.weight, 0)}%</strong>

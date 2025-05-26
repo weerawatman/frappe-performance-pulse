@@ -9,12 +9,20 @@ import { CultureItem } from '@/types/merit';
 
 interface CultureTableProps {
   cultureItems: CultureItem[];
+  onUpdate?: (items: CultureItem[]) => void;
+  readonly?: boolean;
 }
 
-const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
+const CultureTable: React.FC<CultureTableProps> = ({ 
+  cultureItems, 
+  onUpdate, 
+  readonly = false 
+}) => {
   const [expectedBehaviors, setExpectedBehaviors] = useState<{[key: string]: string}>({});
 
   const handleBehaviorChange = (cultureId: string, value: string) => {
+    if (readonly) return;
+    
     setExpectedBehaviors(prev => ({
       ...prev,
       [cultureId]: value
@@ -182,6 +190,7 @@ const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
                       onChange={(e) => handleBehaviorChange(culture.id, e.target.value)}
                       className="min-h-[80px] text-sm"
                       rows={4}
+                      disabled={readonly}
                     />
                   </TableCell>
                 </TableRow>
@@ -197,6 +206,7 @@ const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
               <p className="text-sm text-yellow-700 whitespace-normal break-words leading-relaxed">
                 <strong>หมายเหตุ:</strong> การประเมิน Culture จะดำเนินการโดยผู้บังคับบัญชาโดยตรง 
                 พนักงานสามารถดูรายละเอียดเกณฑ์การประเมินเพื่อเตรียมความพร้อมได้ และกำหนดพฤติกรรมที่คาดหวังของตนเองในแต่ละ Culture
+                {readonly && " (โหมดดูอย่างเดียว)"}
               </p>
               <p className="text-sm text-yellow-600 mt-1">
                 น้ำหนักรวม Culture: <strong>{cultureItems.reduce((sum, item) => sum + item.weight, 0)}%</strong>
