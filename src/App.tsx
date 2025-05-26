@@ -1,6 +1,10 @@
+
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from '@/contexts/AuthContext';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import { MainLayout } from '@/layouts/MainLayout';
+import LoginPage from '@/pages/LoginPage';
 import DashboardPage from '@/pages/DashboardPage';
 import KpiPage from '@/pages/KpiPage';
 import PerformanceEvaluationPage from '@/pages/PerformanceEvaluationPage';
@@ -11,16 +15,51 @@ import AdminReportsDashboard from '@/components/performance/reports/AdminReports
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<MainLayout><DashboardPage /></MainLayout>} />
-        <Route path="/kpi" element={<MainLayout><KpiPage /></MainLayout>} />
-        <Route path="/employee/evaluation" element={<MainLayout><PerformanceEvaluationPage userRole="employee" /></MainLayout>} />
-        <Route path="/manager/evaluation" element={<MainLayout><PerformanceEvaluationPage userRole="checker" /></MainLayout>} />
-        <Route path="/admin/evaluation" element={<MainLayout><PerformanceEvaluationPage userRole="admin" /></MainLayout>} />
-        <Route path="/appraisal-management" element={<MainLayout><AppraisalManagementPage /></MainLayout>} />
-        <Route path="/reports" element={<MainLayout><ReportPage /></MainLayout>} />
-        <Route path="/admin/reports" element={<MainLayout><AdminReportsDashboard /></MainLayout>} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={
+            <ProtectedRoute>
+              <MainLayout><DashboardPage /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/kpi" element={
+            <ProtectedRoute>
+              <MainLayout><KpiPage /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/employee/evaluation" element={
+            <ProtectedRoute requireEmployee>
+              <MainLayout><PerformanceEvaluationPage userRole="employee" /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/manager/evaluation" element={
+            <ProtectedRoute requireManager>
+              <MainLayout><PerformanceEvaluationPage userRole="checker" /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/evaluation" element={
+            <ProtectedRoute requireAdmin>
+              <MainLayout><PerformanceEvaluationPage userRole="admin" /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/appraisal-management" element={
+            <ProtectedRoute>
+              <MainLayout><AppraisalManagementPage /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/reports" element={
+            <ProtectedRoute>
+              <MainLayout><ReportPage /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/reports" element={
+            <ProtectedRoute requireAdmin>
+              <MainLayout><AdminReportsDashboard /></MainLayout>
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </AuthProvider>
     </Router>
   );
 }
