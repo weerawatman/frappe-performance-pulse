@@ -7,13 +7,14 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Clock, Settings } from 'lucide-react';
 import FeedbackManager from '@/components/performance/FeedbackManager';
-import { Appraisal, EmployeePerformanceFeedback } from '@/types/performance';
+import { Appraisal, EmployeePerformanceFeedback, AppraisalCycle } from '@/types/performance';
 import { performanceService } from '@/services/performanceService';
 import { useToast } from '@/hooks/use-toast';
 
 const FeedbackWorkflow: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedAppraisal, setSelectedAppraisal] = useState<Appraisal | null>(null);
+  const [selectedCycle, setSelectedCycle] = useState<AppraisalCycle | null>(null);
   const [existingFeedback, setExistingFeedback] = useState<EmployeePerformanceFeedback | null>(null);
 
   const { toast } = useToast();
@@ -33,6 +34,10 @@ const FeedbackWorkflow: React.FC = () => {
     const appraisal = performanceService.getAppraisal(appraisalId);
     if (appraisal) {
       setSelectedAppraisal(appraisal);
+      
+      // Get the associated cycle
+      const cycle = performanceService.getCycle(appraisal.appraisal_cycle_id);
+      setSelectedCycle(cycle || null);
       
       // Check if feedback already exists
       const feedbacks = performanceService.getFeedbacksByAppraisal(appraisalId);
@@ -81,7 +86,7 @@ const FeedbackWorkflow: React.FC = () => {
       }
 
       // Update appraisal with feedback score and final score
-      if (selectedAppraisal) {
+      if (selectedAppraisal && selectedCycle) {
         const allFeedbacks = performanceService.getFeedbacksByAppraisal(selectedAppraisal.id);
         const submittedFeedbacks = allFeedbacks.filter(f => f.status === 'Submitted');
         
@@ -91,8 +96,8 @@ const FeedbackWorkflow: React.FC = () => {
           : 0;
         
         // Calculate final score using the formula or default weights
-        const finalScore = selectedAppraisal.calculate_final_score_based_on_formula
-          ? calculateWithFormula(selectedAppraisal, avgFeedbackScore)
+        const finalScore = selectedCycle.calculate_final_score_based_on_formula
+          ? calculateWithFormula(selectedAppraisal, selectedCycle, avgFeedbackScore)
           : (selectedAppraisal.total_score * 0.6) + (selectedAppraisal.self_score * 0.2) + (avgFeedbackScore * 0.2);
 
         await performanceService.updateAppraisal(selectedAppraisal.id, {
@@ -111,6 +116,7 @@ const FeedbackWorkflow: React.FC = () => {
 
       // Reset
       setSelectedAppraisal(null);
+      setSelectedCycle(null);
       setExistingFeedback(null);
       setCurrentStep(1);
     } catch (error) {
@@ -122,9 +128,9 @@ const FeedbackWorkflow: React.FC = () => {
     }
   };
 
-  const calculateWithFormula = (appraisal: Appraisal, avgFeedbackScore: number): number => {
+  const calculateWithFormula = (appraisal: Appraisal, cycle: AppraisalCycle, avgFeedbackScore: number): number => {
     // Simple formula parser - in real app, use a proper formula parser
-    const formula = appraisal.final_score_formula || '';
+    const formula = cycle.final_score_formula || '';
     
     try {
       const formulaWithValues = formula
