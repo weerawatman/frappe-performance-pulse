@@ -19,7 +19,9 @@ interface CompetencyItem {
 interface EvaluationData {
   evidence: string;
   selfScore: number;
+  checkerFeedback: string;
   checkerScore: number | null;
+  approverFeedback: string;
   approverScore: number | null;
   feedback: string;
 }
@@ -74,7 +76,9 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
       initial[item.id] = {
         evidence: '',
         selfScore: 0,
+        checkerFeedback: '',
         checkerScore: null,
+        approverFeedback: '',
         approverScore: null,
         feedback: ''
       };
@@ -240,7 +244,7 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
                       onValueChange={(value) => updateEvaluation(item.id, 'selfScore', Number(value))}
                       disabled={!canEdit('selfScore')}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-16">
                         <SelectValue placeholder="-" />
                       </SelectTrigger>
                       <SelectContent>
@@ -257,74 +261,77 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
                 </div>
               </div>
 
-              {/* Checker Feedback */}
-              <div className="border border-gray-300 p-4 mb-4">
-                <div className="font-medium text-sm mb-2">การ Feedback โดย Checker</div>
-                <Textarea
-                  value={evaluation.feedback}
-                  onChange={(e) => updateEvaluation(item.id, 'feedback', e.target.value)}
-                  placeholder="Feedback..."
-                  rows={2}
-                  className="text-sm mb-2"
-                  disabled={!canEdit('feedback')}
-                />
-                <div className="flex items-center justify-between">
-                  <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
-                  <div className="text-right">
-                    <Select
-                      value={evaluation.checkerScore?.toString() || '0'}
-                      onValueChange={(value) => updateEvaluation(item.id, 'checkerScore', Number(value))}
-                      disabled={!canEdit('checkerScore')}
-                    >
-                      <SelectTrigger className="w-20">
-                        <SelectValue placeholder="-" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="0">-</SelectItem>
-                        <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <div className="text-xs text-gray-500 mt-1">การคำนวณ: {evaluation.checkerScore || 0}% × {item.weight}% ÷ 5 = {(((evaluation.checkerScore || 0) / 5) * item.weight).toFixed(2)} คะแนน</div>
+              {/* Checker and Approver Feedback in same row */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Checker Feedback */}
+                <div className="border border-gray-300 p-4">
+                  <div className="font-medium text-sm mb-2">การ Feedback โดย Checker</div>
+                  <Textarea
+                    value={evaluation.checkerFeedback}
+                    onChange={(e) => updateEvaluation(item.id, 'checkerFeedback', e.target.value)}
+                    placeholder="Feedback..."
+                    rows={2}
+                    className="text-sm mb-2"
+                    disabled={!canEdit('checkerFeedback')}
+                  />
+                  <div className="flex items-center justify-between">
+                    <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
+                    <div className="text-right">
+                      <Select
+                        value={evaluation.checkerScore?.toString() || '0'}
+                        onValueChange={(value) => updateEvaluation(item.id, 'checkerScore', Number(value))}
+                        disabled={!canEdit('checkerScore')}
+                      >
+                        <SelectTrigger className="w-16">
+                          <SelectValue placeholder="-" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">-</SelectItem>
+                          <SelectItem value="1">1</SelectItem>
+                          <SelectItem value="2">2</SelectItem>
+                          <SelectItem value="3">3</SelectItem>
+                          <SelectItem value="4">4</SelectItem>
+                          <SelectItem value="5">5</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <div className="text-xs text-gray-500 mt-1">การคำนวณ: {evaluation.checkerScore || 0}% × {item.weight}% ÷ 5 = {(((evaluation.checkerScore || 0) / 5) * item.weight).toFixed(2)} คะแนน</div>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Approver Feedback */}
-              <div className="border border-gray-300 p-4">
-                <div className="font-medium text-sm mb-2">การ Feedback โดย Approver</div>
-                <Textarea
-                  value={evaluation.feedback}
-                  onChange={(e) => updateEvaluation(item.id, 'feedback', e.target.value)}
-                  placeholder="Feedback..."
-                  rows={2}
-                  className="text-sm mb-2"
-                  disabled={userRole !== 'approver'}
-                />
-                <div className="flex items-center justify-between">
-                  <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
-                  <div className="text-right">
-                    <Select
-                      value={evaluation.approverScore?.toString() || '0'}
-                      onValueChange={(value) => updateEvaluation(item.id, 'approverScore', Number(value))}
-                      disabled={!canEdit('approverScore')}
-                    >
-                      <SelectTrigger className="w-20">
-                        <SelectValue placeholder="-" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="0">-</SelectItem>
-                        <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <div className="text-xs text-gray-500 mt-1">การคำนวณ: {evaluation.approverScore || 0}% × {item.weight}% ÷ 5 = {(((evaluation.approverScore || 0) / 5) * item.weight).toFixed(2)} คะแนน</div>
+                {/* Approver Feedback */}
+                <div className="border border-gray-300 p-4">
+                  <div className="font-medium text-sm mb-2">การ Feedback โดย Approver</div>
+                  <Textarea
+                    value={evaluation.approverFeedback}
+                    onChange={(e) => updateEvaluation(item.id, 'approverFeedback', e.target.value)}
+                    placeholder="Feedback..."
+                    rows={2}
+                    className="text-sm mb-2"
+                    disabled={!canEdit('approverFeedback')}
+                  />
+                  <div className="flex items-center justify-between">
+                    <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
+                    <div className="text-right">
+                      <Select
+                        value={evaluation.approverScore?.toString() || '0'}
+                        onValueChange={(value) => updateEvaluation(item.id, 'approverScore', Number(value))}
+                        disabled={!canEdit('approverScore')}
+                      >
+                        <SelectTrigger className="w-16">
+                          <SelectValue placeholder="-" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">-</SelectItem>
+                          <SelectItem value="1">1</SelectItem>
+                          <SelectItem value="2">2</SelectItem>
+                          <SelectItem value="3">3</SelectItem>
+                          <SelectItem value="4">4</SelectItem>
+                          <SelectItem value="5">5</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <div className="text-xs text-gray-500 mt-1">การคำนวณ: {evaluation.approverScore || 0}% × {item.weight}% ÷ 5 = {(((evaluation.approverScore || 0) / 5) * item.weight).toFixed(2)} คะแนน</div>
+                    </div>
                   </div>
                 </div>
               </div>

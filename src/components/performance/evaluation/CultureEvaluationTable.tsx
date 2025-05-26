@@ -207,7 +207,7 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
                       max="5"
                       value={evaluation.selfScore}
                       onChange={(e) => updateEvaluation(item.id, 'selfScore', Number(e.target.value))}
-                      className="text-center"
+                      className="text-center w-16"
                       disabled={!canEdit('selfScore')}
                     />
                     <div className="text-xs text-gray-500 mt-1">
@@ -217,65 +217,68 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
                 </div>
               </div>
 
-              {/* Checker Feedback */}
-              <div className="border border-gray-300 p-4 mb-4">
-                <div className="font-medium text-sm mb-2">การ Feedback โดย Checker</div>
-                <Textarea
-                  value={evaluation.checkerFeedback}
-                  onChange={(e) => updateEvaluation(item.id, 'checkerFeedback', e.target.value)}
-                  placeholder="Feedback..."
-                  rows={2}
-                  className="text-sm mb-2"
-                  disabled={!canEdit('checkerFeedback')}
-                />
-                <div className="flex items-center justify-between">
-                  <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      min="0"
-                      max="5"
-                      value={evaluation.checkerScore || ''}
-                      onChange={(e) => updateEvaluation(item.id, 'checkerScore', Number(e.target.value))}
-                      className="w-16 text-center"
-                      disabled={!canEdit('checkerScore')}
-                    />
-                    <span className="text-sm">%</span>
+              {/* Checker and Approver Feedback in same row */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Checker Feedback */}
+                <div className="border border-gray-300 p-4">
+                  <div className="font-medium text-sm mb-2">การ Feedback โดย Checker</div>
+                  <Textarea
+                    value={evaluation.checkerFeedback}
+                    onChange={(e) => updateEvaluation(item.id, 'checkerFeedback', e.target.value)}
+                    placeholder="Feedback..."
+                    rows={2}
+                    className="text-sm mb-2"
+                    disabled={!canEdit('checkerFeedback')}
+                  />
+                  <div className="flex items-center justify-between">
+                    <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min="0"
+                        max="5"
+                        value={evaluation.checkerScore || ''}
+                        onChange={(e) => updateEvaluation(item.id, 'checkerScore', Number(e.target.value))}
+                        className="w-16 text-center"
+                        disabled={!canEdit('checkerScore')}
+                      />
+                      <span className="text-sm">%</span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    การคำนวณ: {evaluation.checkerScore || 0}% × {item.weight}% ÷ 5 = {(((evaluation.checkerScore || 0) / 5) * item.weight).toFixed(2)} คะแนน
                   </div>
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  การคำนวณ: {evaluation.checkerScore || 0}% × {item.weight}% ÷ 5 = {(((evaluation.checkerScore || 0) / 5) * item.weight).toFixed(2)} คะแนน
-                </div>
-              </div>
 
-              {/* Approver Feedback */}
-              <div className="border border-gray-300 p-4">
-                <div className="font-medium text-sm mb-2">การ Feedback โดย Approver</div>
-                <Textarea
-                  value={evaluation.approverFeedback}
-                  onChange={(e) => updateEvaluation(item.id, 'approverFeedback', e.target.value)}
-                  placeholder="Feedback..."
-                  rows={2}
-                  className="text-sm mb-2"
-                  disabled={!canEdit('approverFeedback')}
-                />
-                <div className="flex items-center justify-between">
-                  <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      min="0"
-                      max="5"
-                      value={evaluation.approverScore || ''}
-                      onChange={(e) => updateEvaluation(item.id, 'approverScore', Number(e.target.value))}
-                      className="w-16 text-center"
-                      disabled={!canEdit('approverScore')}
-                    />
-                    <span className="text-sm">%</span>
+                {/* Approver Feedback */}
+                <div className="border border-gray-300 p-4">
+                  <div className="font-medium text-sm mb-2">การ Feedback โดย Approver</div>
+                  <Textarea
+                    value={evaluation.approverFeedback}
+                    onChange={(e) => updateEvaluation(item.id, 'approverFeedback', e.target.value)}
+                    placeholder="Feedback..."
+                    rows={2}
+                    className="text-sm mb-2"
+                    disabled={!canEdit('approverFeedback')}
+                  />
+                  <div className="flex items-center justify-between">
+                    <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min="0"
+                        max="5"
+                        value={evaluation.approverScore || ''}
+                        onChange={(e) => updateEvaluation(item.id, 'approverScore', Number(e.target.value))}
+                        className="w-16 text-center"
+                        disabled={!canEdit('approverScore')}
+                      />
+                      <span className="text-sm">%</span>
+                    </div>
                   </div>
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  การคำนวณ: {evaluation.approverScore || 0}% × {item.weight}% ÷ 5 = {(((evaluation.approverScore || 0) / 5) * item.weight).toFixed(2)} คะแนน
+                  <div className="text-xs text-gray-500 mt-1">
+                    การคำนวณ: {evaluation.approverScore || 0}% × {item.weight}% ÷ 5 = {(((evaluation.approverScore || 0) / 5) * item.weight).toFixed(2)} คะแนน
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -297,9 +300,7 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
               <div className="text-2xl font-bold text-purple-600">
                 {percentage.toFixed(2)}%
               </div>
-              <div className="text-sm text-purple-500">
-                ({score.toFixed(2)} / {cultureItems.reduce((sum, item) => sum + item.weight, 0)})
-              </div>
+              <div className="text-sm text-gray-500">คะแนนรวม Culture</div>
             </div>
           </div>
         </CardContent>
