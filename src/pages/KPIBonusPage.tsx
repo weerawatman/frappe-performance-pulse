@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -52,6 +53,9 @@ const KPIBonusPage: React.FC = () => {
       currentStatus.bonus = 'draft';
       localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
       
+      // Dispatch custom event to update other components
+      window.dispatchEvent(new CustomEvent('kpiStatusUpdate'));
+      
       toast({
         title: "บันทึกร่างสำเร็จ",
         description: "ข้อมูล KPI ได้ถูกบันทึกเป็นร่างแล้ว",
@@ -85,6 +89,9 @@ const KPIBonusPage: React.FC = () => {
       const currentStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
       currentStatus.bonus = 'pending_checker';
       localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
+      
+      // Dispatch custom event to update other components
+      window.dispatchEvent(new CustomEvent('kpiStatusUpdate'));
       
       toast({
         title: "ส่งอนุมัติสำเร็จ",

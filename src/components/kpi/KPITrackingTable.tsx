@@ -24,6 +24,25 @@ const KPITrackingTable = () => {
 
   useEffect(() => {
     fetchKPIStatus();
+    
+    // Add event listener for storage changes to update status when localStorage changes
+    const handleStorageChange = () => {
+      fetchKPIStatus();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also listen for custom events when status changes within the same window
+    const handleKPIStatusUpdate = () => {
+      fetchKPIStatus();
+    };
+    
+    window.addEventListener('kpiStatusUpdate', handleKPIStatusUpdate);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('kpiStatusUpdate', handleKPIStatusUpdate);
+    };
   }, []);
 
   const fetchKPIStatus = async () => {
