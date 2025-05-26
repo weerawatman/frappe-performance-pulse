@@ -11,6 +11,8 @@ import AdminReportsDashboard from '@/components/performance/reports/AdminReports
 import EmployeeDashboard from '@/pages/EmployeeDashboard';
 import ReportsPage from '@/pages/ReportsPage';
 import KPIManagementPage from '@/pages/KPIManagementPage';
+import KPIBonusPage from '@/pages/KPIBonusPage';
+import KPIMeritPage from '@/pages/KPIMeritPage';
 
 function App() {
   return (
@@ -31,6 +33,16 @@ function App() {
           <Route path="/kpi" element={
             <ProtectedRoute>
               <MainLayout><KPIManagementPage /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/employee/kpi-bonus" element={
+            <ProtectedRoute requireEmployee>
+              <KPIBonusPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/employee/kpi-merit" element={
+            <ProtectedRoute requireEmployee>
+              <KPIMeritPage />
             </ProtectedRoute>
           } />
           <Route path="/employee/evaluation" element={
