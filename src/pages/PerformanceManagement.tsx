@@ -2,6 +2,14 @@
 import React from 'react';
 import PerformanceDashboard from '@/components/performance/PerformanceDashboard';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
+import Feedback360Manager from '@/components/performance/Feedback360Manager';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  BarChart3, 
+  Users, 
+  MessageCircle,
+  Target
+} from 'lucide-react';
 
 const PerformanceManagement: React.FC = () => {
   return (
@@ -16,7 +24,27 @@ const PerformanceManagement: React.FC = () => {
             <NotificationCenter userId="1" />
           </div>
         </div>
-        <PerformanceDashboard />
+
+        <Tabs defaultValue="dashboard" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="dashboard" className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="feedback360" className="flex items-center gap-2">
+              <MessageCircle className="w-4 h-4" />
+              Feedback 360°
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="dashboard">
+            <PerformanceDashboard />
+          </TabsContent>
+
+          <TabsContent value="feedback360">
+            <Feedback360Manager />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
