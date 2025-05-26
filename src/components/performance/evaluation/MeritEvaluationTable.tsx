@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -115,14 +116,16 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
     };
   };
 
-  const canEdit = (field: 'evidence' | 'selfScore' | 'checkerScore' | 'approverScore' | 'feedback') => {
+  const canEdit = (field: 'evidence' | 'selfScore' | 'checkerFeedback' | 'checkerScore' | 'approverFeedback' | 'approverScore' | 'feedback') => {
     switch (field) {
       case 'evidence':
       case 'selfScore':
       case 'feedback':
         return userRole === 'employee';
+      case 'checkerFeedback':
       case 'checkerScore':
         return userRole === 'checker';
+      case 'approverFeedback':
       case 'approverScore':
         return userRole === 'approver';
       default:
