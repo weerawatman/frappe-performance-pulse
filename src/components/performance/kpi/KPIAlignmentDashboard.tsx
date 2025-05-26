@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -282,6 +283,15 @@ const getAlignedPresidentKPIs = (corporateKpiId: string) => {
   );
 };
 
+// Helper function to get VP KPIs that align with a Corporate KPI
+const getAlignedVPKPIs = (corporateKpiId: string, vpIndex: number) => {
+  if (vpIndex >= mockVPKPIs.length) return [];
+  
+  return mockVPKPIs[vpIndex].kpis.filter(vpKpi => 
+    vpKpi.related_corporate_kpis.includes(corporateKpiId)
+  );
+};
+
 const KPIAlignmentDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -492,58 +502,76 @@ const KPIAlignmentDashboard: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="vp" className="mt-6">
-          <div className="space-y-6">
-            {mockVPKPIs.map((vp) => (
-              <Card key={vp.vp_name}>
-                <CardHeader>
-                  <CardTitle>{vp.vp_name} - {vp.department}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>KPI Name</TableHead>
-                        <TableHead>Target</TableHead>
-                        <TableHead>Weight</TableHead>
-                        <TableHead>Achievement</TableHead>
-                        <TableHead>Alignment</TableHead>
-                        <TableHead>Related KPIs</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {vp.kpis.map((kpi) => (
-                        <TableRow key={kpi.id}>
-                          <TableCell className="font-medium">{kpi.name}</TableCell>
-                          <TableCell>{kpi.target}</TableCell>
-                          <TableCell>{kpi.weight}%</TableCell>
-                          <TableCell>{kpi.current_achievement.toFixed(1)}%</TableCell>
+          <Card>
+            <CardHeader>
+              <CardTitle>Corporate KPI → President & VP KPI Alignment</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-48">Corporate KPI</TableHead>
+                      <TableHead className="w-24">Weight</TableHead>
+                      <TableHead className="w-24">Achievement</TableHead>
+                      <TableHead className="w-48">Aligned President KPIs</TableHead>
+                      <TableHead className="w-40">VP Sales & Marketing</TableHead>
+                      <TableHead className="w-40">VP Operations</TableHead>
+                      <TableHead className="w-40">VP Finance</TableHead>
+                      <TableHead className="w-40">VP Human Resources</TableHead>
+                      <TableHead className="w-40">VP Technology</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {mockCorporateKPIData.map((corpKpi) => {
+                      const alignedPresKPIs = getAlignedPresidentKPIs(corpKpi.id);
+                      
+                      return (
+                        <TableRow key={corpKpi.id}>
+                          <TableCell className="font-medium">{corpKpi.name}</TableCell>
+                          <TableCell>{corpKpi.weight}%</TableCell>
+                          <TableCell>{corpKpi.achievement_percentage?.toFixed(1)}%</TableCell>
                           <TableCell>
-                            <Badge className={getAlignmentStatus(kpi.alignment_score).color}>
-                              {kpi.alignment_score}%
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-wrap gap-1">
-                              {kpi.related_president_kpis.map((presId) => (
-                                <Badge key={presId} variant="outline" className="text-xs bg-blue-50">
-                                  Pres
-                                </Badge>
-                              ))}
-                              {kpi.related_corporate_kpis.map((corpId) => (
-                                <Badge key={corpId} variant="outline" className="text-xs bg-green-50">
-                                  Corp-{corpId}
-                                </Badge>
-                              ))}
+                            <div className="space-y-1">
+                              {alignedPresKPIs.length > 0 ? (
+                                alignedPresKPIs.map(presKpi => (
+                                  <Badge key={presKpi.id} variant="outline" className="block text-xs">
+                                    {presKpi.name}
+                                  </Badge>
+                                ))
+                              ) : (
+                                <span className="text-gray-400 text-xs">-</span>
+                              )}
                             </div>
                           </TableCell>
+                          
+                          {/* VP Columns */}
+                          {mockVPKPIs.map((vp, vpIndex) => {
+                            const alignedVPKPIs = getAlignedVPKPIs(corpKpi.id, vpIndex);
+                            return (
+                              <TableCell key={vp.vp_name}>
+                                <div className="space-y-1">
+                                  {alignedVPKPIs.length > 0 ? (
+                                    alignedVPKPIs.map(vpKpi => (
+                                      <Badge key={vpKpi.id} variant="outline" className="block text-xs bg-blue-50">
+                                        {vpKpi.name}
+                                      </Badge>
+                                    ))
+                                  ) : (
+                                    <span className="text-gray-400 text-xs">-</span>
+                                  )}
+                                </div>
+                              </TableCell>
+                            );
+                          })}
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="matrix" className="mt-6">
