@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,7 +19,6 @@ import {
   getCorporateKPIByCategory,
   calculateOverallAchievement
 } from '@/data/mockCorporateKPI';
-import { ChartContainer } from '@/components/ui/chart';
 import { 
   Bar, 
   BarChart as RechartsBarChart,
@@ -276,7 +274,7 @@ const CorporateKPIDashboard: React.FC = () => {
                         <TableHead>จำนวน KPI</TableHead>
                         <TableHead className="text-center">สำเร็จ (≥80%)</TableHead>
                         <TableHead className="text-center">ปานกลาง (50-79%)</TableHead>
-                        <TableHead className="text-center">ต้องปรับปรุง (<50%)</TableHead>
+                        <TableHead className="text-center">ต้องปรับปรุง (&lt;50%)</TableHead>
                         <TableHead className="text-center">ความสำเร็จเฉลี่ย</TableHead>
                       </TableRow>
                     </TableHeader>
