@@ -40,8 +40,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(result.user);
       
       // Navigate based on role
-      if (result.user.role === 'admin' || result.user.role === 'manager') {
+      if (result.user.role === 'admin') {
         navigate('/');
+      } else if (result.user.role === 'manager') {
+        navigate('/manager-dashboard');
       } else if (result.user.role === 'employee') {
         navigate('/employee-dashboard');
       }
