@@ -1,305 +1,396 @@
 
-export interface CorporateKPIItem {
+export interface CorporateKPI {
   id: string;
   category: string;
   name: string;
   description: string;
   target: string;
   weight: number;
-  unit: string;
-  frequency: 'Monthly' | 'Quarterly' | 'Annually';
-  responsible_department: string;
-  current_value?: string;
+  measurement_method: string;
+  frequency: string;
+  data_source: string;
+  formula?: string;
+  threshold_green?: number;
+  threshold_yellow?: number;
+  threshold_red?: number;
   achievement_percentage?: number;
+  actual_result?: string;
+  variance?: number;
+  trend?: 'up' | 'down' | 'stable';
+  last_updated?: Date;
+  responsible_person?: string;
+  status?: 'on_track' | 'at_risk' | 'off_track';
 }
 
-export const mockCorporateKPIData: CorporateKPIItem[] = [
-  // Finance Category
+export const mockCorporateKPIData: CorporateKPI[] = [
   {
     id: '1',
-    category: 'Finance',
-    name: 'Net Sales SAT console (MB) S+B1+SAA',
-    description: 'ยอดขายสุทธิ SAT console รวม S+B1+SAA',
-    target: '7,108 MB',
+    category: 'Financial Performance',
+    name: 'เพิ่มรายได้องค์กร',
+    description: 'เติบโตรายได้รวมขององค์กรเทียบกับปีที่แล้ว',
+    target: '7,108 MB Net Sales',
     weight: 15,
-    unit: 'MB',
+    measurement_method: 'การคำนวณจากข้อมูลการขาย',
     frequency: 'Monthly',
-    responsible_department: 'Finance',
-    current_value: '6,200 MB',
-    achievement_percentage: 87.2
+    data_source: 'ระบบ SAP',
+    achievement_percentage: 87.2,
+    actual_result: '6,195 MB',
+    variance: -12.8,
+    trend: 'up',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP Sales & Marketing',
+    status: 'at_risk'
   },
   {
     id: '2',
-    category: 'Finance',
-    name: 'Gross Margin (%) S+B1+SAA',
-    description: 'อัตรากำไรขั้นต้น S+B1+SAA',
-    target: '18.70%',
-    weight: 12,
-    unit: '%',
+    category: 'Financial Performance',
+    name: 'อัตรากำไรขั้นต้น',
+    description: 'รักษาระดับอัตรากำไรขั้นต้นให้อยู่ในเป้าหมาย',
+    target: '18.70% Gross Margin',
+    weight: 10,
+    measurement_method: 'การคำนวณจากต้นทุนและรายได้',
     frequency: 'Monthly',
-    responsible_department: 'Finance',
-    current_value: '17.5%',
-    achievement_percentage: 93.6
+    data_source: 'ระบบ SAP',
+    achievement_percentage: 93.6,
+    actual_result: '17.51%',
+    variance: -6.4,
+    trend: 'stable',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP Finance',
+    status: 'on_track'
   },
   {
     id: '3',
-    category: 'Finance',
-    name: 'Net Profit Margin (%) S+B1+SAA (Inc. share JV)',
-    description: 'อัตรากำไรสุทธิ S+B1+SAA รวม share JV',
-    target: '8.90%',
+    category: 'Financial Performance',
+    name: 'อัตรากำไรสุทธิ',
+    description: 'บรรลุเป้าหมายอัตรากำไรสุทธิ',
+    target: '8.90% Net Profit Margin',
     weight: 10,
-    unit: '%',
+    measurement_method: 'การคำนวณกำไรสุทธิต่อรายได้',
     frequency: 'Monthly',
-    responsible_department: 'Finance',
-    current_value: '8.1%',
-    achievement_percentage: 91.0
+    data_source: 'ระบบ SAP',
+    achievement_percentage: 91.0,
+    actual_result: '8.10%',
+    variance: -9.0,
+    trend: 'down',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP Finance',
+    status: 'at_risk'
   },
   {
     id: '4',
-    category: 'Finance',
-    name: 'Maintain & New LOI (MB)',
-    description: 'การรักษาและสร้าง LOI ใหม่',
-    target: 'Maintain LOI 597MB (Isuzu), New LOI 316 MB (Isuzu 66+ Direct Export 250)',
+    category: 'Customer Excellence',
+    name: 'การขยายฐานลูกค้า',
+    description: 'เพิ่มจำนวนลูกค้าใหม่และ LOI',
+    target: 'New LOI 316 MB',
     weight: 8,
-    unit: 'MB',
-    frequency: 'Quarterly',
-    responsible_department: 'Sales',
-    current_value: 'Maintain: 580MB, New: 280MB',
-    achievement_percentage: 85.0
+    measurement_method: 'การนับจำนวน LOI และมูลค่า',
+    frequency: 'Monthly',
+    data_source: 'CRM System',
+    achievement_percentage: 75.5,
+    actual_result: '238 MB',
+    variance: -24.5,
+    trend: 'up',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP Sales & Marketing',
+    status: 'at_risk'
   },
-
-  // Customer Category
   {
     id: '5',
-    category: 'Customer',
-    name: 'ICR Customer request (%) S+B1',
-    description: 'อัตราการตอบสนองคำขอลูกค้า S+B1',
-    target: 'ICR on plan (2 >98%)',
-    weight: 12,
-    unit: '%',
-    frequency: 'Monthly',
-    responsible_department: 'Customer Service',
-    current_value: '96.5%',
-    achievement_percentage: 98.5
+    category: 'Operational Excellence',
+    name: 'ประสิทธิภาพการผลิต',
+    description: 'รักษาประสิทธิภาพการผลิตให้อยู่ในระดับสูง',
+    target: 'ICR >98%',
+    weight: 8,
+    measurement_method: 'การคำนวณจากข้อมูลการผลิต',
+    frequency: 'Daily',
+    data_source: 'Production System',
+    achievement_percentage: 96.5,
+    actual_result: '94.67%',
+    variance: -3.5,
+    trend: 'stable',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP Operations',
+    status: 'on_track'
   },
   {
     id: '6',
-    category: 'Customer',
-    name: 'QD score (key customer)',
-    description: 'คะแนน QD จากลูกค้าสำคัญ',
-    target: 'Q = 100%',
-    weight: 10,
-    unit: '%',
-    frequency: 'Quarterly',
-    responsible_department: 'Quality',
-    current_value: '98%',
-    achievement_percentage: 98.0
+    category: 'Operational Excellence',
+    name: 'คุณภาพผลิตภัณฑ์',
+    description: 'รักษาคุณภาพผลิตภัณฑ์ให้อยู่ในมาตรฐาน',
+    target: 'QD Score 100%',
+    weight: 7,
+    measurement_method: 'การตรวจสอบคุณภาพผลิตภัณฑ์',
+    frequency: 'Daily',
+    data_source: 'Quality System',
+    achievement_percentage: 98.0,
+    actual_result: '98%',
+    variance: -2.0,
+    trend: 'up',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP Operations',
+    status: 'on_track'
   },
   {
     id: '7',
-    category: 'Customer',
-    name: 'CR activity (MB)',
-    description: 'กิจกรรม CR',
-    target: '191 MB (2.7% of Net Sales)',
-    weight: 8,
-    unit: 'MB',
-    frequency: 'Monthly',
-    responsible_department: 'Sales',
-    current_value: '175 MB',
-    achievement_percentage: 91.6
+    category: 'Customer Excellence',
+    name: 'ความพึงพอใจลูกค้า',
+    description: 'รักษาระดับความพึงพอใจของลูกค้า',
+    target: '>95% Customer Satisfaction',
+    weight: 7,
+    measurement_method: 'การสำรวจความพึงพอใจลูกค้า',
+    frequency: 'Quarterly',
+    data_source: 'Survey System',
+    achievement_percentage: 94.2,
+    actual_result: '89.5%',
+    variance: -5.8,
+    trend: 'down',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP Sales & Marketing',
+    status: 'at_risk'
   },
-
-  // Strategic Execution & Internal Process Improvement
   {
     id: '8',
-    category: 'Strategic Execution & Internal Process Improvement',
-    name: 'ESG Performance: % Reduction of Environment S+B1',
-    description: 'ผลการดำเนินการ ESG: การลดผลกระทบต่อสิ่งแวดล้อม',
-    target: 'GHG -17%, Energy -5%, Water -26%, Waste Haz. -3.5%, Non Haz -13%, Landfill -60%',
-    weight: 10,
-    unit: '%',
-    frequency: 'Quarterly',
-    responsible_department: 'ESG',
-    current_value: 'GHG -15%, Energy -4%, Water -20%, Waste Haz. -3%, Non Haz -10%, Landfill -50%',
-    achievement_percentage: 82.0
+    category: 'Sustainability',
+    name: 'การจัดการด้านสิ่งแวดล้อม',
+    description: 'ลดผลกระทบต่อสิ่งแวดล้อม',
+    target: 'Carbon Footprint -10%',
+    weight: 6,
+    measurement_method: 'การวัดปริมาณก๊าซเรือนกระจก',
+    frequency: 'Monthly',
+    data_source: 'Environmental System',
+    achievement_percentage: 82.0,
+    actual_result: '-8.2%',
+    variance: -18.0,
+    trend: 'up',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP Operations',
+    status: 'at_risk'
   },
   {
     id: '9',
-    category: 'Strategic Execution & Internal Process Improvement',
-    name: 'Social contribution',
-    description: 'การมีส่วนร่วมทางสังคม',
-    target: '0.5% of net profit',
+    category: 'Sustainability',
+    name: 'การจัดการด้านสังคม',
+    description: 'ส่งเสริมความรับผิดชอบต่อสังคม',
+    target: 'CSR Projects 5 Projects',
     weight: 5,
-    unit: '%',
+    measurement_method: 'การนับจำนวนโครงการ CSR',
     frequency: 'Quarterly',
-    responsible_department: 'ESG',
-    current_value: '0.48%',
-    achievement_percentage: 96.0
+    data_source: 'CSR System',
+    achievement_percentage: 80.0,
+    actual_result: '4 Projects',
+    variance: -20.0,
+    trend: 'stable',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP HR',
+    status: 'at_risk'
   },
   {
     id: '10',
-    category: 'Strategic Execution & Internal Process Improvement',
-    name: 'Compliance with Laws and Regulation',
-    description: 'การปฏิบัติตามกฎหมายและข้อบังคับ',
-    target: 'ไม่เกิดกฎหมายที่เกี่ยวข้องกับด้านงานขององค์กร การเกิด Case ข้อ = 0',
-    weight: 8,
-    unit: 'cases',
-    frequency: 'Quarterly',
-    responsible_department: 'Legal',
-    current_value: '0',
-    achievement_percentage: 100.0
+    category: 'Sustainability',
+    name: 'การกำกับดูแลกิจการ',
+    description: 'เสริมสร้างธรรมาภิบาลในองค์กร',
+    target: 'Governance Score >85',
+    weight: 5,
+    measurement_method: 'การประเมินธรรมาภิบาล',
+    frequency: 'Annually',
+    data_source: 'Governance System',
+    achievement_percentage: 88.0,
+    actual_result: '74.8',
+    variance: -12.0,
+    trend: 'up',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'CEO',
+    status: 'on_track'
   },
   {
     id: '11',
-    category: 'Strategic Execution & Internal Process Improvement',
-    name: 'New Product agreement (JV or MOU approval by BOD)',
-    description: 'ข้อตกลงผลิตภัณฑ์ใหม่ (JV หรือ MOU ที่ได้รับการอนุมัติจาก BOD)',
-    target: 'B2 - JV chinese AL or MOU 1 project',
-    weight: 10,
-    unit: 'projects',
-    frequency: 'Annually',
-    responsible_department: 'Business Development',
-    current_value: 'In progress',
-    achievement_percentage: 60.0
+    category: 'Innovation & Growth',
+    name: 'การพัฒนาผลิตภัณฑ์ใหม่',
+    description: 'เพิ่มรายได้จากผลิตภัณฑ์ใหม่',
+    target: 'New Product Revenue 5%',
+    weight: 4,
+    measurement_method: 'การคำนวณรายได้จากผลิตภัณฑ์ใหม่',
+    frequency: 'Quarterly',
+    data_source: 'Product System',
+    achievement_percentage: 60.0,
+    actual_result: '3%',
+    variance: -40.0,
+    trend: 'down',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP Technology',
+    status: 'off_track'
   },
   {
     id: '12',
-    category: 'Strategic Execution & Internal Process Improvement',
-    name: 'New Product agreement B3(Stron)',
-    description: 'ข้อตกลงผลิตภัณฑ์ใหม่ B3(Stron)',
-    target: 'Sales 42 MB, NP (5) MB, นำผลิตภัณฑ์มาผลิตจริงใน 1 โครงการ',
-    weight: 8,
-    unit: 'MB',
-    frequency: 'Annually',
-    responsible_department: 'Business Development',
-    current_value: 'Sales 35 MB, NP 4 MB',
-    achievement_percentage: 80.0
+    category: 'Innovation & Growth',
+    name: 'การลงทุนในเทคโนโลยี',
+    description: 'เพิ่มการลงทุนในเทคโนโลยีใหม่',
+    target: 'Tech Investment 50MB',
+    weight: 4,
+    measurement_method: 'การรวมงบลงทุนเทคโนโลยี',
+    frequency: 'Quarterly',
+    data_source: 'Finance System',
+    achievement_percentage: 85.0,
+    actual_result: '42.5 MB',
+    variance: -15.0,
+    trend: 'up',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP Technology',
+    status: 'on_track'
   },
   {
     id: '13',
-    category: 'Strategic Execution & Internal Process Improvement',
-    name: 'New Product agreement G1(SST)',
-    description: 'ข้อตกลงผลิตภัณฑ์ใหม่ G1(SST)',
-    target: 'G1(SST)',
-    weight: 6,
-    unit: 'projects',
+    category: 'Innovation & Growth',
+    name: 'การขยายตลาดใหม่',
+    description: 'เข้าสู่ตลาดใหม่และขยายธุรกิจ',
+    target: 'New Market Entry 2 Markets',
+    weight: 3,
+    measurement_method: 'การนับจำนวนตลาดใหม่',
     frequency: 'Annually',
-    responsible_department: 'Business Development',
-    current_value: 'In progress',
-    achievement_percentage: 65.0
+    data_source: 'Business Development',
+    achievement_percentage: 50.0,
+    actual_result: '1 Market',
+    variance: -50.0,
+    trend: 'stable',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP Sales & Marketing',
+    status: 'off_track'
   },
   {
     id: '14',
-    category: 'Strategic Execution & Internal Process Improvement',
-    name: 'New Product agreement G2(SAA)',
-    description: 'ข้อตกลงผลิตภัณฑ์ใหม่ G2(SAA)',
-    target: 'Sale 71 MB, NP (12)MB, ได้รับคำสั่งซื้อใหม่อย่างน้อย 20 MB (New) New product/ project 1 project BOD approved',
-    weight: 6,
-    unit: 'MB',
+    category: 'Innovation & Growth',
+    name: 'การพันธมิตรทางธุรกิจ',
+    description: 'สร้างพันธมิตรเชิงกลยุทธ์',
+    target: 'Strategic Partnership 3 Partners',
+    weight: 3,
+    measurement_method: 'การนับจำนวนพันธมิตร',
     frequency: 'Annually',
-    responsible_department: 'Business Development',
-    current_value: 'Sale 65 MB, NP 10MB, คำสั่งซื้อใหม่ 15 MB',
-    achievement_percentage: 85.0
+    data_source: 'Business Development',
+    achievement_percentage: 66.7,
+    actual_result: '2 Partners',
+    variance: -33.3,
+    trend: 'up',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'CEO',
+    status: 'at_risk'
   },
   {
     id: '15',
-    category: 'Strategic Execution & Internal Process Improvement',
-    name: 'New Product agreement G3(Land)',
-    description: 'ข้อตกลงผลิตภัณฑ์ใหม่ G3(Land)',
-    target: 'MOU/การสรุปสัญญา การพัฒนาที่ดินระยองอย่างน้อย 1 โครงการ และรักษาสิทธิที่ดินมาบตาพุด',
-    weight: 6,
-    unit: 'projects',
-    frequency: 'Annually',
-    responsible_department: 'Business Development',
-    current_value: 'อยู่ระหว่างทำ MOU',
-    achievement_percentage: 50.0
+    category: 'Innovation & Growth',
+    name: 'การวิจัยและพัฒนา',
+    description: 'เพิ่มการลงทุนในการวิจัยและพัฒนา',
+    target: 'R&D Investment 2% of Revenue',
+    weight: 3,
+    measurement_method: 'การคำนวณสัดส่วน R&D ต่อรายได้',
+    frequency: 'Quarterly',
+    data_source: 'Finance System',
+    achievement_percentage: 75.0,
+    actual_result: '1.5%',
+    variance: -25.0,
+    trend: 'up',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP Technology',
+    status: 'at_risk'
   },
-
-  // Organization & People Management
   {
     id: '16',
-    category: 'Organization & People Mgmt',
-    name: 'People Efficiency: Manpower Planning and Control',
-    description: 'ประสิทธิภาพด้านบุคลากร: การวางแผนและควบคุมอัตรากำลัง',
-    target: 'Net Profit/Employee = 0.33 MB',
-    weight: 10,
-    unit: 'MB',
-    frequency: 'Annually',
-    responsible_department: 'HR',
-    current_value: '0.30 MB',
-    achievement_percentage: 90.9
+    category: 'People & Culture',
+    name: 'ประสิทธิภาพของบุคลากร',
+    description: 'เพิ่มประสิทธิภาพการทำงานของพนักงาน',
+    target: '0.33 MB Net Profit/Employee',
+    weight: 3,
+    measurement_method: 'การคำนวณกำไรต่อพนักงาน',
+    frequency: 'Quarterly',
+    data_source: 'HR System',
+    achievement_percentage: 90.9,
+    actual_result: '0.30 MB',
+    variance: -9.1,
+    trend: 'up',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP HR',
+    status: 'on_track'
   },
   {
     id: '17',
-    category: 'Organization & People Mgmt',
-    name: 'People Capability: Employee Development Level C >80%',
-    description: 'ศักยภาพด้านบุคลากร: ระดับการพัฒนาพนักงานระดับ C มากกว่า 80%',
-    target: 'Employee Development Level C >80%, (New) Implement /SPS/Lean Manufacturing = 7 Function / 18 line and 438(BU)+162(holding) learner',
-    weight: 8,
-    unit: '%',
+    category: 'People & Culture',
+    name: 'การพัฒนาพนักงาน',
+    description: 'เพิ่มศักยภาพของพนักงาน',
+    target: 'Level C >80%',
+    weight: 3,
+    measurement_method: 'การประเมินระดับความสามารถ',
     frequency: 'Annually',
-    responsible_department: 'HR',
-    current_value: '78%, Implementation in 6 functions, 15 lines',
-    achievement_percentage: 92.0
+    data_source: 'HR System',
+    achievement_percentage: 92.0,
+    actual_result: '73.6%',
+    variance: -8.0,
+    trend: 'up',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP HR',
+    status: 'on_track'
   },
   {
     id: '18',
-    category: 'Organization & People Mgmt',
-    name: 'People Transformation: Behavior Change to SMART',
-    description: 'การเปลี่ยนแปลงบุคลากร: การเปลี่ยนพฤติกรรมเป็น SMART',
-    target: 'SMART ≥ 4.0 คะแนนเฉลี่ยของการประเมิน SMART culture (เต็ม 5), Employee Satisfaction >80%',
-    weight: 8,
-    unit: 'score',
+    category: 'People & Culture',
+    name: 'วัฒนธรรมองค์กร',
+    description: 'ส่งเสริมวัฒนธรรม SMART',
+    target: 'SMART ≥4.0, Satisfaction >80%',
+    weight: 2,
+    measurement_method: 'การสำรวจวัฒนธรรมองค์กร',
     frequency: 'Annually',
-    responsible_department: 'HR',
-    current_value: 'SMART = 3.8, Satisfaction = 76%',
-    achievement_percentage: 92.0
+    data_source: 'HR System',
+    achievement_percentage: 92.0,
+    actual_result: 'SMART 3.68, Satisfaction 73.6%',
+    variance: -8.0,
+    trend: 'stable',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP HR',
+    status: 'at_risk'
   },
   {
     id: '19',
-    category: 'Organization & People Mgmt',
-    name: 'People Continuity (Successor Management with Sustainability career planning)',
-    description: 'ความต่อเนื่องด้านบุคลากร: การจัดการผู้สืบทอดตำแหน่งและการวางแผนอาชีพอย่างยั่งยืน',
-    target: 'Successor and Development Plan 100%',
-    weight: 8,
-    unit: '%',
+    category: 'People & Culture',
+    name: 'การวางแผนสืบทอดตำแหน่ง',
+    description: 'จัดเตรียมผู้สืบทอดตำแหน่งสำคัญ',
+    target: '100% Successor Plan',
+    weight: 2,
+    measurement_method: 'การนับจำนวนแผนสืบทอด',
     frequency: 'Annually',
-    responsible_department: 'HR',
-    current_value: '90%',
-    achievement_percentage: 90.0
+    data_source: 'HR System',
+    achievement_percentage: 90.0,
+    actual_result: '90%',
+    variance: -10.0,
+    trend: 'up',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP HR',
+    status: 'on_track'
   },
   {
     id: '20',
-    category: 'Organization & People Mgmt',
-    name: 'ERP Hana: Go live on plan, Achievement 7 themes from BPI improvements',
-    description: 'ERP Hana: การใช้งานตามแผน, ความสำเร็จ 7 ธีมจากการปรับปรุง BPI',
-    target: '1. ERP S4/Hana Go live (1 May 2025), 2. Target cost saving 8 MB',
-    weight: 8,
-    unit: 'MB',
-    frequency: 'Annually',
-    responsible_department: 'IT',
-    current_value: 'On track for May 2025, Cost saving projection 7 MB',
-    achievement_percentage: 85.0
+    category: 'Operational Excellence',
+    name: 'การปรับปรุงกระบวนการ',
+    description: 'ลดต้นทุนและเพิ่มประสิทธิภาพ',
+    target: 'Cost Saving 8MB',
+    weight: 2,
+    measurement_method: 'การคำนวณการประหยัดต้นทุน',
+    frequency: 'Quarterly',
+    data_source: 'Operations System',
+    achievement_percentage: 87.5,
+    actual_result: '7 MB',
+    variance: -12.5,
+    trend: 'up',
+    last_updated: new Date('2024-12-15'),
+    responsible_person: 'VP Operations',
+    status: 'on_track'
   }
 ];
 
-// Helper function to get data by category
-export const getCorporateKPIByCategory = (category: string): CorporateKPIItem[] => {
-  return mockCorporateKPIData.filter(item => item.category === category);
-};
-
-// Get unique categories
-export const getKPICategories = (): string[] => {
-  return [...new Set(mockCorporateKPIData.map(item => item.category))];
-};
-
-// Calculate overall achievement
 export const calculateOverallAchievement = (): number => {
-  const totalWeight = mockCorporateKPIData.reduce((sum, item) => sum + item.weight, 0);
-  const weightedAchievement = mockCorporateKPIData.reduce(
-    (sum, item) => sum + (item.weight * (item.achievement_percentage || 0)), 
-    0
-  );
+  const totalWeightedScore = mockCorporateKPIData.reduce((sum, kpi) => {
+    return sum + ((kpi.achievement_percentage || 0) * kpi.weight / 100);
+  }, 0);
   
-  return weightedAchievement / totalWeight;
+  const totalWeight = mockCorporateKPIData.reduce((sum, kpi) => sum + kpi.weight, 0);
+  
+  return totalWeight > 0 ? (totalWeightedScore / totalWeight) * 100 : 0;
 };

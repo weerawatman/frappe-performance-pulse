@@ -4,12 +4,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Target, Users, Award, Building, TrendingUp, FileText, BarChart, ArrowLeft } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Calendar, Target, Users, Award, Building, TrendingUp, FileText, BarChart, ArrowLeft, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PerformanceDashboard from '@/components/performance/PerformanceDashboard';
 import CorporateKPIManager from '@/components/admin/CorporateKPIManager';
+import { mockCorporateKPIData, calculateOverallAchievement } from '@/data/mockCorporateKPI';
+
+const getAlignmentStatus = (score: number) => {
+  if (score >= 90) return { status: 'High', color: 'bg-green-100 text-green-800', icon: CheckCircle };
+  if (score >= 75) return { status: 'Medium', color: 'bg-yellow-100 text-yellow-800', icon: AlertTriangle };
+  return { status: 'Low', color: 'bg-red-100 text-red-800', icon: XCircle };
+};
 
 const DashboardPage = () => {
+  const overallCorporateAchievement = calculateOverallAchievement();
+  const totalCorporateWeight = mockCorporateKPIData.reduce((sum, kpi) => sum + kpi.weight, 0);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -52,12 +63,12 @@ const DashboardPage = () => {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">KPI เสร็จสิ้น</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Corporate KPIs</CardTitle>
+              <Building className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">89%</div>
-              <p className="text-xs text-muted-foreground">218 จาก 245 คน</p>
+              <div className="text-2xl font-bold">{mockCorporateKPIData.length}</div>
+              <p className="text-xs text-muted-foreground">{overallCorporateAchievement.toFixed(1)}% เฉลี่ย</p>
             </CardContent>
           </Card>
 
@@ -102,7 +113,54 @@ const DashboardPage = () => {
           </TabsList>
 
           <TabsContent value="corporate-kpi">
-            <CorporateKPIManager />
+            <div className="space-y-6">
+              {/* Corporate KPI Overview */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Corporate KPI Overview</CardTitle>
+                    <Badge variant="outline" className="text-sm">
+                      Total Weight: {totalCorporateWeight}%
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Category</TableHead>
+                        <TableHead>KPI Name</TableHead>
+                        <TableHead>Target</TableHead>
+                        <TableHead>Weight (%)</TableHead>
+                        <TableHead>Achievement (%)</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {mockCorporateKPIData.map((kpi) => (
+                        <TableRow key={kpi.id}>
+                          <TableCell className="font-medium">{kpi.category}</TableCell>
+                          <TableCell>{kpi.name}</TableCell>
+                          <TableCell className="text-sm">{kpi.target}</TableCell>
+                          <TableCell>{kpi.weight}%</TableCell>
+                          <TableCell>{kpi.achievement_percentage?.toFixed(1)}%</TableCell>
+                          <TableCell>
+                            <Badge 
+                              className={getAlignmentStatus(kpi.achievement_percentage || 0).color}
+                            >
+                              {getAlignmentStatus(kpi.achievement_percentage || 0).status}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              {/* Corporate KPI Manager */}
+              <CorporateKPIManager />
+            </div>
           </TabsContent>
 
           <TabsContent value="performance">
