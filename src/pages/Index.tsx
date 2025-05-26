@@ -2,10 +2,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Users, Target, BarChart3, Workflow, Shield, Bell } from "lucide-react";
+import { ArrowRight, Users, Target, BarChart3, Workflow, Shield, Bell, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { user, logout } = useAuth();
+
   const features = [
     {
       icon: <Target className="w-8 h-8 text-blue-600" />,
@@ -52,9 +55,16 @@ const Index = () => {
                 <p className="text-sm text-gray-600">ระบบจัดการทรัพยากรบุคคลครบวงจร</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-4">
+              <div className="text-sm text-gray-600">
+                ยินดีต้อนรับ, <span className="font-semibold">{user?.name}</span>
+              </div>
               <Bell className="w-5 h-5 text-gray-600" />
               <Badge variant="secondary">v2.0</Badge>
+              <Button variant="outline" size="sm" onClick={logout} className="flex items-center gap-2">
+                <LogOut className="w-4 h-4" />
+                ออกจากระบบ
+              </Button>
             </div>
           </div>
         </div>

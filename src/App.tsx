@@ -13,6 +13,7 @@ import WorkflowsPage from './pages/WorkflowsPage';
 import RoleManagementPage from './pages/RoleManagementPage';
 import IntegrationsPage from './pages/IntegrationsPage';
 import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const queryClient = new QueryClient();
 
@@ -24,15 +25,47 @@ function App() {
           <Toaster />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
-              <Route path="/employee/kpi" element={<EmployeeKPI />} />
-              <Route path="/performance" element={<PerformanceManagement />} />
-              <Route path="/reports" element={<ReportsPage />} />
-              <Route path="/workflows" element={<WorkflowsPage />} />
-              <Route path="/roles" element={<RoleManagementPage />} />
-              <Route path="/integrations" element={<IntegrationsPage />} />
+              <Route path="/" element={
+                <ProtectedRoute requireAdmin={true}>
+                  <Index />
+                </ProtectedRoute>
+              } />
+              <Route path="/employee-dashboard" element={
+                <ProtectedRoute>
+                  <EmployeeDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/employee/kpi" element={
+                <ProtectedRoute>
+                  <EmployeeKPI />
+                </ProtectedRoute>
+              } />
+              <Route path="/performance" element={
+                <ProtectedRoute requireAdmin={true}>
+                  <PerformanceManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/reports" element={
+                <ProtectedRoute requireAdmin={true}>
+                  <ReportsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/workflows" element={
+                <ProtectedRoute requireAdmin={true}>
+                  <WorkflowsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/roles" element={
+                <ProtectedRoute requireAdmin={true}>
+                  <RoleManagementPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/integrations" element={
+                <ProtectedRoute requireAdmin={true}>
+                  <IntegrationsPage />
+                </ProtectedRoute>
+              } />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
