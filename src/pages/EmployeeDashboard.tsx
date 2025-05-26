@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Target, FileText, Calendar, Bell, LogOut, TrendingUp, CheckCircle, Clock } from "lucide-react";
+import { ArrowRight, Target, FileText, Calendar, Bell, LogOut, TrendingUp, CheckCircle, Clock, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -19,16 +19,16 @@ const EmployeeDashboard = () => {
       status: "Active"
     },
     {
+      icon: <Award className="w-8 h-8 text-purple-600" />,
+      title: "กำหนด KPI Merit",
+      description: "ประเมินเพื่อปรับขึ้นเงินเดือนจาก Competency และ Culture",
+      link: "/employee/kpi-merit",
+      status: "Active"
+    },
+    {
       icon: <FileText className="w-8 h-8 text-green-600" />,
       title: "ประเมินตนเอง",
       description: "ประเมินผลงานและความสามารถของตนเอง",
-      link: "/performance",
-      status: "Coming Soon"
-    },
-    {
-      icon: <Calendar className="w-8 h-8 text-purple-600" />,
-      title: "แผนพัฒนา",
-      description: "ดูแผนการพัฒนาตนเองและเป้าหมายการทำงาน",
       link: "/performance",
       status: "Coming Soon"
     }
@@ -81,12 +81,20 @@ const EmployeeDashboard = () => {
           <p className="text-lg text-gray-600 mb-6">
             จัดการงานและติดตามผลงานของคุณในแผนก {user?.department}
           </p>
-          <Link to="/employee/kpi-bonus">
-            <Button size="lg" className="bg-green-600 hover:bg-green-700">
-              เริ่มกำหนด KPI
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-          </Link>
+          <div className="flex items-center justify-center gap-4">
+            <Link to="/employee/kpi-bonus">
+              <Button size="lg" className="bg-green-600 hover:bg-green-700">
+                เริ่มกำหนด KPI Bonus
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
+            <Link to="/employee/kpi-merit">
+              <Button size="lg" variant="outline" className="border-purple-600 text-purple-600 hover:bg-purple-50">
+                เริ่มกำหนด KPI Merit
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Employee Stats */}
@@ -140,7 +148,7 @@ const EmployeeDashboard = () => {
         {/* Quick Actions */}
         <div className="bg-white rounded-xl shadow-lg p-8 mb-12">
           <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">การดำเนินการด่วน</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Link to="/employee/kpi-bonus" className="block">
               <div className="p-6 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors">
                 <div className="flex items-center space-x-4">
@@ -150,6 +158,19 @@ const EmployeeDashboard = () => {
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1">กำหนด KPI Bonus</h4>
                     <p className="text-gray-600 text-sm">จัดการ KPI สำหรับการคำนวณโบนัส</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+            <Link to="/employee/kpi-merit" className="block">
+              <div className="p-6 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Award className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">กำหนด KPI Merit</h4>
+                    <p className="text-gray-600 text-sm">ประเมินเพื่อปรับขึ้นเงินเดือน</p>
                   </div>
                 </div>
               </div>
@@ -176,7 +197,7 @@ const EmployeeDashboard = () => {
             <p>&copy; 2024 HR Management System - Employee Dashboard</p>
           </div>
         </div>
-      </footer>
+      </div>
     </div>
   );
 };

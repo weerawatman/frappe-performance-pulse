@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import KPIBonusPage from "./pages/KPIBonusPage";
+import KPIMeritPage from "./pages/KPIMeritPage";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PerformanceManagement from './pages/PerformanceManagement';
 import ReportsPage from './pages/ReportsPage';
@@ -45,6 +46,11 @@ function App() {
               <Route path="/employee/kpi-bonus" element={
                 <ProtectedRoute requireEmployee={true}>
                   <KPIBonusPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/employee/kpi-merit" element={
+                <ProtectedRoute requireEmployee={true}>
+                  <KPIMeritPage />
                 </ProtectedRoute>
               } />
               <Route path="/kpi-bonus" element={
