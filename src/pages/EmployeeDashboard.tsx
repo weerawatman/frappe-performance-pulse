@@ -197,7 +197,7 @@ const EmployeeDashboard = () => {
             <p>&copy; 2024 HR Management System - Employee Dashboard</p>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 };
