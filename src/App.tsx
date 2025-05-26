@@ -12,6 +12,7 @@ import KPICheckerPage from "./pages/KPICheckerPage";
 import KPIApproverPage from "./pages/KPIApproverPage";
 import PerformanceEvaluationPage from "./pages/PerformanceEvaluationPage";
 import EmployeePerformanceResultsPage from "./pages/EmployeePerformanceResultsPage";
+import AdminReportsPage from "./pages/AdminReportsPage";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PerformanceManagement from './pages/PerformanceManagement';
 import ReportsPage from './pages/ReportsPage';
@@ -95,6 +96,11 @@ function App() {
               <Route path="/reports" element={
                 <ProtectedRoute requireManagerOrAdmin={true}>
                   <ReportsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/reports" element={
+                <ProtectedRoute requireAdmin={true}>
+                  <AdminReportsPage />
                 </ProtectedRoute>
               } />
               <Route path="/workflows" element={
