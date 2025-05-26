@@ -213,7 +213,7 @@ export const DEFAULT_CULTURE_ITEMS: CultureItem[] = [
     id: '1',
     name: 'สัญญา โปร่งใส',
     description: 'การปฏิบัติหน้าที่ด้วยความซื่อสัตย์และส่งมอบงานตามข้อตกลงหรือสัญญาที่ได้ตกลงกันไว้ ด้วยความโปร่งใส',
-    weight: 20,
+    weight: 6,
     evaluation_levels: [
       {
         level: 1,
@@ -251,7 +251,7 @@ export const DEFAULT_CULTURE_ITEMS: CultureItem[] = [
     id: '2',
     name: 'ใส่ใจเรียนรู้',
     description: 'การตั้งใจเรียนรู้สิ่งใหม่ๆ รวมถึงเทคโนโลยี และนำมาใช้ปรับปรุง พัฒนา การทำงาน บริการ หรือผลิตภัณฑ์ ให้ดีขึ้นอย่างต่อเนื่อง',
-    weight: 20,
+    weight: 6,
     evaluation_levels: [
       {
         level: 1,
@@ -289,7 +289,7 @@ export const DEFAULT_CULTURE_ITEMS: CultureItem[] = [
     id: '3',
     name: 'สู่การเปลี่ยนแปลง',
     description: 'การเปิดรับสิ่งใหม่ วางแผนปรับตัว เตรียมความพร้อมสำหรับการเปลี่ยนแปลงอย่างรวดเร็ว',
-    weight: 20,
+    weight: 6,
     evaluation_levels: [
       {
         level: 1,
@@ -327,7 +327,7 @@ export const DEFAULT_CULTURE_ITEMS: CultureItem[] = [
     id: '4',
     name: 'แสดงการยอมรับ',
     description: 'การยอมรับความแตกต่าง และเปิดใจรับฟังความคิดเห็นของทุกคนในทีมเพื่อหาแนวทางที่ดีที่สุดในการแก้ไขปัญหา',
-    weight: 20,
+    weight: 6,
     evaluation_levels: [
       {
         level: 1,
@@ -365,7 +365,7 @@ export const DEFAULT_CULTURE_ITEMS: CultureItem[] = [
     id: '5',
     name: 'สนับสนุนลูกค้า',
     description: 'การทำความเข้าใจความคาดหวังของลูกค้า (ทั้งภายในและภายนอก) อย่างถ่องแท้ และใส่ใจในคุณค่าของงานและบริการที่ส่งมอบให้ลูกค้า',
-    weight: 20,
+    weight: 6,
     evaluation_levels: [
       {
         level: 1,

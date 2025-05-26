@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Heart, Eye, Info } from 'lucide-react';
 import { CultureItem } from '@/types/merit';
 
@@ -14,6 +16,7 @@ interface CultureTableProps {
 
 const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
   const [selectedCulture, setSelectedCulture] = useState<CultureItem | null>(null);
+  const [expectedBehaviors, setExpectedBehaviors] = useState<{[key: string]: string}>({});
 
   const getLevelBadgeColor = (level: number) => {
     switch (level) {
@@ -24,6 +27,13 @@ const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
       case 5: return "bg-green-100 text-green-700";
       default: return "bg-gray-100 text-gray-700";
     }
+  };
+
+  const handleBehaviorChange = (cultureId: string, value: string) => {
+    setExpectedBehaviors(prev => ({
+      ...prev,
+      [cultureId]: value
+    }));
   };
 
   return (
@@ -44,24 +54,35 @@ const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Culture</TableHead>
-                <TableHead>รายละเอียด</TableHead>
-                <TableHead className="text-center">น้ำหนัก (%)</TableHead>
-                <TableHead className="text-center">ระดับการประเมิน</TableHead>
-                <TableHead className="text-center">การดำเนินการ</TableHead>
+                <TableHead className="w-1/6">Culture</TableHead>
+                <TableHead className="w-1/4">รายละเอียด</TableHead>
+                <TableHead className="text-center w-16">น้ำหนัก (%)</TableHead>
+                <TableHead className="text-center w-20">ระดับการประเมิน</TableHead>
+                <TableHead className="w-1/3">
+                  พฤติกรรมที่คาดหวัง (Key Behaviour) : 
+                  <br />
+                  <span className="text-sm text-gray-600">พนักงานกำหนดรายละเอียดพฤติกรรมที่ต้องการวัดผล</span>
+                </TableHead>
+                <TableHead className="text-center w-20">การดำเนินการ</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {cultureItems.map((culture) => (
                 <TableRow key={culture.id}>
-                  <TableCell className="font-medium">{culture.name}</TableCell>
-                  <TableCell className="max-w-xs">
-                    <p className="text-sm text-gray-600 truncate">{culture.description}</p>
+                  <TableCell className="font-medium align-top">
+                    <div className="whitespace-normal break-words">
+                      {culture.name}
+                    </div>
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="align-top">
+                    <div className="text-sm text-gray-600 whitespace-normal break-words leading-relaxed">
+                      {culture.description}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center align-top">
                     <Badge variant="outline">{culture.weight}%</Badge>
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-center align-top">
                     <div className="flex flex-wrap gap-1 justify-center">
                       {culture.evaluation_levels.map((level) => (
                         <Badge
@@ -74,7 +95,16 @@ const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
                       ))}
                     </div>
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="align-top">
+                    <Textarea
+                      placeholder={`กำหนดพฤติกรรมที่คาดหวังสำหรับ ${culture.name}...`}
+                      value={expectedBehaviors[culture.id] || ''}
+                      onChange={(e) => handleBehaviorChange(culture.id, e.target.value)}
+                      className="min-h-[80px] text-sm"
+                      rows={4}
+                    />
+                  </TableCell>
+                  <TableCell className="text-center align-top">
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button 
@@ -83,7 +113,7 @@ const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
                           onClick={() => setSelectedCulture(culture)}
                         >
                           <Eye className="w-4 h-4 mr-1" />
-                          ดูรายละเอียด
+                          เกณฑ์
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
@@ -96,7 +126,7 @@ const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
                         {selectedCulture && (
                           <div className="space-y-4">
                             <div className="bg-purple-50 p-4 rounded-lg">
-                              <p className="text-sm text-purple-700">
+                              <p className="text-sm text-purple-700 whitespace-normal break-words leading-relaxed">
                                 <strong>รายละเอียด:</strong> {selectedCulture.description}
                               </p>
                               <p className="text-sm text-purple-700 mt-2">
@@ -117,14 +147,18 @@ const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
                                       </Badge>
                                       <h5 className="font-medium">{level.title}</h5>
                                     </div>
-                                    <p className="text-sm text-gray-600 mb-3">{level.description}</p>
+                                    <p className="text-sm text-gray-600 mb-3 whitespace-normal break-words leading-relaxed">
+                                      {level.description}
+                                    </p>
                                     <div>
                                       <h6 className="text-sm font-medium text-gray-700 mb-2">ตัวอย่างพฤติกรรม:</h6>
                                       <ul className="text-sm text-gray-600 space-y-1">
                                         {level.behavioral_examples.map((example, index) => (
                                           <li key={index} className="flex items-start gap-2">
                                             <span className="text-purple-500 mt-1">•</span>
-                                            {example}
+                                            <span className="whitespace-normal break-words leading-relaxed">
+                                              {example}
+                                            </span>
                                           </li>
                                         ))}
                                       </ul>
@@ -148,9 +182,9 @@ const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
           <div className="flex items-start gap-2">
             <Info className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm text-yellow-700">
+              <p className="text-sm text-yellow-700 whitespace-normal break-words leading-relaxed">
                 <strong>หมายเหตุ:</strong> การประเมิน Culture จะดำเนินการโดยผู้บังคับบัญชาโดยตรง 
-                พนักงานสามารถดูรายละเอียดเกณฑ์การประเมินเพื่อเตรียมความพร้อมได้
+                พนักงานสามารถดูรายละเอียดเกณฑ์การประเมินเพื่อเตรียมความพร้อมได้ และกำหนดพฤติกรรมที่คาดหวังของตนเองในแต่ละ Culture
               </p>
               <p className="text-sm text-yellow-600 mt-1">
                 น้ำหนักรวม Culture: <strong>{cultureItems.reduce((sum, item) => sum + item.weight, 0)}%</strong>
