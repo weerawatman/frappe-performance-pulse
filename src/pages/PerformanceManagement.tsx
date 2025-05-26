@@ -4,12 +4,15 @@ import PerformanceDashboard from '@/components/performance/PerformanceDashboard'
 import NotificationCenter from '@/components/notifications/NotificationCenter';
 import Feedback360Manager from '@/components/performance/Feedback360Manager';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { 
   BarChart3, 
   Users, 
   MessageCircle,
-  Target
+  Target,
+  Database
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const PerformanceManagement: React.FC = () => {
   return (
@@ -21,6 +24,12 @@ const PerformanceManagement: React.FC = () => {
             <p className="text-gray-600">จัดการระบบประเมินผลงานและพัฒนาพนักงาน</p>
           </div>
           <div className="flex items-center gap-4">
+            <Link to="/integrations">
+              <Button variant="outline">
+                <Database className="w-4 h-4 mr-2" />
+                การเชื่อมโยงระบบ
+              </Button>
+            </Link>
             <NotificationCenter userId="1" />
           </div>
         </div>

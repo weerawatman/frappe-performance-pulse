@@ -1,36 +1,33 @@
-
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { QueryClient } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster"
 import Index from "./pages/Index";
-import PerformanceManagement from "./pages/PerformanceManagement";
-import WorkflowsPage from "./pages/WorkflowsPage";
-import ReportsPage from "./pages/ReportsPage";
-import RoleManagementPage from "./pages/RoleManagementPage";
 import NotFound from "./pages/NotFound";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import PerformanceManagement from './pages/PerformanceManagement';
+import ReportsPage from './pages/ReportsPage';
+import WorkflowsPage from './pages/WorkflowsPage';
+import RoleManagementPage from './pages/RoleManagementPage';
+import IntegrationsPage from './pages/IntegrationsPage';
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/performance" element={<PerformanceManagement />} />
-          <Route path="/workflows" element={<WorkflowsPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/roles" element={<RoleManagementPage />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <QueryClient>
+      <div className="min-h-screen bg-background">
+        <Toaster />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/performance" element={<PerformanceManagement />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/workflows" element={<WorkflowsPage />} />
+            <Route path="/roles" element={<RoleManagementPage />} />
+            <Route path="/integrations" element={<IntegrationsPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </div>
+    </QueryClient>
+  );
+}
 
 export default App;
