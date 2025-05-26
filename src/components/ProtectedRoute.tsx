@@ -35,23 +35,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Check for admin-only access
   if (requireAdmin && user?.role !== 'admin') {
-    if (user?.role === 'manager') {
-      return <Navigate to="/manager-dashboard" replace />;
-    }
-    return <Navigate to="/employee-dashboard" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // Check for manager-only access
   if (requireManager && user?.role !== 'manager') {
-    if (user?.role === 'admin') {
-      return <Navigate to="/" replace />;
-    }
-    return <Navigate to="/employee-dashboard" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // Check for manager or admin access
   if (requireManagerOrAdmin && user?.role !== 'manager' && user?.role !== 'admin') {
-    return <Navigate to="/employee-dashboard" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
