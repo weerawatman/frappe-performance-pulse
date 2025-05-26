@@ -26,7 +26,16 @@ const LoginPage: React.FC = () => {
       const result = await login(email, password);
       
       if (result.success && result.user) {
-        // Navigation is handled by AuthContext
+        // Navigate based on user role
+        if (result.user.role === 'employee') {
+          navigate('/employee-dashboard');
+        } else if (result.user.role === 'checker') {
+          navigate('/checker-dashboard');
+        } else if (result.user.role === 'approver') {
+          navigate('/approver-dashboard');
+        } else {
+          navigate('/');
+        }
       } else {
         setError(result.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
       }
@@ -105,10 +114,9 @@ const LoginPage: React.FC = () => {
               <div className="text-sm text-gray-600">
                 <p className="font-medium mb-2">บัญชีทดสอบ:</p>
                 <div className="bg-gray-50 p-3 rounded space-y-1">
-                  <p><strong>Admin:</strong> admin@company.com</p>
-                  <p><strong>Checker:</strong> executive@company.com</p>
-                  <p><strong>Approver:</strong> executive2@company.com</p>
-                  <p><strong>Employee:</strong> employee@company.com</p>
+                  <p><strong>พนักงาน:</strong> somchai@company.com</p>
+                  <p><strong>Checker:</strong> somsak@company.com</p>
+                  <p><strong>Approver:</strong> somboon@company.com</p>
                   <p><strong>รหัสผ่าน:</strong> password</p>
                 </div>
               </div>

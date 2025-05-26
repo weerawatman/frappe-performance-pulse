@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export interface User {
   id: string;
@@ -11,9 +12,10 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ success: boolean; user?: User; error?: string }>;
   logout: () => void;
   loading: boolean;
+  isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -52,6 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Clearing all localStorage data for fresh start');
     localStorage.removeItem('kpiStatus');
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('overdueTasks');
     
     // Check for existing user session
     const savedUser = localStorage.getItem('currentUser');
@@ -67,40 +70,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
-    // Mock authentication
-    const foundUser = mockUsers.find(u => u.email === email);
-    
-    if (!foundUser) {
-      throw new Error('ไม่พบผู้ใช้นี้ในระบบ');
-    }
+  const login = async (email: string, password: string): Promise<{ success: boolean; user?: User; error?: string }> => {
+    try {
+      // Mock authentication
+      const foundUser = mockUsers.find(u => u.email === email);
+      
+      if (!foundUser) {
+        return { success: false, error: 'ไม่พบผู้ใช้นี้ในระบบ' };
+      }
 
-    // Clear any existing KPI status data
-    localStorage.removeItem('kpiStatus');
-    
-    // Set default KPI status for all users
-    const defaultKPIStatus = {
-      bonus: 'not_started',
-      merit: 'not_started'
-    };
-    localStorage.setItem('kpiStatus', JSON.stringify(defaultKPIStatus));
-    
-    setUser(foundUser);
-    localStorage.setItem('currentUser', JSON.stringify(foundUser));
-    
-    console.log('User logged in:', foundUser.name);
-    console.log('KPI status reset to:', defaultKPIStatus);
+      // Clear any existing data
+      localStorage.removeItem('kpiStatus');
+      localStorage.removeItem('overdueTasks');
+      
+      // Set default KPI status for all users
+      const defaultKPIStatus = {
+        bonus: 'not_started',
+        merit: 'not_started'
+      };
+      localStorage.setItem('kpiStatus', JSON.stringify(defaultKPIStatus));
+      
+      // Set overdue tasks for employee
+      if (foundUser.role === 'employee') {
+        const overdueTasks = [
+          { id: 'kpi-bonus', title: 'กำหนด KPI Bonus', type: 'kpi' },
+          { id: 'kpi-merit', title: 'กำหนด KPI Merit', type: 'kpi' }
+        ];
+        localStorage.setItem('overdueTasks', JSON.stringify(overdueTasks));
+      }
+      
+      setUser(foundUser);
+      localStorage.setItem('currentUser', JSON.stringify(foundUser));
+      
+      console.log('User logged in:', foundUser.name);
+      console.log('KPI status reset to:', defaultKPIStatus);
+      
+      return { success: true, user: foundUser };
+    } catch (error) {
+      return { success: false, error: 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ' };
+    }
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('currentUser');
     localStorage.removeItem('kpiStatus');
+    localStorage.removeItem('overdueTasks');
     console.log('User logged out, all data cleared');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      logout, 
+      loading, 
+      isAuthenticated: !!user 
+    }}>
       {children}
     </AuthContext.Provider>
   );
