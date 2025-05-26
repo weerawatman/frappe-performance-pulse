@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -276,6 +275,13 @@ const getAlignmentStatus = (score: number) => {
   return { status: 'Low', color: 'bg-red-100 text-red-800', icon: XCircle };
 };
 
+// Helper function to get President KPIs that align with a Corporate KPI
+const getAlignedPresidentKPIs = (corporateKpiId: string) => {
+  return mockPresidentKPI.filter(presKpi => 
+    presKpi.related_corporate_kpis.includes(corporateKpiId)
+  );
+};
+
 const KPIAlignmentDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -438,45 +444,60 @@ const KPIAlignmentDashboard: React.FC = () => {
         <TabsContent value="president" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>President KPI Alignment</CardTitle>
+              <CardTitle>Corporate KPI → President KPI Alignment</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Corporate KPI</TableHead>
                     <TableHead>Category</TableHead>
-                    <TableHead>KPI Name</TableHead>
                     <TableHead>Target</TableHead>
                     <TableHead>Weight</TableHead>
                     <TableHead>Achievement</TableHead>
+                    <TableHead>Aligned President KPIs</TableHead>
                     <TableHead>Alignment Score</TableHead>
-                    <TableHead>Related Corporate KPIs</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockPresidentKPI.map((kpi) => (
-                    <TableRow key={kpi.id}>
-                      <TableCell className="font-medium">{kpi.category}</TableCell>
-                      <TableCell>{kpi.name}</TableCell>
-                      <TableCell>{kpi.target}</TableCell>
-                      <TableCell>{kpi.weight}%</TableCell>
-                      <TableCell>{kpi.current_achievement.toFixed(1)}%</TableCell>
-                      <TableCell>
-                        <Badge className={getAlignmentStatus(kpi.alignment_score).color}>
-                          {kpi.alignment_score}%
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {kpi.related_corporate_kpis.map((corpId) => (
-                            <Badge key={corpId} variant="outline" className="text-xs">
-                              Corp-{corpId}
+                  {mockCorporateKPIData.map((corpKpi) => {
+                    const alignedPresKPIs = getAlignedPresidentKPIs(corpKpi.id);
+                    const avgAlignmentScore = alignedPresKPIs.length > 0 
+                      ? alignedPresKPIs.reduce((sum, kpi) => sum + kpi.alignment_score, 0) / alignedPresKPIs.length 
+                      : 0;
+                    
+                    return (
+                      <TableRow key={corpKpi.id}>
+                        <TableCell className="font-medium">{corpKpi.name}</TableCell>
+                        <TableCell>{corpKpi.category}</TableCell>
+                        <TableCell className="text-sm">{corpKpi.target}</TableCell>
+                        <TableCell>{corpKpi.weight}%</TableCell>
+                        <TableCell>{corpKpi.achievement_percentage?.toFixed(1)}%</TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            {alignedPresKPIs.length > 0 ? (
+                              alignedPresKPIs.map(presKpi => (
+                                <Badge key={presKpi.id} variant="outline" className="block text-xs">
+                                  {presKpi.name}
+                                </Badge>
+                              ))
+                            ) : (
+                              <span className="text-gray-400 text-xs">ไม่มี KPI ที่เชื่อมโยง</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {alignedPresKPIs.length > 0 ? (
+                            <Badge className={getAlignmentStatus(avgAlignmentScore).color}>
+                              {avgAlignmentScore.toFixed(1)}%
                             </Badge>
-                          ))}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </CardContent>
