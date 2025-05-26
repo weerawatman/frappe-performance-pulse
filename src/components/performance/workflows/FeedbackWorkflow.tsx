@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -85,24 +84,12 @@ const FeedbackWorkflow: React.FC = () => {
         finalFeedback = await performanceService.createFeedback(feedback);
       }
 
-      // Update appraisal with feedback score and final score
-      if (selectedAppraisal && selectedCycle) {
-        const allFeedbacks = performanceService.getFeedbacksByAppraisal(selectedAppraisal.id);
-        const submittedFeedbacks = allFeedbacks.filter(f => f.status === 'Submitted');
+      // Update appraisal scores using the new scoring system
+      if (selectedAppraisal) {
+        await performanceService.updateAppraisalScores(selectedAppraisal.id);
         
-        // Calculate average feedback score
-        const avgFeedbackScore = submittedFeedbacks.length > 0
-          ? submittedFeedbacks.reduce((sum, f) => sum + f.total_score, 0) / submittedFeedbacks.length
-          : 0;
-        
-        // Calculate final score using the formula or default weights
-        const finalScore = selectedCycle.calculate_final_score_based_on_formula
-          ? calculateWithFormula(selectedAppraisal, selectedCycle, avgFeedbackScore)
-          : (selectedAppraisal.total_score * 0.6) + (selectedAppraisal.self_score * 0.2) + (avgFeedbackScore * 0.2);
-
+        // Update appraisal status
         await performanceService.updateAppraisal(selectedAppraisal.id, {
-          avg_feedback_score: avgFeedbackScore,
-          final_score: Math.round(finalScore),
           reviewed_by_manager: true,
           reviewed_date: new Date(),
           status: 'Completed'
@@ -125,24 +112,6 @@ const FeedbackWorkflow: React.FC = () => {
         description: 'ไม่สามารถส่ง feedback ได้',
         variant: 'destructive'
       });
-    }
-  };
-
-  const calculateWithFormula = (appraisal: Appraisal, cycle: AppraisalCycle, avgFeedbackScore: number): number => {
-    // Simple formula parser - in real app, use a proper formula parser
-    const formula = cycle.final_score_formula || '';
-    
-    try {
-      const formulaWithValues = formula
-        .replace(/goal_score/g, appraisal.total_score.toString())
-        .replace(/self_score/g, appraisal.self_score.toString())
-        .replace(/feedback_score/g, avgFeedbackScore.toString());
-      
-      // Note: In production, use a safe formula evaluator
-      return eval(formulaWithValues);
-    } catch (error) {
-      // Fallback to default calculation
-      return (appraisal.total_score * 0.6) + (appraisal.self_score * 0.2) + (avgFeedbackScore * 0.2);
     }
   };
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,8 @@ import { CheckCircle, Clock, Settings, User, Target, MessageSquare } from 'lucid
 import { Appraisal, AppraisalKRA, SelfRating } from '@/types/performance';
 import { performanceService } from '@/services/performanceService';
 import { useToast } from '@/hooks/use-toast';
+import ScoreBreakdown from '@/components/performance/ScoreBreakdown';
+import { calculateAllScores } from '@/utils/performanceScoring';
 
 const AppraisalWorkflow: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -66,21 +67,37 @@ const AppraisalWorkflow: React.FC = () => {
   const calculateKraTotal = () => {
     if (!selectedAppraisal) return 0;
     
-    const totalWeightedScore = selectedAppraisal.appraisal_kra.reduce((sum, kra) => {
-      const score = kraScores[kra.id] || 0;
-      return sum + (score * kra.weightage / 100);
-    }, 0);
-    
-    return Math.round(totalWeightedScore);
+    // Use the new scoring system
+    const cycle = performanceService.getCycle(selectedAppraisal.appraisal_cycle_id);
+    if (!cycle) return 0;
+
+    // Update appraisal with current scores
+    const updatedAppraisal = {
+      ...selectedAppraisal,
+      appraisal_kra: selectedAppraisal.appraisal_kra.map(kra => ({
+        ...kra,
+        score: kraScores[kra.id] || 0
+      }))
+    };
+
+    const scoreResult = calculateAllScores(updatedAppraisal, cycle, []);
+    return scoreResult.goalScore;
   };
 
   const calculateSelfTotal = () => {
-    const totalWeightedScore = selfRatings.reduce((sum, rating) => {
-      const normalizedScore = (rating.rating / rating.max_rating) * 100;
-      return sum + (normalizedScore * rating.weightage / 100);
-    }, 0);
+    if (!selectedAppraisal) return 0;
     
-    return Math.round(totalWeightedScore);
+    const cycle = performanceService.getCycle(selectedAppraisal.appraisal_cycle_id);
+    if (!cycle) return 0;
+
+    // Update appraisal with current self ratings
+    const updatedAppraisal = {
+      ...selectedAppraisal,
+      self_ratings: selfRatings
+    };
+
+    const scoreResult = calculateAllScores(updatedAppraisal, cycle, []);
+    return scoreResult.selfScore;
   };
 
   const handleSubmit = async () => {
@@ -93,24 +110,21 @@ const AppraisalWorkflow: React.FC = () => {
         score: kraScores[kra.id] || 0
       }));
 
-      // Calculate scores
-      const kraTotal = calculateKraTotal();
-      const selfTotal = calculateSelfTotal();
-
       const updatedAppraisal = {
         ...selectedAppraisal,
         appraisal_kra: updatedKra,
         self_ratings: selfRatings,
         self_comments: selfComments,
-        total_score: kraTotal,
-        self_score: selfTotal,
-        final_score: kraTotal, // Will be updated when feedback is received
         status: 'Manager Review' as const,
         submitted_by_employee: true,
         submitted_date: new Date()
       };
 
+      // Update appraisal first
       await performanceService.updateAppraisal(selectedAppraisal.id, updatedAppraisal);
+      
+      // Then calculate and update scores
+      await performanceService.updateAppraisalScores(selectedAppraisal.id);
 
       toast({
         title: 'สำเร็จ!',
@@ -392,34 +406,60 @@ const AppraisalWorkflow: React.FC = () => {
       )}
 
       {currentStep === 5 && selectedAppraisal && (
-        <Card>
-          <CardHeader>
-            <CardTitle>สรุปการประเมิน</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">{calculateKraTotal()}%</div>
-                  <div className="text-sm text-gray-600">คะแนน KRA</div>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>สรุปการประเมิน</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">{calculateKraTotal().toFixed(2)}</div>
+                    <div className="text-sm text-gray-600">คะแนน KRA</div>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">{calculateSelfTotal().toFixed(2)}</div>
+                    <div className="text-sm text-gray-600">คะแนนประเมินตนเอง</div>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-600">{((calculateKraTotal() + calculateSelfTotal()) / 2).toFixed(2)}</div>
+                    <div className="text-sm text-gray-600">คะแนนรวม (ประมาณ)</div>
+                  </div>
                 </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">{calculateSelfTotal()}%</div>
-                  <div className="text-sm text-gray-600">คะแนนประเมินตนเอง</div>
+                
+                <div className="p-4 border rounded-lg">
+                  <h4 className="font-medium mb-2">ความคิดเห็นเพิ่มเติม</h4>
+                  <p className="text-gray-600">{selfComments || 'ไม่มีความคิดเห็นเพิ่มเติม'}</p>
                 </div>
-                <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">{calculateKraTotal()}%</div>
-                  <div className="text-sm text-gray-600">คะแนนรวม</div>
-                </div>
+
+                {/* Preview Score Breakdown */}
+                {selectedAppraisal && (() => {
+                  const cycle = performanceService.getCycle(selectedAppraisal.appraisal_cycle_id);
+                  if (!cycle) return null;
+
+                  const updatedAppraisal = {
+                    ...selectedAppraisal,
+                    appraisal_kra: selectedAppraisal.appraisal_kra.map(kra => ({
+                      ...kra,
+                      score: kraScores[kra.id] || 0
+                    })),
+                    self_ratings: selfRatings
+                  };
+
+                  const scoreResult = calculateAllScores(updatedAppraisal, cycle, []);
+                  
+                  return (
+                    <div className="mt-6">
+                      <h4 className="font-medium mb-4">ตัวอย่างการคำนวณคะแนน</h4>
+                      <ScoreBreakdown scoreResult={scoreResult} showBreakdown={false} />
+                    </div>
+                  );
+                })()}
               </div>
-              
-              <div className="p-4 border rounded-lg">
-                <h4 className="font-medium mb-2">ความคิดเห็นเพิ่มเติม</h4>
-                <p className="text-gray-600">{selfComments || 'ไม่มีความคิดเห็นเพิ่มเติม'}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* Navigation */}

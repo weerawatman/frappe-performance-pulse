@@ -1,4 +1,3 @@
-
 import { 
   AppraisalTemplate, 
   AppraisalCycle, 
@@ -7,6 +6,7 @@ import {
   Employee,
   PerformanceStats 
 } from '@/types/performance';
+import { calculateAllScores } from '@/utils/performanceScoring';
 
 // Mock data for employees
 const mockEmployees: Employee[] = [
@@ -427,6 +427,32 @@ export class PerformanceService {
     });
 
     return newAppraisals;
+  }
+
+  // Add new scoring calculation method
+  calculateScoresForAppraisal(appraisalId: string) {
+    const appraisal = this.getAppraisal(appraisalId);
+    if (!appraisal) return null;
+
+    const cycle = this.getCycle(appraisal.appraisal_cycle_id);
+    if (!cycle) return null;
+
+    const feedbacks = this.getFeedbacksByAppraisal(appraisalId);
+    
+    return calculateAllScores(appraisal, cycle, feedbacks);
+  }
+
+  // Update appraisal with calculated scores
+  async updateAppraisalScores(appraisalId: string): Promise<Appraisal | null> {
+    const scoreResult = this.calculateScoresForAppraisal(appraisalId);
+    if (!scoreResult) return null;
+
+    return this.updateAppraisal(appraisalId, {
+      total_score: scoreResult.goalScore,
+      self_score: scoreResult.selfScore,
+      avg_feedback_score: scoreResult.feedbackScore,
+      final_score: scoreResult.finalScore
+    });
   }
 }
 
