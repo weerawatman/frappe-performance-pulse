@@ -1,13 +1,12 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { User } from '@/types/auth';
 import { authService } from '@/services/authService';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
   logout: () => void;
   loading: boolean;
 }
@@ -25,7 +24,6 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if user is already logged in
@@ -38,15 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const result = authService.login(email, password);
     if (result.success && result.user) {
       setUser(result.user);
-      
-      // Navigate based on user role
-      if (result.user.role === 'admin' || result.user.role === 'manager') {
-        navigate('/');
-      } else {
-        navigate('/employee-dashboard');
-      }
-      
-      return { success: true };
+      return { success: true, user: result.user };
     }
     return { success: false, error: result.error };
   };
@@ -54,7 +44,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     authService.logout();
     setUser(null);
-    navigate('/login');
   };
 
   const value = {

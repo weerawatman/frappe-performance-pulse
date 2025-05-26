@@ -20,10 +20,10 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <div className="min-h-screen bg-background">
-          <Toaster />
-          <BrowserRouter>
+      <div className="min-h-screen bg-background">
+        <Toaster />
+        <BrowserRouter>
+          <AuthProvider>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/" element={
@@ -68,9 +68,9 @@ function App() {
               } />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </div>
-      </AuthProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </div>
     </QueryClientProvider>
   );
 }

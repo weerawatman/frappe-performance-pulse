@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +16,7 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const { login } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,11 +26,18 @@ const Login: React.FC = () => {
     try {
       const result = await login(email, password);
       
-      if (result.success) {
+      if (result.success && result.user) {
         toast({
           title: "เข้าสู่ระบบสำเร็จ",
-          description: "ยินดีต้อนรับเข้าสู่ระบบ",
+          description: `ยินดีต้อนรับ ${result.user.name}`,
         });
+        
+        // Navigate based on user role
+        if (result.user.role === 'admin' || result.user.role === 'manager') {
+          navigate('/');
+        } else {
+          navigate('/employee-dashboard');
+        }
       } else {
         setError(result.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
       }
