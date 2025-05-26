@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -78,12 +79,12 @@ const mockPresidentKPI = [
 
 const mockVPKPIs = [
   {
-    vp_name: 'VP Sales & Marketing',
-    department: 'Sales & Marketing',
+    vp_name: 'MD SBM&ICP',
+    department: 'Sales, Business & Marketing & ICP',
     kpis: [
       {
         id: 'VP1-001',
-        name: 'Sales Revenue Achievement',
+        name: 'Strategic Business Revenue',
         target: '7,108 MB Net Sales',
         weight: 40,
         alignment_score: 95,
@@ -93,7 +94,7 @@ const mockVPKPIs = [
       },
       {
         id: 'VP1-002', 
-        name: 'Customer Retention',
+        name: 'Market Penetration & ICP Development',
         target: 'Maintain 597MB LOI',
         weight: 30,
         alignment_score: 88,
@@ -103,7 +104,7 @@ const mockVPKPIs = [
       },
       {
         id: 'VP1-003',
-        name: 'Market Expansion',
+        name: 'Business Expansion & LOI Growth',
         target: 'New LOI 316 MB',
         weight: 30,
         alignment_score: 82,
@@ -114,12 +115,12 @@ const mockVPKPIs = [
     ]
   },
   {
-    vp_name: 'VP Operations',
-    department: 'Operations',
+    vp_name: 'MD SFT',
+    department: 'Smart Factory Technology',
     kpis: [
       {
         id: 'VP2-001',
-        name: 'Production Efficiency',
+        name: 'Smart Factory Efficiency',
         target: 'ICR >98%',
         weight: 35,
         alignment_score: 92,
@@ -129,7 +130,7 @@ const mockVPKPIs = [
       },
       {
         id: 'VP2-002',
-        name: 'Quality Performance',
+        name: 'Technology Quality Performance',
         target: 'QD Score 100%',
         weight: 35,
         alignment_score: 90,
@@ -139,13 +140,49 @@ const mockVPKPIs = [
       },
       {
         id: 'VP2-003',
-        name: 'Process Improvement',
+        name: 'Smart Technology Implementation',
         target: 'Cost Saving 8MB',
         weight: 30,
         alignment_score: 85,
         related_president_kpis: ['PRES-001'],
         related_corporate_kpis: ['20'],
         current_achievement: 87.5
+      }
+    ]
+  },
+  {
+    vp_name: 'VP Commercial',
+    department: 'Commercial & Digital Innovation',
+    kpis: [
+      {
+        id: 'VP5-001',
+        name: 'Commercial Digital Transformation',
+        target: 'ERP S4/Hana Go Live',
+        weight: 40,
+        alignment_score: 88,
+        related_president_kpis: ['PRES-002'],
+        related_corporate_kpis: ['20'],
+        current_achievement: 85.0
+      },
+      {
+        id: 'VP5-002',
+        name: 'Commercial Innovation Projects',
+        target: 'B2 JV/MOU 1 Project',
+        weight: 35,
+        alignment_score: 75,
+        related_president_kpis: ['PRES-002'],
+        related_corporate_kpis: ['11'],
+        current_achievement: 60.0
+      },
+      {
+        id: 'VP5-003',
+        name: 'Commercial Security & Governance',
+        target: 'Zero Security Incidents',
+        weight: 25,
+        alignment_score: 95,
+        related_president_kpis: ['PRES-004'],
+        related_corporate_kpis: ['10'],
+        current_achievement: 100.0
       }
     ]
   },
@@ -228,42 +265,6 @@ const mockVPKPIs = [
         related_president_kpis: ['PRES-004'],
         related_corporate_kpis: ['19'],
         current_achievement: 90.0
-      }
-    ]
-  },
-  {
-    vp_name: 'VP Technology & Innovation',
-    department: 'Technology',
-    kpis: [
-      {
-        id: 'VP5-001',
-        name: 'Digital Transformation',
-        target: 'ERP S4/Hana Go Live',
-        weight: 40,
-        alignment_score: 88,
-        related_president_kpis: ['PRES-002'],
-        related_corporate_kpis: ['20'],
-        current_achievement: 85.0
-      },
-      {
-        id: 'VP5-002',
-        name: 'Innovation Projects',
-        target: 'B2 JV/MOU 1 Project',
-        weight: 35,
-        alignment_score: 75,
-        related_president_kpis: ['PRES-002'],
-        related_corporate_kpis: ['11'],
-        current_achievement: 60.0
-      },
-      {
-        id: 'VP5-003',
-        name: 'System Security',
-        target: 'Zero Security Incidents',
-        weight: 25,
-        alignment_score: 95,
-        related_president_kpis: ['PRES-004'],
-        related_corporate_kpis: ['10'],
-        current_achievement: 100.0
       }
     ]
   }
@@ -520,11 +521,11 @@ const KPIAlignmentDashboard: React.FC = () => {
                       <TableHead className="w-24">Weight</TableHead>
                       <TableHead className="w-24">Achievement</TableHead>
                       <TableHead className="w-48">Aligned President KPIs</TableHead>
-                      <TableHead className="w-40">VP Sales & Marketing</TableHead>
-                      <TableHead className="w-40">VP Operations</TableHead>
+                      <TableHead className="w-40">MD SBM&ICP</TableHead>
+                      <TableHead className="w-40">MD SFT</TableHead>
+                      <TableHead className="w-40">VP Commercial</TableHead>
                       <TableHead className="w-40">VP Finance</TableHead>
                       <TableHead className="w-40">VP Human Resources</TableHead>
-                      <TableHead className="w-40">VP Technology</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
