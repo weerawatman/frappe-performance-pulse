@@ -14,22 +14,58 @@ interface CultureTableProps {
 const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
   const [expectedBehaviors, setExpectedBehaviors] = useState<{[key: string]: string}>({});
 
-  const getLevelBadgeColor = (level: number) => {
-    switch (level) {
-      case 1: return "bg-red-100 text-red-700";
-      case 2: return "bg-orange-100 text-orange-700";
-      case 3: return "bg-yellow-100 text-yellow-700";
-      case 4: return "bg-blue-100 text-blue-700";
-      case 5: return "bg-green-100 text-green-700";
-      default: return "bg-gray-100 text-gray-700";
-    }
-  };
-
   const handleBehaviorChange = (cultureId: string, value: string) => {
     setExpectedBehaviors(prev => ({
       ...prev,
       [cultureId]: value
     }));
+  };
+
+  const getGuidelineContent = (cultureId: string) => {
+    switch (cultureId) {
+      case '1':
+        return (
+          <div className="text-sm space-y-1">
+            <div>- ปฏิบัติให้ได้ตามกฏและระเบียบที่กำหนดไว้ :</div>
+            <div>- รักษาคำพูด ตามที่ได้ตกลงไว้ :</div>
+            <div>- ใช้ข้อมูลและข้อเท็จจริงในการทำงาน :</div>
+          </div>
+        );
+      case '2':
+        return (
+          <div className="text-sm space-y-1">
+            <div>- กล้าเรียนรู้สิ่งใหม่ๆ ทั้งวิธีการ เครื่องมือ และเทคโนโลยี :</div>
+            <div>- กล้าตัดสินใจ กล้าลงทุน กล้าเสี่ยง บนพื้นฐานต้นทุนและความเป็นไปได้ทางธุรกิจ :</div>
+            <div>- กล้านำสิ่งที่เรียนรู้มาลงมือทำจริง กล้านำให้เกิดการเปลี่ยนแปลง และเกิดสิ่งใหม่ๆ :</div>
+          </div>
+        );
+      case '3':
+        return (
+          <div className="text-sm space-y-1">
+            <div>- เปลี่ยนแปลงให้ทันต่อเหตุการณ์ที่เปลี่ยนไป และปรับตัวได้รวดเร็ว :</div>
+            <div>- ตื่นรู้ และคาดการณ์เพื่อตอบสนองต่อการเปลี่ยนแปลง :</div>
+            <div>- ตัดสินใจและลงมือทำด้วยความรวดเร็ว ทันต่อเหตุการณ์ :</div>
+          </div>
+        );
+      case '4':
+        return (
+          <div className="text-sm space-y-1">
+            <div>- ยอมรับความคิดและความเห็นต่าง :</div>
+            <div>- ร่วมหาแนวทางและยอมรับในข้อสรุปที่ดีที่สุด :</div>
+            <div>- เปิดรับฟังความเห็นผู้อื่นก่อน</div>
+          </div>
+        );
+      case '5':
+        return (
+          <div className="text-sm space-y-1">
+            <div>- รับฟังข้อเสนอแนะจากลูกค้า และความต้องการของลูกค้า :</div>
+            <div>- Customer Centric คิดในมุมที่เราเป็นลูกค้า และมีทางออกให้ลูกค้าเสมอ :</div>
+            <div>- ส่งงานที่มีคุณภาพ และตามความต้องการของลูกค้า :</div>
+          </div>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -108,7 +144,9 @@ const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
                 <TableHead className="w-1/6">Culture</TableHead>
                 <TableHead className="w-1/4">นิยาม</TableHead>
                 <TableHead className="text-center w-16">น้ำหนัก (%)</TableHead>
-                <TableHead className="text-center w-20">ระดับการประเมิน</TableHead>
+                <TableHead className="w-1/3">
+                  พฤติกรรมที่คาดหวัง (Key Behaviour) : Guideline
+                </TableHead>
                 <TableHead className="w-1/3">
                   พฤติกรรมที่คาดหวัง (Key Behaviour) : 
                   <br />
@@ -132,17 +170,9 @@ const CultureTable: React.FC<CultureTableProps> = ({ cultureItems }) => {
                   <TableCell className="text-center align-top">
                     <Badge variant="outline">{culture.weight}%</Badge>
                   </TableCell>
-                  <TableCell className="text-center align-top">
-                    <div className="flex flex-wrap gap-1 justify-center">
-                      {culture.evaluation_levels.map((level) => (
-                        <Badge
-                          key={level.level}
-                          variant="secondary"
-                          className={`${getLevelBadgeColor(level.level)} text-xs`}
-                        >
-                          L{level.level}
-                        </Badge>
-                      ))}
+                  <TableCell className="align-top">
+                    <div className="whitespace-normal break-words leading-relaxed">
+                      {getGuidelineContent(culture.id)}
                     </div>
                   </TableCell>
                   <TableCell className="align-top">
