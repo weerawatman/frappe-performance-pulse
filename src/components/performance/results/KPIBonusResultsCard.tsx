@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -45,7 +44,7 @@ const KPIBonusResultsCard: React.FC<KPIBonusResultsCardProps> = ({ data, period 
   };
 
   const getStatusBadge = (status: string) => {
-    return status === 'achieved' ? 'success' : 'destructive';
+    return status === 'achieved' ? 'default' : 'destructive';
   };
 
   const chartData = data.items.map(item => ({
@@ -88,7 +87,10 @@ const KPIBonusResultsCard: React.FC<KPIBonusResultsCardProps> = ({ data, period 
                   ) : (
                     <XCircle className="w-5 h-5 text-red-600" />
                   )}
-                  <Badge variant={getStatusBadge(item.status)}>
+                  <Badge 
+                    variant={getStatusBadge(item.status)}
+                    className={item.status === 'achieved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                  >
                     {item.status === 'achieved' ? 'บรรลุ' : 'ไม่บรรลุ'}
                   </Badge>
                 </div>

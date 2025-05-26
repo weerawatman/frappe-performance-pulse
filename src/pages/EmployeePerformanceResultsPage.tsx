@@ -37,7 +37,7 @@ const EmployeePerformanceResultsPage: React.FC = () => {
             achievement: 120,
             weight: 40,
             score: 48,
-            status: 'achieved'
+            status: 'achieved' as const
           },
           {
             id: '2',
@@ -47,7 +47,7 @@ const EmployeePerformanceResultsPage: React.FC = () => {
             achievement: 90,
             weight: 30,
             score: 27,
-            status: 'not_achieved'
+            status: 'not_achieved' as const
           },
           {
             id: '3',
@@ -57,10 +57,10 @@ const EmployeePerformanceResultsPage: React.FC = () => {
             achievement: 93.3,
             weight: 30,
             score: 28,
-            status: 'achieved'
+            status: 'achieved' as const
           }
         ],
-        trend: 'up',
+        trend: 'up' as const,
         previousScore: 78.2
       },
       kpiMerit: {
@@ -70,35 +70,35 @@ const EmployeePerformanceResultsPage: React.FC = () => {
           competency: { score: 25.8, weight: 30, maxScore: 30 },
           culture: { score: 22.5, weight: 30, maxScore: 30 }
         },
-        trend: 'up',
+        trend: 'up' as const,
         previousScore: 79.1
       },
       feedback: [
         {
           id: '1',
-          type: 'checker',
+          type: 'checker' as const,
           author: 'สมชาย ผู้จัดการ',
           role: 'Checker',
           date: new Date('2024-03-15'),
-          category: 'strength',
+          category: 'strength' as const,
           content: 'มีผลงานยอดเยี่ยมในการขาย สามารถเกินเป้าหมายได้อย่างต่อเนื่อง'
         },
         {
           id: '2',
-          type: 'checker',
+          type: 'checker' as const,
           author: 'สมชาย ผู้จัดการ',
           role: 'Checker',
           date: new Date('2024-03-15'),
-          category: 'development',
+          category: 'development' as const,
           content: 'ควรพัฒนาทักษะการหาลูกค้าใหม่เพื่อให้บรรลุเป้าหมาย'
         },
         {
           id: '3',
-          type: 'approver',
+          type: 'approver' as const,
           author: 'สมหญิง ผู้อำนวยการ',
           role: 'Approver',
           date: new Date('2024-03-20'),
-          category: 'suggestion',
+          category: 'suggestion' as const,
           content: 'แนะนำให้เข้าร่วมการฝึกอบรม Sales Excellence Program'
         }
       ]
@@ -109,7 +109,7 @@ const EmployeePerformanceResultsPage: React.FC = () => {
         totalScore: 0,
         maxScore: 100,
         items: [],
-        trend: 'stable',
+        trend: 'stable' as const,
         previousScore: 0
       },
       kpiMerit: {
@@ -119,7 +119,7 @@ const EmployeePerformanceResultsPage: React.FC = () => {
           competency: { score: 0, weight: 30, maxScore: 30 },
           culture: { score: 0, weight: 30, maxScore: 30 }
         },
-        trend: 'stable',
+        trend: 'stable' as const,
         previousScore: 0
       },
       feedback: []
