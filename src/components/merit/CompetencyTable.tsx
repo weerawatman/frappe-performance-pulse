@@ -35,42 +35,90 @@ const CompetencyTable: React.FC<CompetencyTableProps> = ({ competencyItems }) =>
     }
   };
 
-  const getCompetencyGuideline = (competencyId: string) => {
+  const getCompetencyDetails = (competencyId: string) => {
     switch (competencyId) {
       case '1':
-        return (
-          <div className="text-sm space-y-1">
-            <div>- สามารถแสดงภาวะผู้นำในการทำงาน :</div>
-            <div>- สร้างแรงบันดาลใจให้กับทีมงาน :</div>
-            <div>- วางแผนและดำเนินการได้อย่างมีประสิทธิภาพ :</div>
-          </div>
-        );
+        return {
+          inputProcess: (
+            <div className="text-sm space-y-1">
+              <div>1) รวบรวมความต้องการและปัญหาการใช้งาน รวมถึงศึกษาความต้องการ Self Service ด้าน HR</div>
+              <div>2) ออกแบบแนวทางโปรแกรม e-PMS และ Self Service ร่วมกับ BU, Supplier และ IT</div>
+              <div>3) รวบรวมข้อมูล KPI Bonus & Merit (MGR up) เพื่อนำเข้า e-PMS และเตรียมข้อมูล Self Service</div>
+              <div>4) ศึกษาระบบ e-PMS และ Self Service เพื่อให้คำแนะนำและแก้ไขปัญหา</div>
+              <div>5) สนับสนุนและแก้ไขปัญหาการใช้งาน e-PMS และ Self Service</div>
+            </div>
+          ),
+          output: (
+            <div className="text-sm space-y-1">
+              <div>1) e-PMS : มีการนำเอาข้อมูล Manager up เข้าระบบ e-PMS 100%</div>
+              <div>2) HR E-Request และ/หรือ HR Connect Application มีผู้ใช้งาน, ลดเวลาในกระบวนการ (Man-Hour) ลงมากกว่า 10%</div>
+              <div>KPI2 : New PMS System 2025 (E-PMS)</div>
+              <div>KPI3 : HR One Data Center</div>
+            </div>
+          )
+        };
       case '2':
-        return (
-          <div className="text-sm space-y-1">
-            <div>- สื่อสารได้ชัดเจนและมีประสิทธิภาพ :</div>
-            <div>- ถ่ายทอดข้อมูลและความคิดได้เข้าใจง่าย :</div>
-            <div>- สร้างความเข้าใจระหว่างทีมงาน :</div>
-          </div>
-        );
+        return {
+          inputProcess: (
+            <div className="text-sm space-y-1">
+              <div>1) ศึกษาเครื่องมือประเมินค่างานใหม่ และกระบวนการวิเคราะห์โครงสร้างองค์กร</div>
+              <div>2) วิเคราะห์ข้อมูลภายในและศึกษา Benchmark ภายนอกเพื่อประเมินค่างานและบริหาร Manpower</div>
+              <div>3) ทบทวน Job Description, ประเมินค่างาน AGM up, กำหนด Strategic Position</div>
+              <div>4) ทบทวนโครงสร้างค่าตอบแทน</div>
+            </div>
+          ),
+          output: (
+            <div className="text-sm space-y-1">
+              <div>1) Job Evaluation (Process and Tool) ถูกกำหนดใช้เป็นมาตรฐานสำหรับ SAT และอยู่ในรูปแบบฐานข้อมูลที่สามารถนำมา Analyse ได้ 100% (AGM up)</div>
+              <div>2) ปรับปรุงระเบียบและวิธีปฏิบัติตามแนวทางที่นำเสนอจาก EHM (ที่ไม่เกี่ยวกับตัวเงิน) อย่างน้อย 2 เรื่อง</div>
+              <div>KPI4 : Strategic Position and Job Evaluation (MGR up)</div>
+              <div>KPI5 : Organization and Manpower Planning Guideline</div>
+            </div>
+          )
+        };
       case '3':
-        return (
-          <div className="text-sm space-y-1">
-            <div>- วิเคราะห์ปัญหาได้อย่างเป็นระบบ :</div>
-            <div>- คิดหาทางแก้ไขที่สร้างสรรค์ :</div>
-            <div>- ตัดสินใจได้อย่างมีเหตุผล :</div>
-          </div>
-        );
+        return {
+          inputProcess: (
+            <div className="text-sm space-y-1">
+              <div><strong>Input & Process - Digital and AI</strong></div>
+              <div>1) เรียนรู้เพื่อนำเครื่องมือ Digital & AI มาประยุกต์ใช้ในการทำงานจริง</div>
+              <div>2) วิเคราะห์ร่วมกับหน่วยงานที่เกี่ยวข้องเพื่อประเมินทักษะ Digital ของ Foreman up และความต้องการทักษะ Digital</div>
+              <div>3) จัดกิจกรรมให้ Foreman up มีส่วนร่วมในการเรียนรู้และใช้เครื่องมือ Digital & AI</div>
+              <div><strong>Input & Process - Monitoring Dashboard</strong></div>
+              <div>1) เชื่อมโยง HR KPI ของ HR แต่ละ Function ใน Corporate ให้ Align กับ GL01</div>
+              <div>2) นำเข้าสู่ระบบ Digital และ Monitoring</div>
+            </div>
+          ),
+          output: (
+            <div className="text-sm space-y-1">
+              <div>1) Foreman ที่เข้าร่วมการพัฒนาทักษะ มีการนำ Digital & AI Tool ปรับใช้ในงานที่รับผิดชอบในปัจจุบันอย่างน้อยคนละ 1 เรื่อง</div>
+              <div>2) กิจกรรมชมรม AI มีการจัดอย่างน้อย 4 ครั้งต่อปี, สามารถดึงพนักงานระดับ Foreman up เข้ามามีส่วนร่วมในกิจกรรมได้อย่างน้อย 50% ต่อครั้ง</div>
+              <div>3) HR KPI Alignment และสามารถ Monitor Plan vs Actual บนระบบ Digital ได้</div>
+              <div>KPI1 : พัฒนา Foreman up 160 คนให้เป็น Digitalization Citizen (กลุ่มเป้าหมาย Foreman up 160 คน จาก 538 คน)</div>
+              <div>KPI6 : People Strategy Monitoring Dashboard</div>
+            </div>
+          )
+        };
       case '4':
-        return (
-          <div className="text-sm space-y-1">
-            <div>- ทำงานร่วมกับผู้อื่นได้อย่างมีประสิทธิภาพ :</div>
-            <div>- สนับสนุนและช่วยเหลือเพื่อนร่วมงาน :</div>
-            <div>- สร้างบรรยากาศการทำงานที่ดี :</div>
-          </div>
-        );
+        return {
+          inputProcess: (
+            <div className="text-sm space-y-1">
+              <div>1) วางแผนการนำเสนอวาระ EHM, รวบรวมข้อมูลและกรอบการนำเสนอ</div>
+              <div>2) ประสานผู้รับผิดชอบวาระและสนับสนุนการเตรียมงานนำเสนอ</div>
+              <div>3) ออกแบบ/สร้าง/ปรับปรุง Dashboard นำเสนอผู้บริหารและติดตามข้อมูล</div>
+              <div>4) เรียนรู้และพัฒนาทักษะ Data Storytelling, Presentation Skill และการสื่อสาร</div>
+            </div>
+          ),
+          output: (
+            <div className="text-sm space-y-1">
+              <div>1) ตารางการกำหนดวาระ EHM ในทุกเดือน, เตรียมวาระเตรียมข้อมูลและเนื้อหาในการนำเสนอที่จำเป็นต่อการนำเสนอวาระนั้นๆ รวมถึงการวาง Story นำเสนอได้</div>
+              <div>2) สรุปรายงานการประชุม EHM ได้ครบถ้วนในเนื้อหา และสื่อให้ผู้รับเข้าใจในเนื้อหาเพื่อดำเนินการต่อได้</div>
+              <div>KPI7 : บริหารการประชุม EHM, NC, ED & BOD</div>
+            </div>
+          )
+        };
       default:
-        return null;
+        return { inputProcess: null, output: null };
     }
   };
 
@@ -81,7 +129,7 @@ const CompetencyTable: React.FC<CompetencyTableProps> = ({ competencyItems }) =>
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <Users className="w-5 h-5 text-white" />
           </div>
-          Competency Assessment (30%)
+          Competency (30%)
         </CardTitle>
         <p className="text-sm text-gray-600">
           ความสามารถและทักษะที่จำเป็นสำหรับตำแหน่งงาน โดยจะได้รับการประเมินจากผู้บังคับบัญชา
@@ -148,51 +196,44 @@ const CompetencyTable: React.FC<CompetencyTableProps> = ({ competencyItems }) =>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-1/6">ประเภท Competency</TableHead>
+                <TableHead className="w-1/6">ประเภท Competency (Competency Type)</TableHead>
                 <TableHead className="w-1/4">Item (หัวข้อ)</TableHead>
                 <TableHead className="text-center w-16">Weight% (น้ำหนัก)</TableHead>
-                <TableHead className="w-1/3">
-                  พฤติกรรมที่คาดหวัง (Key Behaviour) : Guideline
-                </TableHead>
-                <TableHead className="w-1/3">
-                  พฤติกรรมที่คาดหวัง (Key Behaviour) : 
-                  <br />
-                  <span className="text-sm text-gray-600">พนักงานกำหนดรายละเอียดพฤติกรรมที่ต้องการวัดผล</span>
-                </TableHead>
+                <TableHead className="w-1/3">Input & Process - ชี้ให้เห็นความเชื่อมโยงกับเป้าหมายขององค์กรและหน้าที่</TableHead>
+                <TableHead className="w-1/3">Output - ผลลัพธ์ของงานในรูปขอบเขตชัดเจน (มีตัวเลขชี้วัดที่ใช้วัดผลสำเร็จ) ไม่ว่าจะเชิง KPI</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {competencyItems.map((competency) => (
-                <TableRow key={competency.id}>
-                  <TableCell className="font-medium align-top">
-                    <div className="whitespace-normal break-words">
-                      {competency.name}
-                    </div>
-                  </TableCell>
-                  <TableCell className="align-top">
-                    <div className="text-sm text-gray-600 whitespace-normal break-words leading-relaxed">
-                      {competency.description}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center align-top">
-                    <Badge variant="outline">{competency.weight}%</Badge>
-                  </TableCell>
-                  <TableCell className="align-top">
-                    <div className="whitespace-normal break-words leading-relaxed">
-                      {getCompetencyGuideline(competency.id)}
-                    </div>
-                  </TableCell>
-                  <TableCell className="align-top">
-                    <Textarea
-                      placeholder={`กำหนดพฤติกรรมที่คาดหวังสำหรับ ${competency.name}...`}
-                      value={expectedBehaviors[competency.id] || ''}
-                      onChange={(e) => handleBehaviorChange(competency.id, e.target.value)}
-                      className="min-h-[80px] text-sm"
-                      rows={4}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
+              {competencyItems.map((competency) => {
+                const details = getCompetencyDetails(competency.id);
+                return (
+                  <TableRow key={competency.id}>
+                    <TableCell className="font-medium align-top">
+                      <div className="whitespace-normal break-words">
+                        {competency.name}
+                      </div>
+                    </TableCell>
+                    <TableCell className="align-top">
+                      <div className="text-sm text-gray-600 whitespace-normal break-words leading-relaxed">
+                        {competency.description}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center align-top">
+                      <Badge variant="outline">{competency.weight}%</Badge>
+                    </TableCell>
+                    <TableCell className="align-top">
+                      <div className="whitespace-normal break-words leading-relaxed">
+                        {details.inputProcess}
+                      </div>
+                    </TableCell>
+                    <TableCell className="align-top">
+                      <div className="whitespace-normal break-words leading-relaxed">
+                        {details.output}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
@@ -203,10 +244,10 @@ const CompetencyTable: React.FC<CompetencyTableProps> = ({ competencyItems }) =>
             <div>
               <p className="text-sm text-yellow-700 whitespace-normal break-words leading-relaxed">
                 <strong>หมายเหตุ:</strong> การประเมิน Competency จะดำเนินการโดยผู้บังคับบัญชาโดยตรง 
-                พนักงานสามารถดูรายละเอียดเกณฑ์การประเมินเพื่อเตรียมความพร้อมได้ และกำหนดพฤติกรรมที่คาดหวังของตนเองในแต่ละ Competency
+                พนักงานสามารถดูรายละเอียดเกณฑ์การประเมินเพื่อเตรียมความพร้อมได้
               </p>
               <p className="text-sm text-yellow-600 mt-1">
-                น้ำหนักรวม Competency: <strong>{competencyItems.reduce((sum, item) => sum + item.weight, 0)}%</strong>
+                รวมคะแนน Competency: <strong>{competencyItems.reduce((sum, item) => sum + item.weight, 0)}%</strong>
               </p>
             </div>
           </div>
