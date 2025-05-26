@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,13 +32,6 @@ const Login: React.FC = () => {
           title: "เข้าสู่ระบบสำเร็จ",
           description: `ยินดีต้อนรับ ${result.user.name}`,
         });
-        
-        // Navigate based on user role
-        if (result.user.role === 'admin' || result.user.role === 'manager') {
-          navigate('/');
-        } else {
-          navigate('/employee-dashboard');
-        }
       } else {
         setError(result.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
       }
@@ -118,6 +112,7 @@ const Login: React.FC = () => {
                 <div className="bg-gray-50 p-3 rounded space-y-1">
                   <p><strong>Admin:</strong> admin@company.com</p>
                   <p><strong>Manager:</strong> manager@company.com</p>
+                  <p><strong>Employee:</strong> employee@company.com</p>
                   <p><strong>รหัสผ่าน:</strong> password123</p>
                 </div>
               </div>

@@ -39,8 +39,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (result.success && result.user) {
       setUser(result.user);
       
-      // Both admin and manager go to main dashboard
-      navigate('/');
+      // Navigate based on role
+      if (result.user.role === 'admin' || result.user.role === 'manager') {
+        navigate('/');
+      } else if (result.user.role === 'employee') {
+        navigate('/employee-dashboard');
+      }
       
       return { success: true, user: result.user };
     }

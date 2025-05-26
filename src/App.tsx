@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import EmployeeDashboard from "./pages/EmployeeDashboard";
 import KPIBonusPage from "./pages/KPIBonusPage";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PerformanceManagement from './pages/PerformanceManagement';
@@ -26,12 +27,22 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/" element={
-                <ProtectedRoute>
+                <ProtectedRoute requireManagerOrAdmin={true}>
                   <Index />
                 </ProtectedRoute>
               } />
+              <Route path="/employee-dashboard" element={
+                <ProtectedRoute requireEmployee={true}>
+                  <EmployeeDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/employee/kpi-bonus" element={
+                <ProtectedRoute requireEmployee={true}>
+                  <KPIBonusPage />
+                </ProtectedRoute>
+              } />
               <Route path="/kpi-bonus" element={
-                <ProtectedRoute>
+                <ProtectedRoute requireManagerOrAdmin={true}>
                   <KPIBonusPage />
                 </ProtectedRoute>
               } />

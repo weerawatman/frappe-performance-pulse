@@ -1,4 +1,3 @@
-
 import { User, Role, Permission, AccessLog, SecuritySettings, UserRole } from '@/types/auth';
 
 export class AuthService {
@@ -87,7 +86,7 @@ export class AuthService {
       }
     ];
 
-    // Initialize sample users
+    // Initialize sample users - เพิ่ม employee user
     this.users = [
       {
         id: '1',
@@ -106,6 +105,16 @@ export class AuthService {
         department: 'Management',
         position: 'General Manager',
         role: 'manager',
+        isActive: true,
+        createdAt: new Date()
+      },
+      {
+        id: '3',
+        name: 'Employee User',
+        email: 'employee@company.com',
+        department: 'Sales',
+        position: 'Sales Executive',
+        role: 'employee',
         isActive: true,
         createdAt: new Date()
       }

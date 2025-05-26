@@ -8,13 +8,15 @@ interface ProtectedRouteProps {
   requireAdmin?: boolean;
   requireManager?: boolean;
   requireManagerOrAdmin?: boolean;
+  requireEmployee?: boolean;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
   requireAdmin = false,
   requireManager = false,
-  requireManagerOrAdmin = false
+  requireManagerOrAdmin = false,
+  requireEmployee = false
 }) => {
   const { isAuthenticated, user, loading } = useAuth();
 
@@ -35,17 +37,35 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Check for admin-only access
   if (requireAdmin && user?.role !== 'admin') {
+    if (user?.role === 'manager') {
+      return <Navigate to="/" replace />;
+    } else if (user?.role === 'employee') {
+      return <Navigate to="/employee-dashboard" replace />;
+    }
     return <Navigate to="/" replace />;
   }
 
   // Check for manager-only access
   if (requireManager && user?.role !== 'manager') {
+    if (user?.role === 'admin') {
+      return <Navigate to="/" replace />;
+    } else if (user?.role === 'employee') {
+      return <Navigate to="/employee-dashboard" replace />;
+    }
     return <Navigate to="/" replace />;
+  }
+
+  // Check for employee-only access
+  if (requireEmployee && user?.role !== 'employee') {
+    if (user?.role === 'admin' || user?.role === 'manager') {
+      return <Navigate to="/" replace />;
+    }
+    return <Navigate to="/employee-dashboard" replace />;
   }
 
   // Check for manager or admin access
   if (requireManagerOrAdmin && user?.role !== 'manager' && user?.role !== 'admin') {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/employee-dashboard" replace />;
   }
 
   return <>{children}</>;
