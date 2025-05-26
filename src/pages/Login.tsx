@@ -1,13 +1,13 @@
 
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { authService } from '@/services/authService';
+import { useAuth } from '@/contexts/AuthContext';
 import { LogIn, Building } from 'lucide-react';
 
 const Login: React.FC = () => {
@@ -15,7 +15,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const { login } = useAuth();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -24,20 +24,13 @@ const Login: React.FC = () => {
     setError('');
 
     try {
-      const result = authService.login(email, password);
+      const result = await login(email, password);
       
-      if (result.success && result.user) {
+      if (result.success) {
         toast({
           title: "เข้าสู่ระบบสำเร็จ",
-          description: `ยินดีต้อนรับ ${result.user.name}`,
+          description: "ยินดีต้อนรับเข้าสู่ระบบ",
         });
-        
-        // Navigate based on user role
-        if (result.user.role === 'admin' || result.user.role === 'manager') {
-          navigate('/');
-        } else {
-          navigate('/employee-dashboard');
-        }
       } else {
         setError(result.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
       }
