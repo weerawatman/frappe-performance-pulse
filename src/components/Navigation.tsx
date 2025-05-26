@@ -26,10 +26,14 @@ const Navigation: React.FC = () => {
     navigate('/login');
   };
 
+  // For employees, we use a simpler navigation in the EmployeeDashboard
+  if (user?.role === 'employee') {
+    return null;
+  }
+
   const navigationItems = [
-    { path: '/', label: 'แดชบอร์ด', icon: Home, roles: ['admin', 'executive', 'approver', 'checker', 'employee'] },
+    { path: '/', label: 'แดชบอร์ด', icon: Home, roles: ['admin', 'executive', 'approver', 'checker'] },
     { path: '/kpi', label: 'จัดการ KPI', icon: Target, roles: ['admin', 'approver', 'checker'] },
-    { path: '/employee/evaluation', label: 'ประเมินตนเอง', icon: ClipboardCheck, roles: ['employee'] },
     { path: '/manager/evaluation', label: 'ตรวจสอบการประเมิน', icon: UserCheck, roles: ['checker'] },
     { path: '/admin/evaluation', label: 'อนุมัติการประเมิน', icon: UserCheck, roles: ['admin', 'approver'] },
     { path: '/appraisal-management', label: 'จัดการการประเมิน', icon: FileText, roles: ['admin', 'approver'] },

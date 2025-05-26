@@ -11,6 +11,7 @@ import PerformanceEvaluationPage from '@/pages/PerformanceEvaluationPage';
 import AppraisalManagementPage from '@/pages/AppraisalManagementPage';
 import ReportPage from '@/pages/ReportPage';
 import AdminReportsDashboard from '@/components/performance/reports/AdminReportsDashboard';
+import EmployeeDashboard from '@/pages/EmployeeDashboard';
 
 function App() {
   return (
@@ -21,6 +22,11 @@ function App() {
           <Route path="/" element={
             <ProtectedRoute>
               <MainLayout><DashboardPage /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/employee-dashboard" element={
+            <ProtectedRoute requireEmployee>
+              <EmployeeDashboard />
             </ProtectedRoute>
           } />
           <Route path="/kpi" element={
