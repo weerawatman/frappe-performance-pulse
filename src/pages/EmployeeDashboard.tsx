@@ -13,13 +13,6 @@ import KPITrackingTable from "@/components/kpi/KPITrackingTable";
 const EmployeeDashboard = () => {
   const { user, logout } = useAuth();
 
-  const employeeStats = [
-    { label: "KPI ที่กำหนด", value: "3", icon: <Target className="w-5 h-5" />, color: "text-blue-600" },
-    { label: "ผลงานเสร็จสิ้น", value: "85%", icon: <TrendingUp className="w-5 h-5" />, color: "text-green-600" },
-    { label: "งานที่เสร็จสิ้น", value: "12", icon: <CheckCircle className="w-5 h-5" />, color: "text-purple-600" },
-    { label: "รอการอนุมัติ", value: "1", icon: <Clock className="w-5 h-5" />, color: "text-orange-600" }
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100">
       {/* Header */}
@@ -62,22 +55,7 @@ const EmployeeDashboard = () => {
           </p>
         </div>
 
-        {/* Employee Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-          {employeeStats.map((stat, index) => (
-            <Card key={index} className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6">
-                <div className={`flex items-center justify-center mb-3 ${stat.color}`}>
-                  {stat.icon}
-                </div>
-                <div className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</div>
-                <div className="text-sm text-gray-600">{stat.label}</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* KPI Tracking Table - Replacing the old zone */}
+        {/* KPI Tracking Table */}
         <KPITrackingTable />
 
         {/* Task Tracking Panel */}
