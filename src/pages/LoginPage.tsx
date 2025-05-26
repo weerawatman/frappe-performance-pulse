@@ -106,9 +106,10 @@ const LoginPage: React.FC = () => {
                 <p className="font-medium mb-2">บัญชีทดสอบ:</p>
                 <div className="bg-gray-50 p-3 rounded space-y-1">
                   <p><strong>Admin:</strong> admin@company.com</p>
-                  <p><strong>Executive:</strong> executive@company.com</p>
+                  <p><strong>Checker:</strong> executive@company.com</p>
+                  <p><strong>Approver:</strong> executive2@company.com</p>
                   <p><strong>Employee:</strong> employee@company.com</p>
-                  <p><strong>รหัสผ่าน:</strong> password123</p>
+                  <p><strong>รหัสผ่าน:</strong> password</p>
                 </div>
               </div>
             </div>

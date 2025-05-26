@@ -12,15 +12,15 @@ const users: User[] = [
     avatar: '/placeholder.svg'
   },
   {
-    id: 'executive-1', 
+    id: 'checker-1', 
     email: 'executive@company.com',
-    name: 'ผู้บริหาร',
+    name: 'ผู้ตรวจสอบ',
     role: 'checker',
     department: 'Management',
     avatar: '/placeholder.svg'
   },
   {
-    id: 'executive-2',
+    id: 'approver-1',
     email: 'executive2@company.com', 
     name: 'ผู้อนุมัติ',
     role: 'approver',
@@ -58,5 +58,48 @@ export const authService = {
     return userStr ? JSON.parse(userStr) : null;
   },
 
-  getAllUsers: () => users
+  getAllUsers: () => users,
+
+  getUsers: () => users,
+
+  getRoles: () => [
+    { id: 'admin', name: 'Administrator' },
+    { id: 'checker', name: 'Checker' },
+    { id: 'approver', name: 'Approver' },
+    { id: 'employee', name: 'Employee' }
+  ],
+
+  getPermissions: () => [
+    { id: 'view_all', name: 'View All Data' },
+    { id: 'edit_users', name: 'Edit Users' },
+    { id: 'approve_kpi', name: 'Approve KPI' },
+    { id: 'check_kpi', name: 'Check KPI' }
+  ],
+
+  getAccessLogs: () => [
+    { id: '1', user: 'admin@company.com', action: 'Login', timestamp: new Date().toISOString() },
+    { id: '2', user: 'employee@company.com', action: 'View KPI', timestamp: new Date().toISOString() }
+  ],
+
+  getSecuritySettings: () => ({
+    passwordPolicy: 'Strong',
+    sessionTimeout: 30,
+    twoFactorAuth: false
+  }),
+
+  updateSecuritySettings: (settings: any) => {
+    console.log('Security settings updated:', settings);
+    return { success: true };
+  },
+
+  updateUser: (user: User) => {
+    console.log('User updated:', user);
+    return { success: true };
+  },
+
+  createUser: (user: Omit<User, 'id'>) => {
+    const newUser = { ...user, id: `user-${Date.now()}` };
+    console.log('User created:', newUser);
+    return { success: true, user: newUser };
+  }
 };

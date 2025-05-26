@@ -1,221 +1,259 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, Send, X, Target } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import KPIMeritStructure from '@/components/merit/KPIMeritStructure';
-import CompetencyTable from '@/components/merit/CompetencyTable';
-import CultureTable from '@/components/merit/CultureTable';
-import { KPIMerit } from '@/types/merit';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Save, Send, Target, Award } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { CompetencyItem, CultureItem } from "@/types/merit";
+import CompetencyTable from "@/components/merit/CompetencyTable";
+import CultureTable from "@/components/merit/CultureTable";
 
-const KPIMeritPage: React.FC = () => {
-  const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState('structure');
+const KPIMeritPage = () => {
+  const { user } = useAuth();
+  const [status, setStatus] = useState<'draft' | 'submitted'>('draft');
 
-  // Mock KPI Merit data
-  const mockKPIMerit: KPIMerit = {
-    id: '1',
-    employee_id: 'EMP001',
-    employee_name: 'สมชาย ใจดี',
-    department: 'การขาย',
-    kpi_achievement_score: 85,
-    kpi_achievement_weight: 40,
-    competency_items: [],
-    competency_weight: 30,
-    culture_items: [],
-    culture_weight: 30,
-    total_score: 0,
-    status: 'Draft',
-    workflow_step: 'Self',
-    history: [],
-    created_at: new Date(),
-    modified_at: new Date()
-  };
-
-  const mockCompetencyItems = [
+  // Mock data with evaluation_levels property
+  const [competencyItems, setCompetencyItems] = useState<CompetencyItem[]>([
     {
-      id: '1',
-      name: 'ความเป็นผู้นำ',
-      description: 'ความสามารถในการนำทีม',
-      weight: 40,
-      self_score: 0,
-      supervisor_score: 0
-    },
-    {
-      id: '2',
-      name: 'การสื่อสาร',
-      description: 'ความสามารถในการสื่อสาร',
-      weight: 35,
-      self_score: 0,
-      supervisor_score: 0
-    },
-    {
-      id: '3',
-      name: 'การแก้ปัญหา',
-      description: 'ความสามารถในการแก้ไขปัญหา',
+      id: "1",
+      name: "การวิเคราะห์และแก้ไขปัญหา",
+      description: "ความสามารถในการวิเคราะห์สถานการณ์และหาทางแก้ไขปัญหาได้อย่างมีประสิทธิภาพ",
       weight: 25,
       self_score: 0,
-      supervisor_score: 0
-    }
-  ];
-
-  const mockCultureItems = [
+      supervisor_score: 0,
+      evaluation_levels: [
+        { level: 1, description: "ต้องการคำแนะนำในการแก้ไขปัญหา" },
+        { level: 2, description: "สามารถแก้ไขปัญหาเบื้องต้นได้" },
+        { level: 3, description: "แก้ไขปัญหาได้ดีและมีประสิทธิภาพ" },
+        { level: 4, description: "แก้ไขปัญหาซับซ้อนได้และช่วยเหลือผู้อื่น" },
+        { level: 5, description: "เป็นผู้เชี่ยวชาญในการแก้ไขปัญหา" }
+      ]
+    },
     {
-      id: '1',
-      name: 'ความซื่อสัตย์',
-      description: 'การปฏิบัติงานด้วยความซื่อสัตย์',
+      id: "2",
+      name: "การทำงานเป็นทีม",
+      description: "ความสามารถในการทำงานร่วมกับผู้อื่นอย่างมีประสิทธิภาพ",
+      weight: 20,
+      self_score: 0,
+      supervisor_score: 0,
+      evaluation_levels: [
+        { level: 1, description: "ทำงานได้ดีเมื่ออยู่คนเดียว" },
+        { level: 2, description: "ทำงานร่วมกับผู้อื่นได้" },
+        { level: 3, description: "ทำงานเป็นทีมได้ดี" },
+        { level: 4, description: "เป็นแกนนำในการทำงานทีม" },
+        { level: 5, description: "สร้างประสิทธิภาพทีมให้สูงขึ้น" }
+      ]
+    },
+    {
+      id: "3",
+      name: "การเรียนรู้และพัฒนา",
+      description: "ความตั้งใจและความสามารถในการเรียนรู้สิ่งใหม่",
+      weight: 25,
+      self_score: 0,
+      supervisor_score: 0,
+      evaluation_levels: [
+        { level: 1, description: "เรียนรู้เมื่อมีความจำเป็น" },
+        { level: 2, description: "แสวงหาความรู้ใหม่เป็นครั้งคราว" },
+        { level: 3, description: "เรียนรู้อย่างต่อเนื่อง" },
+        { level: 4, description: "เรียนรู้และนำไปประยุกต์ใช้ได้ดี" },
+        { level: 5, description: "เป็นผู้นำในการเรียนรู้และแบ่งปัน" }
+      ]
+    },
+    {
+      id: "4",
+      name: "การสื่อสาร",
+      description: "ความสามารถในการสื่อสารอย่างชัดเจนและมีประสิทธิภาพ",
       weight: 30,
       self_score: 0,
-      supervisor_score: 0
-    },
-    {
-      id: '2',
-      name: 'การทำงานเป็นทีม',
-      description: 'ความสามารถในการทำงานร่วมกับผู้อื่น',
-      weight: 35,
-      self_score: 0,
-      supervisor_score: 0
-    },
-    {
-      id: '3',
-      name: 'การมุ่งเน้นลูกค้า',
-      description: 'การให้ความสำคัญกับลูกค้า',
-      weight: 35,
-      self_score: 0,
-      supervisor_score: 0
+      supervisor_score: 0,
+      evaluation_levels: [
+        { level: 1, description: "สื่อสารได้เมื่อจำเป็น" },
+        { level: 2, description: "สื่อสารได้ชัดเจน" },
+        { level: 3, description: "สื่อสารได้ดีและเข้าใจง่าย" },
+        { level: 4, description: "สื่อสารได้ดีในทุกสถานการณ์" },
+        { level: 5, description: "เป็นแบบอย่างในการสื่อสาร" }
+      ]
     }
-  ];
+  ]);
 
-  const handleSaveDraft = async () => {
-    setIsSubmitting(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast({
-        title: "บันทึกร่างสำเร็จ",
-        description: "ข้อมูล KPI Merit ได้ถูกบันทึกเป็นร่างแล้ว",
-      });
-    } catch (error) {
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถบันทึกข้อมูลได้",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
+  const [cultureItems, setCultureItems] = useState<CultureItem[]>([
+    {
+      id: "1",
+      name: "ความซื่อสัตย์สุจริต",
+      description: "การปฏิบัติตนด้วยความซื่อสัตย์และโปร่งใส",
+      weight: 30,
+      self_score: 0,
+      supervisor_score: 0,
+      evaluation_levels: [
+        { level: 1, description: "ปฏิบัติตามกฎระเบียบขั้นพื้นฐาน" },
+        { level: 2, description: "ซื่อสัตย์ในการทำงาน" },
+        { level: 3, description: "เป็นแบบอย่างความซื่อสัตย์" },
+        { level: 4, description: "ส่งเสริมความซื่อสัตย์ในทีม" },
+        { level: 5, description: "เป็นผู้นำด้านคุณธรรม" }
+      ]
+    },
+    {
+      id: "2",
+      name: "การมุ่งเน้นลูกค้า",
+      description: "การให้ความสำคัญกับความพึงพอใจของลูกค้า",
+      weight: 25,
+      self_score: 0,
+      supervisor_score: 0,
+      evaluation_levels: [
+        { level: 1, description: "ให้บริการลูกค้าตามมาตรฐาน" },
+        { level: 2, description: "ใส่ใจในความต้องการลูกค้า" },
+        { level: 3, description: "มุ่งมั่นสร้างความพึงพอใจ" },
+        { level: 4, description: "สร้างประสบการณ์ที่ดีให้ลูกค้า" },
+        { level: 5, description: "เป็นผู้เชี่ยวชาญด้านการบริการ" }
+      ]
+    },
+    {
+      id: "3",
+      name: "นวัตกรรมและการปรับตัว",
+      description: "ความสามารถในการปรับตัวและสร้างสิ่งใหม่",
+      weight: 25,
+      self_score: 0,
+      supervisor_score: 0,
+      evaluation_levels: [
+        { level: 1, description: "ปรับตัวเมื่อมีการเปลี่ยนแปลง" },
+        { level: 2, description: "รับการเปลี่ยนแปลงได้ดี" },
+        { level: 3, description: "มีแนวคิดใหม่ๆ เป็นครั้งคราว" },
+        { level: 4, description: "สร้างนวัตกรรมในการทำงาน" },
+        { level: 5, description: "เป็นผู้นำด้านนวัตกรรม" }
+      ]
+    },
+    {
+      id: "4",
+      name: "ความรับผิดชอบ",
+      description: "การรับผิดชอบต่อหน้าที่และผลงาน",
+      weight: 20,
+      self_score: 0,
+      supervisor_score: 0,
+      evaluation_levels: [
+        { level: 1, description: "ทำงานตามที่ได้รับมอบหมาย" },
+        { level: 2, description: "รับผิดชอบงานของตนเอง" },
+        { level: 3, description: "รับผิดชอบและช่วยเหลือผู้อื่น" },
+        { level: 4, description: "มีความรับผิดชอบสูง" },
+        { level: 5, description: "เป็นแบบอย่างด้านความรับผิดชอบ" }
+      ]
     }
+  ]);
+
+  const handleSaveDraft = () => {
+    setStatus('draft');
+    console.log('บันทึกร่าง Merit KPI');
   };
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      toast({
-        title: "ส่งอนุมัติสำเร็จ",
-        description: "KPI Merit ได้ถูกส่งเพื่อรออนุมัติแล้ว",
-      });
-    } catch (error) {
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถส่งอนุมัติได้",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleSubmit = () => {
+    setStatus('submitted');
+    console.log('ส่งอนุมัติ Merit KPI');
+  };
+
+  const handleCompetencyUpdate = (items: CompetencyItem[]) => {
+    setCompetencyItems(items);
+  };
+
+  const handleCultureUpdate = (items: CultureItem[]) => {
+    setCultureItems(items);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Link to="/employee-dashboard">
-              <Button variant="outline" size="sm">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                กลับ
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">กำหนด KPI Merit</h1>
-              <p className="text-gray-600">จัดการและกำหนด KPI สำหรับการปรับเงินเดือน</p>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Link to="/employee-dashboard">
+                <Button variant="outline" size="sm">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  กลับ
+                </Button>
+              </Link>
+              <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                <Award className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">กำหนด KPI Merit</h1>
+                <p className="text-sm text-gray-600">ประเมินสมรรถนะและวัฒนธรรมองค์กร</p>
+              </div>
             </div>
-          </div>
-          
-          {/* Action Buttons */}
-          <div className="flex items-center gap-3">
-            <Button 
-              variant="outline" 
-              onClick={handleSaveDraft}
-              disabled={isSubmitting}
-            >
-              <Save className="w-4 h-4 mr-2" />
-              บันทึกร่าง
-            </Button>
-            <Button 
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-            >
-              <Send className="w-4 h-4 mr-2" />
-              ส่งอนุมัติ
-            </Button>
-            <Link to="/employee-dashboard">
-              <Button variant="outline">
-                <X className="w-4 h-4 mr-2" />
-                ยกเลิก
-              </Button>
-            </Link>
+            <div className="flex items-center space-x-4">
+              <Badge variant={status === 'submitted' ? 'default' : 'secondary'}>
+                {status === 'submitted' ? 'ส่งอนุมัติแล้ว' : 'ร่าง'}
+              </Badge>
+            </div>
           </div>
         </div>
+      </header>
 
-        {/* Employee Info */}
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <p className="text-sm text-gray-600">ชื่อพนักงาน</p>
-                <p className="font-semibold">สมชาย ใจดี</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">แผนก</p>
-                <p className="font-semibold">การขาย</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">รหัสพนักงาน</p>
-                <p className="font-semibold">EMP001</p>
-              </div>
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Introduction Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="w-5 h-5" />
+                การประเมิน Merit (สมรรถนะและวัฒนธรรม)
+              </CardTitle>
+              <CardDescription>
+                ประเมินผลงานตามสมรรถนะหลักและค่านิยมขององค์กร โดยแบ่งเป็น 2 ส่วนหลัก
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          {/* Competency Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>สมรรถนะหลัก (Core Competency)</CardTitle>
+              <CardDescription>
+                ประเมินทักษะและความสามารถที่จำเป็นสำหรับตำแหน่งงาน
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CompetencyTable 
+                items={competencyItems} 
+                onUpdate={handleCompetencyUpdate}
+                readonly={status === 'submitted'}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Culture Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>วัฒนธรรมองค์กร (Corporate Culture)</CardTitle>
+              <CardDescription>
+                ประเมินการปฏิบัติตามค่านิยมและวัฒนธรรมขององค์กร
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CultureTable 
+                items={cultureItems} 
+                onUpdate={handleCultureUpdate}
+                readonly={status === 'submitted'}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Action Buttons */}
+          {status !== 'submitted' && (
+            <div className="flex justify-end space-x-4">
+              <Button variant="outline" onClick={handleSaveDraft}>
+                <Save className="w-4 h-4 mr-2" />
+                บันทึกร่าง
+              </Button>
+              <Button onClick={handleSubmit}>
+                <Send className="w-4 h-4 mr-2" />
+                ส่งอนุมัติ
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Main Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="structure" className="flex items-center gap-2">
-              <Target className="w-4 h-4" />
-              โครงสร้าง KPI Merit
-            </TabsTrigger>
-            <TabsTrigger value="competency">สมรรถนะ</TabsTrigger>
-            <TabsTrigger value="culture">วัฒนธรรม</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="structure">
-            <KPIMeritStructure kpiMerit={mockKPIMerit} />
-          </TabsContent>
-
-          <TabsContent value="competency">
-            <CompetencyTable competencyItems={mockCompetencyItems} />
-          </TabsContent>
-
-          <TabsContent value="culture">
-            <CultureTable cultureItems={mockCultureItems} />
-          </TabsContent>
-        </Tabs>
-      </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 };
