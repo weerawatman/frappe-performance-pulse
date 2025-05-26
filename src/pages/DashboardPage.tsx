@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Target, Users, Award, Building, TrendingUp, FileText, BarChart } from 'lucide-react';
+import { Calendar, Target, Users, Award, Building, TrendingUp, FileText, BarChart, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PerformanceDashboard from '@/components/performance/PerformanceDashboard';
 import CorporateKPIManager from '@/components/admin/CorporateKPIManager';
@@ -14,9 +14,17 @@ const DashboardPage = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-600">ภาพรวมการจัดการประสิทธิภาพองค์กร ปี 2025</p>
+          <div className="flex items-center gap-4">
+            <Link to="/">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                กลับ
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-gray-600">ภาพรวมการจัดการประสิทธิภาพองค์กร ปี 2025</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="px-3 py-1">

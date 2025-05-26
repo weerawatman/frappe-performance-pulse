@@ -3,7 +3,9 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Target, Users, Award, Building } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Calendar, Target, Users, Award, Building, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import KPIBonusEvaluation from '@/components/performance/evaluation/KPIBonusEvaluation';
 import KPIMeritEvaluation from '@/components/performance/evaluation/KPIMeritEvaluation';
 import CultureEvaluationTable from '@/components/performance/evaluation/CultureEvaluationTable';
@@ -23,9 +25,17 @@ const PerformanceEvaluationPage: React.FC<PerformanceEvaluationPageProps> = ({ u
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">ประเมินผลงาน</h1>
-            <p className="text-gray-600">ประเมินผลงาน KPI Bonus และ KPI Merit</p>
+          <div className="flex items-center gap-4">
+            <Link to="/">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                กลับ
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">ประเมินผลงาน</h1>
+              <p className="text-gray-600">ประเมินผลงาน KPI Bonus และ KPI Merit</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="px-3 py-1">
