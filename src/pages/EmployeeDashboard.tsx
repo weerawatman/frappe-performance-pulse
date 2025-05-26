@@ -1,260 +1,182 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Target, 
-  TrendingUp, 
-  Bell, 
-  Award, 
-  Calendar,
-  FileText,
-  BarChart3,
-  History,
-  LogOut,
-  User
-} from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, Target, FileText, Calendar, Bell, LogOut, TrendingUp, CheckCircle, Clock } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
-const EmployeeDashboard: React.FC = () => {
+const EmployeeDashboard = () => {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
-  // Mock data สำหรับพนักงาน
-  const employeeStats = {
-    currentKPI: {
-      status: 'In Progress',
-      progress: 75,
-      dueDate: '31 ธันวาคม 2024'
-    },
-    lastScore: {
-      kpiBonus: 4.2,
-      kpiMerit: 4.5,
-      overall: 4.35
-    },
-    notifications: [
-      { id: 1, message: 'กรุณาอัพเดตผลงาน KPI ประจำเดือน', type: 'warning' },
-      { id: 2, message: 'การประเมินกลางปีครบกำหนดใน 5 วัน', type: 'info' },
-      { id: 3, message: 'ผลการประเมินรอบที่แล้วพร้อมแล้ว', type: 'success' }
-    ],
-    upcomingEvents: [
-      { date: '15 ม.ค. 2025', event: 'การประเมินกลางปี' },
-      { date: '30 ม.ค. 2025', event: 'กำหนด KPI รอบใหม่' }
-    ]
-  };
-
-  const quickActions = [
+  const employeeFeatures = [
     {
-      title: 'กำหนด KPI',
-      description: 'ตั้งเป้าหมายและ KPI สำหรับรอบการประเมิน',
-      icon: Target,
-      color: 'bg-blue-500',
-      path: '/employee/kpi'
+      icon: <Target className="w-8 h-8 text-blue-600" />,
+      title: "กำหนด KPI Bonus",
+      description: "จัดการและกำหนด KPI สำหรับการคำนวณโบนัส",
+      link: "/employee/kpi-bonus",
+      status: "Active"
     },
     {
-      title: 'ประเมินผลงาน',
-      description: 'บันทึกผลการดำเนินงานและความคืบหน้า',
-      icon: TrendingUp,
-      color: 'bg-green-500',
-      path: '/employee/evaluation'
+      icon: <FileText className="w-8 h-8 text-green-600" />,
+      title: "ประเมินตนเอง",
+      description: "ประเมินผลงานและความสามารถของตนเอง",
+      link: "/performance",
+      status: "Coming Soon"
     },
     {
-      title: 'ดูผลการประเมิน',
-      description: 'ตรวจสอบผลการประเมินและคะแนนล่าสุด',
-      icon: Award,
-      color: 'bg-purple-500',
-      path: '/employee/results'
-    },
-    {
-      title: 'ประวัติการประเมิน',
-      description: 'เรียกดูประวัติการประเมินทั้งหมด',
-      icon: History,
-      color: 'bg-orange-500',
-      path: '/employee/history'
+      icon: <Calendar className="w-8 h-8 text-purple-600" />,
+      title: "แผนพัฒนา",
+      description: "ดูแผนการพัฒนาตนเองและเป้าหมายการทำงาน",
+      link: "/performance",
+      status: "Coming Soon"
     }
   ];
 
+  const employeeStats = [
+    { label: "KPI ที่กำหนด", value: "3", icon: <Target className="w-5 h-5" />, color: "text-blue-600" },
+    { label: "ผลงานเสร็จสิ้น", value: "85%", icon: <TrendingUp className="w-5 h-5" />, color: "text-green-600" },
+    { label: "งานที่เสร็จสิ้น", value: "12", icon: <CheckCircle className="w-5 h-5" />, color: "text-purple-600" },
+    { label: "รอการอนุมัติ", value: "1", icon: <Clock className="w-5 h-5" />, color: "text-orange-600" }
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <User className="w-6 h-6 text-white" />
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                <Target className="w-6 h-6 text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Employee Dashboard</h1>
-                <p className="text-sm text-gray-600">ยินดีต้อนรับ, {user?.name}</p>
+                <p className="text-sm text-gray-600">จัดการงานและติดตามผลงานของคุณ</p>
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={handleLogout}
-              className="flex items-center gap-2"
-            >
-              <LogOut className="w-4 h-4" />
-              ออกจากระบบ
-            </Button>
+            <div className="flex items-center space-x-4">
+              <div className="text-sm text-gray-600">
+                ยินดีต้อนรับ, <span className="font-semibold">{user?.name}</span>
+              </div>
+              <Bell className="w-5 h-5 text-gray-600" />
+              <Badge variant="secondary">Employee</Badge>
+              <Button variant="outline" size="sm" onClick={logout} className="flex items-center gap-2">
+                <LogOut className="w-4 h-4" />
+                ออกจากระบบ
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* ส่วนแสดงข้อมูลสรุป */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">สถานะ KPI ปัจจุบัน</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                  {employeeStats.currentKPI.status}
-                </Badge>
-                <span className="text-2xl font-bold text-blue-600">
-                  {employeeStats.currentKPI.progress}%
-                </span>
-              </div>
-              <p className="text-xs text-gray-500 mt-2">
-                ครบกำหนด: {employeeStats.currentKPI.dueDate}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">คะแนน KPI Bonus</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <Award className="w-8 h-8 text-green-500" />
-                <span className="text-2xl font-bold text-green-600">
-                  {employeeStats.lastScore.kpiBonus}
-                </span>
-              </div>
-              <p className="text-xs text-gray-500 mt-2">จากคะแนนเต็ม 5.0</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">คะแนน KPI Merit</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <BarChart3 className="w-8 h-8 text-purple-500" />
-                <span className="text-2xl font-bold text-purple-600">
-                  {employeeStats.lastScore.kpiMerit}
-                </span>
-              </div>
-              <p className="text-xs text-gray-500 mt-2">จากคะแนนเต็ม 5.0</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">คะแนนรวม</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <TrendingUp className="w-8 h-8 text-orange-500" />
-                <span className="text-2xl font-bold text-orange-600">
-                  {employeeStats.lastScore.overall}
-                </span>
-              </div>
-              <p className="text-xs text-gray-500 mt-2">ประเมินล่าสุด</p>
-            </CardContent>
-          </Card>
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-12">
+        {/* Welcome Section */}
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            ยินดีต้อนรับ, {user?.name}
+          </h2>
+          <p className="text-lg text-gray-600 mb-6">
+            จัดการงานและติดตามผลงานของคุณในแผนก {user?.department}
+          </p>
+          <Link to="/employee/kpi-bonus">
+            <Button size="lg" className="bg-green-600 hover:bg-green-700">
+              เริ่มกำหนด KPI
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* เมนูหลัก */}
-          <div className="lg:col-span-2">
-            <Card>
+        {/* Employee Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+          {employeeStats.map((stat, index) => (
+            <Card key={index} className="text-center hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6">
+                <div className={`flex items-center justify-center mb-3 ${stat.color}`}>
+                  {stat.icon}
+                </div>
+                <div className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Employee Features */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+          {employeeFeatures.map((feature, index) => (
+            <Card key={index} className="hover:shadow-lg transition-shadow duration-300 border-0 shadow-md">
               <CardHeader>
-                <CardTitle>เมนูหลัก</CardTitle>
-                <CardDescription>เลือกฟังก์ชันที่ต้องการใช้งาน</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    {feature.icon}
+                    <CardTitle className="text-lg">{feature.title}</CardTitle>
+                  </div>
+                  <Badge 
+                    variant="secondary"
+                    className={feature.status === "Active" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}
+                  >
+                    {feature.status}
+                  </Badge>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {quickActions.map((action, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-gray-50"
-                      onClick={() => navigate(action.path)}
-                    >
-                      <div className={`p-2 rounded-lg ${action.color}`}>
-                        <action.icon className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="text-left">
-                        <h3 className="font-semibold text-gray-900">{action.title}</h3>
-                        <p className="text-sm text-gray-600">{action.description}</p>
-                      </div>
-                    </Button>
-                  ))}
+                <CardDescription className="text-base mb-4">
+                  {feature.description}
+                </CardDescription>
+                <Link to={feature.link}>
+                  <Button variant="outline" className="w-full" disabled={feature.status !== "Active"}>
+                    เข้าสู่โมดูล
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-12">
+          <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">การดำเนินการด่วน</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Link to="/employee/kpi-bonus" className="block">
+              <div className="p-6 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Target className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">กำหนด KPI Bonus</h4>
+                    <p className="text-gray-600 text-sm">จัดการ KPI สำหรับการคำนวณโบนัส</p>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* การแจ้งเตือนและกิจกรรมที่จะมาถึง */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="w-5 h-5" />
-                  การแจ้งเตือน
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {employeeStats.notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={`p-3 rounded-lg text-sm ${
-                      notification.type === 'warning' 
-                        ? 'bg-yellow-50 text-yellow-800 border border-yellow-200'
-                        : notification.type === 'info'
-                        ? 'bg-blue-50 text-blue-800 border border-blue-200'
-                        : 'bg-green-50 text-green-800 border border-green-200'
-                    }`}
-                  >
-                    {notification.message}
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  กิจกรรมที่จะมาถึง
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {employeeStats.upcomingEvents.map((event, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
-                      {event.date}
-                    </div>
-                    <span className="text-sm text-gray-700">{event.event}</span>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+              </div>
+            </Link>
+            <div className="p-6 border border-gray-200 rounded-lg opacity-50">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-gray-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-1">ประเมินตนเอง</h4>
+                  <p className="text-gray-600 text-sm">เร็วๆ นี้</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-white border-t">
+        <div className="container mx-auto px-4 py-6">
+          <div className="text-center text-gray-600">
+            <p>&copy; 2024 HR Management System - Employee Dashboard</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
