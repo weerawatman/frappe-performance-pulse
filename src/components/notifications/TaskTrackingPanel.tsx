@@ -17,6 +17,7 @@ interface TaskItem {
   status: 'pending' | 'in_progress' | 'overdue';
   actionUrl: string;
   progress?: number;
+  isOverdue?: boolean;
 }
 
 interface TaskTrackingPanelProps {
@@ -32,27 +33,84 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
     const mockTasks: TaskItem[] = [];
 
     if (userRole === 'employee') {
+      // Check if we're in Q1 (Jan-Mar) for KPI setup period
+      const currentDate = new Date();
+      const isQ1 = currentDate.getMonth() < 3; // 0-2 = Jan-Mar
+      
+      if (isQ1) {
+        // During Q1 - KPI setup period
+        mockTasks.push(
+          {
+            id: '1',
+            title: 'กำหนด KPI Bonus ไตรมาส 4',
+            description: 'กำหนด KPI สำหรับการคำนวณโบนัสไตรมาส 4',
+            type: 'kpi_bonus',
+            priority: 'high',
+            dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
+            status: 'pending',
+            actionUrl: '/employee/kpi-bonus'
+          },
+          {
+            id: '2',
+            title: 'ประเมิน KPI Merit ประจำปี',
+            description: 'ประเมิน Competency และ Culture สำหรับการปรับเงินเดือน',
+            type: 'kpi_merit',
+            priority: 'medium',
+            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+            status: 'in_progress',
+            actionUrl: '/employee/kpi-merit',
+            progress: 65
+          }
+        );
+      } else {
+        // Past Q1 - KPI setup is overdue
+        mockTasks.push(
+          {
+            id: '1',
+            title: 'กำหนด KPI Bonus ไตรมาส 4',
+            description: 'กำหนด KPI สำหรับการคำนวณโบนัสไตรมาส 4 (เกินกำหนด)',
+            type: 'kpi_bonus',
+            priority: 'high',
+            dueDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+            status: 'overdue',
+            actionUrl: '/employee/kpi-bonus',
+            isOverdue: true
+          },
+          {
+            id: '2',
+            title: 'ประเมิน KPI Merit ประจำปี',
+            description: 'ประเมิน Competency และ Culture สำหรับการปรับเงินเดือน (เกินกำหนด)',
+            type: 'kpi_merit',
+            priority: 'high',
+            dueDate: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000), // 20 days ago
+            status: 'overdue',
+            actionUrl: '/employee/kpi-merit',
+            isOverdue: true
+          }
+        );
+      }
+
+      // Add upcoming evaluation periods
       mockTasks.push(
         {
-          id: '1',
-          title: 'กำหนด KPI Bonus ไตรมาส 4',
-          description: 'กำหนด KPI สำหรับการคำนวณโบนัสไตรมาส 4',
-          type: 'kpi_bonus',
-          priority: 'high',
-          dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
+          id: '3',
+          title: 'การประเมินผลงานครั้งที่ 1',
+          description: 'ช่วงการประเมินผลงานครึ่งปีแรก',
+          type: 'evaluation',
+          priority: 'medium',
+          dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
           status: 'pending',
-          actionUrl: '/employee/kpi-bonus'
+          actionUrl: '/employee/evaluation'
         },
         {
-          id: '2',
-          title: 'ประเมิน KPI Merit ประจำปี',
-          description: 'ประเมิน Competency และ Culture สำหรับการปรับเงินเดือน',
-          type: 'kpi_merit',
+          id: '4',
+          title: 'การประเมินผลงานครั้งที่ 2',
+          description: 'ช่วงการประเมินผลงานครึ่งปีหลัง',
+          type: 'evaluation',
           priority: 'medium',
-          dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-          status: 'in_progress',
-          actionUrl: '/employee/kpi-merit',
-          progress: 65
+          dueDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000), // 180 days from now
+          status: 'pending',
+          actionUrl: '/employee/evaluation'
         }
       );
     } else if (userRole === 'manager') {
@@ -118,45 +176,53 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
     return daysDiff;
   };
 
-  const urgentTasks = tasks.filter(task => getDaysUntilDue(task.dueDate) <= 3);
-  const upcomingTasks = tasks.filter(task => getDaysUntilDue(task.dueDate) > 3);
+  const getOverdueDays = (dueDate: Date) => {
+    const now = new Date();
+    const timeDiff = now.getTime() - dueDate.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    return daysDiff;
+  };
+
+  // Filter tasks for overdue and upcoming sections
+  const overdueTasks = tasks.filter(task => task.isOverdue || task.status === 'overdue');
+  const upcomingTasks = tasks.filter(task => !task.isOverdue && task.status !== 'overdue');
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
-      {/* Urgent Tasks */}
-      <Card className="border-orange-200">
+      {/* Overdue Tasks */}
+      <Card className="border-red-200">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-orange-700">
+          <CardTitle className="flex items-center gap-2 text-red-700">
             <AlertTriangle className="w-5 h-5" />
-            งานด่วน ({urgentTasks.length})
+            งานที่เกินกำหนด ({overdueTasks.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {urgentTasks.length === 0 ? (
+          {overdueTasks.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <CheckCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p>ไม่มีงานด่วนในขณะนี้</p>
+              <p>ไม่มีงานที่เกินกำหนด</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {urgentTasks.map((task) => (
-                <div key={task.id} className="p-4 border rounded-lg bg-orange-50">
+              {overdueTasks.map((task) => (
+                <div key={task.id} className="p-4 border rounded-lg bg-red-50 border-red-200">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
                       {getTypeIcon(task.type)}
-                      <h4 className="font-medium">{task.title}</h4>
+                      <h4 className="font-medium text-red-800">{task.title}</h4>
                     </div>
                     <Badge className={getPriorityColor(task.priority)} variant="outline">
                       {task.priority}
                     </Badge>
                   </div>
-                  <p className="text-sm text-gray-600 mb-3">{task.description}</p>
+                  <p className="text-sm text-red-700 mb-3">{task.description}</p>
                   
                   {task.progress !== undefined && (
                     <div className="mb-3">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-gray-600">ความคืบหน้า</span>
-                        <span className="text-xs text-gray-600">{task.progress}%</span>
+                        <span className="text-xs text-red-600">ความคืบหน้า</span>
+                        <span className="text-xs text-red-600">{task.progress}%</span>
                       </div>
                       <Progress value={task.progress} className="h-2" />
                     </div>
@@ -164,18 +230,17 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <Badge className={getStatusColor(task.status)} variant="secondary">
-                        {task.status === 'pending' ? 'รอดำเนินการ' : 
-                         task.status === 'in_progress' ? 'กำลังดำเนินการ' : 'เกินกำหนด'}
+                      <Badge className="bg-red-100 text-red-700" variant="secondary">
+                        เกินกำหนด
                       </Badge>
-                      <span className="text-xs text-gray-500 flex items-center gap-1">
+                      <span className="text-xs text-red-600 flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        เหลือ {getDaysUntilDue(task.dueDate)} วัน
+                        เกิน {getOverdueDays(task.dueDate)} วัน
                       </span>
                     </div>
                     <Link to={task.actionUrl}>
-                      <Button size="sm" variant="outline">
-                        ดำเนินการ
+                      <Button size="sm" variant="destructive">
+                        ดำเนินการด่วน
                       </Button>
                     </Link>
                   </div>
@@ -202,48 +267,35 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
             </div>
           ) : (
             <div className="space-y-4">
-              {upcomingTasks.map((task) => (
-                <div key={task.id} className="p-4 border rounded-lg hover:bg-gray-50">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      {getTypeIcon(task.type)}
-                      <h4 className="font-medium">{task.title}</h4>
-                    </div>
-                    <Badge className={getPriorityColor(task.priority)} variant="outline">
-                      {task.priority}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-3">{task.description}</p>
-                  
-                  {task.progress !== undefined && (
-                    <div className="mb-3">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-gray-600">ความคืบหน้า</span>
-                        <span className="text-xs text-gray-600">{task.progress}%</span>
+              {upcomingTasks.map((task) => {
+                const daysLeft = getDaysUntilDue(task.dueDate);
+                const isKPISetup = task.type === 'kpi_bonus' || task.type === 'kpi_merit';
+                
+                return (
+                  <div key={task.id} className="p-4 border rounded-lg hover:bg-gray-50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {getTypeIcon(task.type)}
+                        <div>
+                          <h4 className="font-medium">{task.title}</h4>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs text-gray-500 flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              เหลือ {daysLeft} วัน
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <Progress value={task.progress} className="h-2" />
+                      
+                      <Link to={isKPISetup ? task.actionUrl : '/employee/evaluation'}>
+                        <Button size="sm" variant="outline">
+                          {isKPISetup ? 'กำหนด KPI' : 'ดูรายละเอียด'}
+                        </Button>
+                      </Link>
                     </div>
-                  )}
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <Badge className={getStatusColor(task.status)} variant="secondary">
-                        {task.status === 'pending' ? 'รอดำเนินการ' : 
-                         task.status === 'in_progress' ? 'กำลังดำเนินการ' : 'เกินกำหนด'}
-                      </Badge>
-                      <span className="text-xs text-gray-500 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        เหลือ {getDaysUntilDue(task.dueDate)} วัน
-                      </span>
-                    </div>
-                    <Link to={task.actionUrl}>
-                      <Button size="sm" variant="outline">
-                        ดูรายละเอียด
-                      </Button>
-                    </Link>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>
