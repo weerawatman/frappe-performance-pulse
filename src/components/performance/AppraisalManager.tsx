@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +24,7 @@ import {
   Clock,
   AlertCircle
 } from 'lucide-react';
-import { Appraisal, AppraisalKRA, SelfRating } from '@/types/performance';
+import { Appraisal, AppraisalKRA, SelfRating, EmployeePerformanceFeedback } from '@/types/performance';
 import ScoreBreakdown from './ScoreBreakdown';
 import { calculateAllScores } from '@/utils/performanceScoring';
 
@@ -562,9 +561,35 @@ const AppraisalView: React.FC<AppraisalViewProps> = ({ appraisal }) => {
     modified_at: new Date()
   };
 
-  const mockFeedbacks = [
-    { status: 'Submitted', total_score: 4.2 },
-    { status: 'Submitted', total_score: 4.0 }
+  const mockFeedbacks: EmployeePerformanceFeedback[] = [
+    {
+      id: '1',
+      appraisal_id: appraisal.id,
+      employee_id: appraisal.employee_id,
+      employee_name: appraisal.employee_name,
+      reviewer_id: 'REV001',
+      reviewer_name: 'ผู้จัดการ A',
+      feedback: 'พนักงานทำงานได้ดีมาก',
+      feedback_ratings: [],
+      total_score: 4.2,
+      status: 'Submitted' as const,
+      created_at: new Date(),
+      modified_at: new Date()
+    },
+    {
+      id: '2',
+      appraisal_id: appraisal.id,
+      employee_id: appraisal.employee_id,
+      employee_name: appraisal.employee_name,
+      reviewer_id: 'REV002',
+      reviewer_name: 'เพื่อนร่วมงาน B',
+      feedback: 'ทำงานร่วมกันได้ดี',
+      feedback_ratings: [],
+      total_score: 4.0,
+      status: 'Submitted' as const,
+      created_at: new Date(),
+      modified_at: new Date()
+    }
   ];
 
   const scoreResult = calculateAllScores(appraisal, mockCycle, mockFeedbacks);

@@ -382,10 +382,12 @@ export class PerformanceService {
     const newAppraisals: Appraisal[] = [];
 
     cycle.appraisees.forEach(appraisee => {
+      const employee = this.getEmployee(appraisee.employee_id);
       const appraisal: Appraisal = {
         id: `${Date.now()}-${appraisee.employee_id}`,
         employee_id: appraisee.employee_id,
         employee_name: appraisee.employee_name,
+        department: appraisee.department,
         appraisal_cycle_id: cycleId,
         appraisal_template_id: appraisee.appraisal_template_id || cycle.appraisal_template_id,
         start_date: cycle.start_date,
