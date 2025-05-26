@@ -9,7 +9,10 @@ const users: User[] = [
     name: 'ผู้ดูแลระบบ',
     role: 'admin',
     department: 'IT',
-    avatar: '/placeholder.svg'
+    avatar: '/placeholder.svg',
+    position: 'System Administrator',
+    isActive: true,
+    lastLoginAt: new Date()
   },
   {
     id: 'checker-1', 
@@ -17,7 +20,10 @@ const users: User[] = [
     name: 'ผู้ตรวจสอบ',
     role: 'checker',
     department: 'Management',
-    avatar: '/placeholder.svg'
+    avatar: '/placeholder.svg',
+    position: 'Manager',
+    isActive: true,
+    lastLoginAt: new Date()
   },
   {
     id: 'approver-1',
@@ -25,7 +31,10 @@ const users: User[] = [
     name: 'ผู้อนุมัติ',
     role: 'approver',
     department: 'Management',
-    avatar: '/placeholder.svg'
+    avatar: '/placeholder.svg',
+    position: 'Director',
+    isActive: true,
+    lastLoginAt: new Date()
   },
   {
     id: 'employee-1',
@@ -33,7 +42,10 @@ const users: User[] = [
     name: 'สมชาย ใจดี',
     role: 'employee',
     department: 'การขาย',
-    avatar: '/placeholder.svg'
+    avatar: '/placeholder.svg',
+    position: 'Sales Representative',
+    isActive: true,
+    lastLoginAt: new Date()
   }
 ];
 
@@ -63,17 +75,26 @@ export const authService = {
   getUsers: () => users,
 
   getRoles: () => [
-    { id: 'admin', name: 'Administrator' },
-    { id: 'checker', name: 'Checker' },
-    { id: 'approver', name: 'Approver' },
-    { id: 'employee', name: 'Employee' }
+    { id: 'admin', name: 'Administrator', permissions: [
+      { id: 'manage_users', name: 'Manage Users', description: 'Can manage user accounts' },
+      { id: 'view_all', name: 'View All Data', description: 'Can view all system data' }
+    ]},
+    { id: 'checker', name: 'Checker', permissions: [
+      { id: 'check_kpi', name: 'Check KPI', description: 'Can check KPI submissions' }
+    ]},
+    { id: 'approver', name: 'Approver', permissions: [
+      { id: 'approve_kpi', name: 'Approve KPI', description: 'Can approve KPI submissions' }
+    ]},
+    { id: 'employee', name: 'Employee', permissions: [
+      { id: 'submit_kpi', name: 'Submit KPI', description: 'Can submit KPI data' }
+    ]}
   ],
 
   getPermissions: () => [
-    { id: 'view_all', name: 'View All Data' },
-    { id: 'edit_users', name: 'Edit Users' },
-    { id: 'approve_kpi', name: 'Approve KPI' },
-    { id: 'check_kpi', name: 'Check KPI' }
+    { id: 'view_all', name: 'View All Data', description: 'View all system data' },
+    { id: 'edit_users', name: 'Edit Users', description: 'Edit user information' },
+    { id: 'approve_kpi', name: 'Approve KPI', description: 'Approve KPI submissions' },
+    { id: 'check_kpi', name: 'Check KPI', description: 'Check KPI submissions' }
   ],
 
   getAccessLogs: () => [
@@ -101,5 +122,9 @@ export const authService = {
     const newUser = { ...user, id: `user-${Date.now()}` };
     console.log('User created:', newUser);
     return { success: true, user: newUser };
+  },
+
+  canAccessUserData: (userId: string, targetUserId: string, action: string): boolean => {
+    return true; // Simplified for demo
   }
 };

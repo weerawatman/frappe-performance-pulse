@@ -1,66 +1,88 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Target, Building } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+interface KPIStatus {
+  bonus: 'not_started' | 'draft' | 'pending_checker' | 'pending_approver' | 'completed';
+  merit: 'not_started' | 'draft' | 'pending_checker' | 'pending_approver' | 'completed';
+}
+
 const KPITrackingTable = () => {
-  // Corporate KPIs that are cascaded to employees (read-only)
+  const [kpiStatus, setKpiStatus] = useState<KPIStatus>({
+    bonus: 'not_started',
+    merit: 'not_started'
+  });
+
+  // Load status from localStorage on component mount
+  useEffect(() => {
+    const savedStatus = localStorage.getItem('kpiStatus');
+    if (savedStatus) {
+      setKpiStatus(JSON.parse(savedStatus));
+    }
+  }, []);
+
+  // Corporate KPIs - แสดงเฉพาะหัวข้อและเป้าหมาย
   const corporateKPIs = [
     {
       id: '1',
       name: 'เพิ่มรายได้องค์กร',
       target: '15% YoY',
-      weight: 40,
-      currentProgress: 12,
-      status: 'on-track'
+      weight: 40
     },
     {
       id: '2', 
       name: 'ลดต้นทุนการดำเนินงาน',
       target: '10%',
-      weight: 30,
-      currentProgress: 6,
-      status: 'at-risk'
+      weight: 30
     }
   ];
 
-  // Individual KPI data
+  // Individual KPI data with dynamic status
   const individualKPIs = [
     {
       type: 'KPI Bonus',
-      definition: 'เริ่มกำหนด KPI Bonus',
+      definition: getKPIButtonText('bonus', kpiStatus.bonus),
       evaluation1: 'Coming Soon',
       evaluation2: 'Coming Soon',
       link: '/employee/kpi-bonus',
       buttonColor: 'bg-green-600 hover:bg-green-700',
-      buttonText: 'เริ่มกำหนด KPI Bonus',
+      buttonText: getKPIButtonText('bonus', kpiStatus.bonus),
       available: true,
-      status: 'not_started'
+      status: kpiStatus.bonus
     },
     {
       type: 'KPI Merit',
-      definition: 'เริ่มกำหนด KPI Merit',
+      definition: getKPIButtonText('merit', kpiStatus.merit),
       evaluation1: 'Coming Soon',
       evaluation2: 'Coming Soon',
       link: '/employee/kpi-merit',
       buttonColor: 'bg-green-600 hover:bg-green-700',
-      buttonText: 'เริ่มกำหนด KPI Merit',
+      buttonText: getKPIButtonText('merit', kpiStatus.merit),
       available: true,
-      status: 'not_started'
+      status: kpiStatus.merit
     }
   ];
 
-  const getStatusColor = (status: string) => {
+  function getKPIButtonText(type: 'bonus' | 'merit', status: string): string {
     switch (status) {
-      case 'on-track': return 'bg-green-100 text-green-700';
-      case 'at-risk': return 'bg-yellow-100 text-yellow-700';
-      case 'behind': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'not_started':
+        return `เริ่มกำหนด KPI ${type === 'bonus' ? 'Bonus' : 'Merit'}`;
+      case 'draft':
+        return 'แก้ไขร่าง';
+      case 'pending_checker':
+        return 'รอ Checker';
+      case 'pending_approver':
+        return 'รอ Approve';
+      case 'completed':
+        return 'Completed';
+      default:
+        return `เริ่มกำหนด KPI ${type === 'bonus' ? 'Bonus' : 'Merit'}`;
     }
-  };
+  }
 
   const getEvaluationStatus = (status: string, evaluationRound: number) => {
     switch (status) {
@@ -105,7 +127,7 @@ const KPITrackingTable = () => {
 
   return (
     <div className="space-y-6">
-      {/* Corporate KPI Section */}
+      {/* Corporate KPI Section - แสดงเฉพาะหัวข้อและเป้าหมาย */}
       <Card className="shadow-lg border-0 border-l-4 border-l-blue-500">
         <CardHeader>
           <CardTitle className="text-center text-lg font-bold flex items-center justify-center gap-2">
@@ -117,28 +139,11 @@ const KPITrackingTable = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {corporateKPIs.map((kpi) => (
               <div key={kpi.id} className="border rounded-lg p-4 bg-blue-50">
-                <div className="flex items-center justify-between mb-2">
+                <div className="mb-2">
                   <h4 className="font-semibold text-gray-900">{kpi.name}</h4>
-                  <Badge className={getStatusColor(kpi.status)}>
-                    {kpi.status === 'on-track' ? 'ตามเป้า' : 
-                     kpi.status === 'at-risk' ? 'เสี่ยง' : 'ต่ำกว่าเป้า'}
-                  </Badge>
                 </div>
                 <p className="text-sm text-gray-600 mb-2">เป้าหมาย: {kpi.target}</p>
-                <p className="text-sm text-gray-600 mb-2">น้ำหนัก: {kpi.weight}%</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">ความคืบหน้า:</span>
-                  <div className="flex-1 bg-gray-200 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full ${
-                        kpi.status === 'on-track' ? 'bg-green-500' :
-                        kpi.status === 'at-risk' ? 'bg-yellow-500' : 'bg-red-500'
-                      }`}
-                      style={{ width: `${Math.min((kpi.currentProgress / parseFloat(kpi.target)) * 100, 100)}%` }}
-                    />
-                  </div>
-                  <span className="text-sm font-medium">{kpi.currentProgress}%</span>
-                </div>
+                <p className="text-sm text-gray-600">น้ำหนัก: {kpi.weight}%</p>
               </div>
             ))}
           </div>
@@ -172,14 +177,36 @@ const KPITrackingTable = () => {
                     </td>
                     <td className="border border-gray-300 px-4 py-4 text-center">
                       {item.available ? (
-                        <Link to={item.link}>
-                          <Button 
-                            className={`${item.buttonColor} text-white flex items-center gap-2 mx-auto`}
-                          >
-                            {item.buttonText}
-                            <ArrowRight className="w-4 h-4" />
-                          </Button>
-                        </Link>
+                        item.status === 'pending_checker' || item.status === 'pending_approver' || item.status === 'completed' ? (
+                          <div className="flex flex-col items-center gap-2">
+                            <Badge 
+                              className={
+                                item.status === 'pending_checker' ? 'bg-blue-100 text-blue-700' :
+                                item.status === 'pending_approver' ? 'bg-purple-100 text-purple-700' :
+                                'bg-green-100 text-green-700'
+                              }
+                            >
+                              {item.buttonText}
+                            </Badge>
+                            {item.status !== 'completed' && (
+                              <Link to={item.link}>
+                                <Button size="sm" variant="outline">
+                                  <ArrowRight className="w-4 h-4 mr-2" />
+                                  ดูรายละเอียด
+                                </Button>
+                              </Link>
+                            )}
+                          </div>
+                        ) : (
+                          <Link to={item.link}>
+                            <Button 
+                              className={`${item.buttonColor} text-white flex items-center gap-2 mx-auto`}
+                            >
+                              {item.buttonText}
+                              <ArrowRight className="w-4 h-4" />
+                            </Button>
+                          </Link>
+                        )
                       ) : (
                         <span className="text-gray-500">ไม่พร้อมใช้งาน</span>
                       )}

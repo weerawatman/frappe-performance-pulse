@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { userManagementService } from '@/services/userManagementService';
@@ -59,7 +58,7 @@ export const usePermissions = () => {
   };
 
   const isExecutive = (): boolean => {
-    return user?.role === 'executive';
+    return user?.role === 'checker' || user?.role === 'approver';
   };
 
   const isApprover = (): boolean => {

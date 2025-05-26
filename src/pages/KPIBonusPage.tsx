@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,8 +45,12 @@ const KPIBonusPage: React.FC = () => {
   const handleSaveDraft = async () => {
     setIsSubmitting(true);
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Save draft status to localStorage
+      const currentStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
+      currentStatus.bonus = 'draft';
+      localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
       
       toast({
         title: "บันทึกร่างสำเร็จ",
@@ -76,20 +79,12 @@ const KPIBonusPage: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Send notifications
-      const updatedKPI = {
-        ...kpiBonus,
-        kpi_items: kpiItems,
-        total_weight: totalWeight,
-        status: 'Pending_Approval' as const,
-        workflow_step: 'Checker' as const,
-        submitted_date: new Date()
-      };
-      
-      kpiNotificationService.notifyKPIBonusSubmitted(updatedKPI);
+      // Save submitted status to localStorage
+      const currentStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
+      currentStatus.bonus = 'pending_checker';
+      localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
       
       toast({
         title: "ส่งอนุมัติสำเร็จ",

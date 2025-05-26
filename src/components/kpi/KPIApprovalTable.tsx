@@ -1,211 +1,127 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, XCircle, Eye, Clock, User } from 'lucide-react';
-
-interface KPIApprovalItem {
-  id: string;
-  employeeName: string;
-  employeeId: string;
-  department: string;
-  kpiType: 'KPI Bonus' | 'KPI Merit';
-  submittedDate: Date;
-  status: 'pending_checker' | 'pending_approver';
-  totalKPIs: number;
-}
+import { Eye, CheckCircle, FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface KPIApprovalTableProps {
   userRole: 'checker' | 'approver';
 }
 
 const KPIApprovalTable: React.FC<KPIApprovalTableProps> = ({ userRole }) => {
-  const { toast } = useToast();
-  
-  // Mock data for pending approvals
-  const [pendingApprovals, setPendingApprovals] = useState<KPIApprovalItem[]>([
+  // Mock data - ในระบบจริงควรดึงจาก API
+  const pendingKPIs = userRole === 'checker' ? [
     {
       id: '1',
-      employeeName: 'สมชาย ใจดี',
-      employeeId: 'EMP001',
+      employee_name: 'สมชาย ใจดี',
+      employee_id: 'EMP001',
       department: 'การขาย',
-      kpiType: 'KPI Bonus',
-      submittedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-      status: userRole === 'checker' ? 'pending_checker' : 'pending_approver',
-      totalKPIs: 5
+      kpi_type: 'KPI Bonus',
+      submitted_date: new Date('2024-01-15'),
+      status: 'pending_checker'
     },
     {
       id: '2',
-      employeeName: 'สมหญิง ดีใจ',
-      employeeId: 'EMP002',
+      employee_name: 'สมหญิง สวยใส',
+      employee_id: 'EMP002',
       department: 'การตลาด',
-      kpiType: 'KPI Merit',
-      submittedDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-      status: userRole === 'checker' ? 'pending_checker' : 'pending_approver',
-      totalKPIs: 3
+      kpi_type: 'KPI Merit',
+      submitted_date: new Date('2024-01-16'),
+      status: 'pending_checker'
     }
-  ]);
-
-  const handleApprove = async (itemId: string) => {
-    const item = pendingApprovals.find(p => p.id === itemId);
-    if (!item) return;
-
-    try {
-      // Remove from pending list
-      setPendingApprovals(prev => prev.filter(p => p.id !== itemId));
-      
-      if (userRole === 'checker') {
-        toast({
-          title: "อนุมัติสำเร็จ",
-          description: `${item.kpiType} ของ ${item.employeeName} ได้ถูกส่งไปยัง Approver แล้ว`,
-        });
-      } else {
-        toast({
-          title: "อนุมัติสำเร็จ",
-          description: `${item.kpiType} ของ ${item.employeeName} ได้รับการอนุมัติเรียบร้อยแล้ว`,
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถอนุมัติได้",
-        variant: "destructive",
-      });
+  ] : [
+    {
+      id: '3',
+      employee_name: 'สมศักดิ์ ดีมาก',
+      employee_id: 'EMP003',
+      department: 'IT',
+      kpi_type: 'KPI Bonus',
+      submitted_date: new Date('2024-01-14'),
+      checked_date: new Date('2024-01-17'),
+      status: 'pending_approver'
     }
+  ];
+
+  const getActionLink = (kpiType: string) => {
+    return userRole === 'checker' ? '/manager/kpi-checker' : '/manager/kpi-approver';
   };
-
-  const handleReject = async (itemId: string) => {
-    const item = pendingApprovals.find(p => p.id === itemId);
-    if (!item) return;
-
-    try {
-      // Remove from pending list
-      setPendingApprovals(prev => prev.filter(p => p.id !== itemId));
-      
-      toast({
-        title: "ไม่อนุมัติ",
-        description: `${item.kpiType} ของ ${item.employeeName} ถูกส่งกลับไปแก้ไข`,
-        variant: "destructive",
-      });
-    } catch (error) {
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถดำเนินการได้",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pending_checker':
-        return <Badge className="bg-blue-100 text-blue-700">รอ Checker</Badge>;
-      case 'pending_approver':
-        return <Badge className="bg-purple-100 text-purple-700">รอ Approve</Badge>;
-      default:
-        return <Badge variant="secondary">ไม่ทราบสถานะ</Badge>;
-    }
-  };
-
-  const getDaysAgo = (date: Date) => {
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return `${diffDays} วันที่แล้ว`;
-  };
-
-  if (pendingApprovals.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="w-5 h-5" />
-            รอการอนุมัติ ({userRole === 'checker' ? 'Checker' : 'Approver'})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 text-gray-500">
-            <CheckCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p>ไม่มีรายการที่รอการอนุมัติ</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
-    <Card>
+    <Card className="shadow-lg">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Clock className="w-5 h-5" />
-          รอการอนุมัติ ({userRole === 'checker' ? 'Checker' : 'Approver'}) ({pendingApprovals.length})
+          <CheckCircle className="w-5 h-5" />
+          รายการ KPI ที่รอการ{userRole === 'checker' ? 'ตรวจสอบ' : 'อนุมัติ'} ({pendingKPIs.length})
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {pendingApprovals.map((item) => (
-            <div key={item.id} className="border rounded-lg p-4 hover:bg-gray-50">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <User className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold">{item.employeeName}</h4>
-                    <p className="text-sm text-gray-600">{item.employeeId} - {item.department}</p>
-                  </div>
-                </div>
-                {getStatusBadge(item.status)}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                <div>
-                  <p className="text-sm text-gray-600">ประเภท KPI</p>
-                  <p className="font-medium">{item.kpiType}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">จำนวน KPI</p>
-                  <p className="font-medium">{item.totalKPIs} รายการ</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">วันที่ส่ง</p>
-                  <p className="font-medium">{getDaysAgo(item.submittedDate)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">สถานะ</p>
-                  <p className="font-medium">
-                    {userRole === 'checker' ? 'รอตรวจสอบ' : 'รออนุมัติ'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Button size="sm" variant="outline">
-                  <Eye className="w-4 h-4 mr-2" />
-                  ดูรายละเอียด
-                </Button>
-                <Button 
-                  size="sm" 
-                  onClick={() => handleApprove(item.id)}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  อนุมัติ
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="destructive"
-                  onClick={() => handleReject(item.id)}
-                >
-                  <XCircle className="w-4 h-4 mr-2" />
-                  ไม่อนุมัติ
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
+        {pendingKPIs.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="border border-gray-300 px-4 py-3 text-left font-medium">ชื่อพนักงาน</th>
+                  <th className="border border-gray-300 px-4 py-3 text-left font-medium">รหัสพนักงาน</th>
+                  <th className="border border-gray-300 px-4 py-3 text-left font-medium">แผนก</th>
+                  <th className="border border-gray-300 px-4 py-3 text-left font-medium">ประเภท KPI</th>
+                  <th className="border border-gray-300 px-4 py-3 text-left font-medium">วันที่ส่ง</th>
+                  {userRole === 'approver' && (
+                    <th className="border border-gray-300 px-4 py-3 text-left font-medium">วันที่ตรวจสอบ</th>
+                  )}
+                  <th className="border border-gray-300 px-4 py-3 text-center font-medium">สถานะ</th>
+                  <th className="border border-gray-300 px-4 py-3 text-center font-medium">การดำเนินการ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingKPIs.map((kpi, index) => (
+                  <tr key={kpi.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <td className="border border-gray-300 px-4 py-3">{kpi.employee_name}</td>
+                    <td className="border border-gray-300 px-4 py-3">{kpi.employee_id}</td>
+                    <td className="border border-gray-300 px-4 py-3">{kpi.department}</td>
+                    <td className="border border-gray-300 px-4 py-3">
+                      <Badge variant="outline">{kpi.kpi_type}</Badge>
+                    </td>
+                    <td className="border border-gray-300 px-4 py-3">
+                      {kpi.submitted_date.toLocaleDateString('th-TH')}
+                    </td>
+                    {userRole === 'approver' && 'checked_date' in kpi && (
+                      <td className="border border-gray-300 px-4 py-3">
+                        {kpi.checked_date?.toLocaleDateString('th-TH')}
+                      </td>
+                    )}
+                    <td className="border border-gray-300 px-4 py-3 text-center">
+                      <Badge className={
+                        userRole === 'checker' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                      }>
+                        {userRole === 'checker' ? 'รอตรวจสอบ' : 'รออนุมัติ'}
+                      </Badge>
+                    </td>
+                    <td className="border border-gray-300 px-4 py-3 text-center">
+                      <Link to={getActionLink(kpi.kpi_type)}>
+                        <Button size="sm" variant="outline">
+                          <Eye className="w-4 h-4 mr-2" />
+                          {userRole === 'checker' ? 'ตรวจสอบ' : 'อนุมัติ'}
+                        </Button>
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              ไม่มี KPI ที่รอการ{userRole === 'checker' ? 'ตรวจสอบ' : 'อนุมัติ'}
+            </h3>
+            <p className="text-gray-600">
+              ขณะนี้ไม่มี KPI ที่ต้องดำเนินการ
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

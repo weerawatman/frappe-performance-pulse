@@ -15,6 +15,31 @@ const EmployeeDashboard = () => {
   const { user, logout } = useAuth();
   const isChecker = user?.role === 'checker';
   const isApprover = user?.role === 'approver';
+  const isEmployee = user?.role === 'employee';
+
+  const getDashboardTitle = () => {
+    if (isChecker) return 'Checker Dashboard';
+    if (isApprover) return 'Approver Dashboard';
+    return 'Employee Dashboard';
+  };
+
+  const getDashboardDescription = () => {
+    if (isChecker) return 'ตรวจสอบและอนุมัติ KPI ของพนักงาน';
+    if (isApprover) return 'อนุมัติ KPI ที่ผ่านการตรวจสอบแล้ว';
+    return 'จัดการงานและติดตามผลงานของคุณ';
+  };
+
+  const getWelcomeMessage = () => {
+    if (isChecker) return 'ตรวจสอบและอนุมัติ KPI ของพนักงาน';
+    if (isApprover) return 'อนุมัติ KPI ที่ผ่านการตรวจสอบแล้ว';
+    return `จัดการงานและติดตามผลงานของคุณในแผนก ${user?.department}`;
+  };
+
+  const getRoleBadge = () => {
+    if (isChecker) return 'Checker';
+    if (isApprover) return 'Approver';
+    return 'Employee';
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100">
@@ -28,9 +53,9 @@ const EmployeeDashboard = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">
-                  {isChecker ? 'Checker Dashboard' : isApprover ? 'Approver Dashboard' : 'Employee Dashboard'}
+                  {getDashboardTitle()}
                 </h1>
-                <p className="text-sm text-gray-600">จัดการงานและติดตามผลงานของคุณ</p>
+                <p className="text-sm text-gray-600">{getDashboardDescription()}</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -39,7 +64,7 @@ const EmployeeDashboard = () => {
               </div>
               <NotificationCenter userId={user?.id || 'EMP001'} />
               <Badge variant="secondary">
-                {isChecker ? 'Checker' : isApprover ? 'Approver' : 'Employee'}
+                {getRoleBadge()}
               </Badge>
               <Button variant="outline" size="sm" onClick={logout} className="flex items-center gap-2">
                 <LogOut className="w-4 h-4" />
@@ -58,16 +83,14 @@ const EmployeeDashboard = () => {
             ยินดีต้อนรับ, {user?.name}
           </h2>
           <p className="text-lg text-gray-600 mb-6">
-            {isChecker ? 'ตรวจสอบและอนุมัติ KPI ของพนักงาน' : 
-             isApprover ? 'อนุมัติ KPI ที่ผ่านการตรวจสอบแล้ว' : 
-             `จัดการงานและติดตามผลงานของคุณในแผนก ${user?.department}`}
+            {getWelcomeMessage()}
           </p>
         </div>
 
-        {/* KPI Tracking Table */}
+        {/* KPI Tracking Table - สำหรับทุก role */}
         <KPITrackingTable />
 
-        {/* KPI Approval Table (for Checker and Approver only) */}
+        {/* KPI Approval Table - เฉพาะ Checker และ Approver */}
         {(isChecker || isApprover) && (
           <div className="mt-12">
             <KPIApprovalTable userRole={isChecker ? 'checker' : 'approver'} />
@@ -87,9 +110,7 @@ const EmployeeDashboard = () => {
       <footer className="bg-white border-t">
         <div className="container mx-auto px-4 py-6">
           <div className="text-center text-gray-600">
-            <p>&copy; 2025 HR Management System - 
-              {isChecker ? ' Checker Dashboard' : isApprover ? ' Approver Dashboard' : ' Employee Dashboard'}
-            </p>
+            <p>&copy; 2025 HR Management System - {getDashboardTitle()}</p>
           </div>
         </div>
       </footer>

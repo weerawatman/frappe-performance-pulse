@@ -142,11 +142,21 @@ const KPIMeritPage = () => {
   ]);
 
   const handleSaveDraft = () => {
+    // Save draft status to localStorage
+    const currentStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
+    currentStatus.merit = 'draft';
+    localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
+    
     setStatus('draft');
     console.log('บันทึกร่าง Merit KPI');
   };
 
   const handleSubmit = () => {
+    // Save submitted status to localStorage
+    const currentStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
+    currentStatus.merit = 'pending_checker';
+    localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
+    
     setStatus('submitted');
     console.log('ส่งอนุมัติ Merit KPI');
   };

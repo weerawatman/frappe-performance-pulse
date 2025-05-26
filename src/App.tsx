@@ -13,6 +13,8 @@ import ReportsPage from '@/pages/ReportsPage';
 import KPIManagementPage from '@/pages/KPIManagementPage';
 import KPIBonusPage from '@/pages/KPIBonusPage';
 import KPIMeritPage from '@/pages/KPIMeritPage';
+import KPICheckerPage from '@/pages/KPICheckerPage';
+import KPIApproverPage from '@/pages/KPIApproverPage';
 
 function App() {
   return (
@@ -30,6 +32,16 @@ function App() {
               <EmployeeDashboard />
             </ProtectedRoute>
           } />
+          <Route path="/checker-dashboard" element={
+            <ProtectedRoute requireChecker>
+              <EmployeeDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/approver-dashboard" element={
+            <ProtectedRoute requireApprover>
+              <EmployeeDashboard />
+            </ProtectedRoute>
+          } />
           <Route path="/kpi" element={
             <ProtectedRoute>
               <MainLayout><KPIManagementPage /></MainLayout>
@@ -43,6 +55,16 @@ function App() {
           <Route path="/employee/kpi-merit" element={
             <ProtectedRoute requireEmployee>
               <KPIMeritPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/manager/kpi-checker" element={
+            <ProtectedRoute requireChecker>
+              <KPICheckerPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/manager/kpi-approver" element={
+            <ProtectedRoute requireApprover>
+              <KPIApproverPage />
             </ProtectedRoute>
           } />
           <Route path="/employee/evaluation" element={
