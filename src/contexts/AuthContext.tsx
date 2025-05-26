@@ -36,9 +36,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const currentUser = authService.getCurrentUser();
     if (currentUser) {
       setUser(currentUser);
+    } else {
+      // If no user is logged in and not on login page, redirect to login
+      if (window.location.pathname !== '/login') {
+        navigate('/login');
+      }
     }
     setLoading(false);
-  }, []);
+  }, [navigate]);
 
   const login = async (email: string, password: string) => {
     try {
