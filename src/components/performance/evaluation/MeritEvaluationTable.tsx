@@ -1,12 +1,11 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Save, Send } from 'lucide-react';
+import { Save, Send, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface CompetencyItem {
@@ -146,10 +145,11 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
 
   return (
     <div className="space-y-6">
+      {/* Header Card */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>การประเมิน Merit ครั้งที่ 1</span>
+            <span>การประเมิน Competency ครั้งที่ {period === 'mid' ? '1' : '2'}</span>
             <div className="text-right">
               <div className="text-2xl font-bold text-green-600">
                 {percentage.toFixed(2)}%
@@ -158,173 +158,241 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
             </div>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-gray-100">
-                  <TableHead className="border w-32">ประเภท Competency (Competency Type)</TableHead>
-                  <TableHead className="border w-48">Item (หัวข้อ)</TableHead>
-                  <TableHead className="border w-20 text-center">Weight% (น้ำหนัก)</TableHead>
-                  <TableHead className="border w-64">Input & Process - ชี้ให้เห็นความเชื่อมโยงกับเป้าหมายขององค์กรและหน้าที่</TableHead>
-                  <TableHead className="border w-64">Output - ผลลัพธ์ของงานในรูปขอบเขตชัดเจน (มีตัวเลขชี้วัดที่ใช้วัดผลสำเร็จ) ไม่ว่าจะเชิง KPI</TableHead>
-                  <TableHead className="border w-64">หลักฐานการดำเนินการ/การแสดงออกจริง</TableHead>
-                  <TableHead className="border w-24 text-center">ประเมินผลสำเร็จของตนเอง</TableHead>
-                  <TableHead className="border w-24 text-center">ประเมินผลสำเร็จโดย Checker</TableHead>
-                  <TableHead className="border w-24 text-center">ประเมินผลสำเร็จโดย Approver</TableHead>
-                  <TableHead className="border w-64">Feedback</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {competencyItems.map((item, index) => {
-                  const evaluation = evaluations[item.id];
-                  return (
-                    <TableRow key={item.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                      <TableCell className="border align-top">
-                        <div className="text-sm font-medium whitespace-normal break-words">
-                          {item.type}
-                        </div>
-                      </TableCell>
-                      <TableCell className="border align-top">
-                        <div className="text-sm whitespace-normal break-words">
-                          <div className="font-medium mb-1">{item.id}</div>
-                          {item.item}
-                        </div>
-                      </TableCell>
-                      <TableCell className="border text-center align-top">
-                        <Badge variant="outline">{item.weight}%</Badge>
-                      </TableCell>
-                      <TableCell className="border align-top">
-                        <div className="text-xs whitespace-normal break-words leading-relaxed">
-                          {item.inputProcess.split('\n').map((line, i) => (
-                            <div key={i} className="mb-1">{line}</div>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell className="border align-top">
-                        <div className="text-xs whitespace-normal break-words leading-relaxed">
-                          {item.output.split('\n').map((line, i) => (
-                            <div key={i} className="mb-1">{line}</div>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell className="border align-top">
-                        <Textarea
-                          value={evaluation.evidence}
-                          onChange={(e) => updateEvaluation(item.id, 'evidence', e.target.value)}
-                          placeholder="กรอกหลักฐานการดำเนินการ..."
-                          rows={4}
-                          className="text-sm"
-                          disabled={!canEdit('evidence')}
-                        />
-                      </TableCell>
-                      <TableCell className="border text-center align-top">
-                        <Select
-                          value={evaluation.selfScore.toString()}
-                          onValueChange={(value) => updateEvaluation(item.id, 'selfScore', Number(value))}
-                          disabled={!canEdit('selfScore')}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="เลือก" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="0">-</SelectItem>
-                            <SelectItem value="1">1</SelectItem>
-                            <SelectItem value="2">2</SelectItem>
-                            <SelectItem value="3">3</SelectItem>
-                            <SelectItem value="4">4</SelectItem>
-                            <SelectItem value="5">5</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell className="border text-center align-top">
-                        <Select
-                          value={evaluation.checkerScore?.toString() || '0'}
-                          onValueChange={(value) => updateEvaluation(item.id, 'checkerScore', Number(value))}
-                          disabled={!canEdit('checkerScore')}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="เลือก" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="0">-</SelectItem>
-                            <SelectItem value="1">1</SelectItem>
-                            <SelectItem value="2">2</SelectItem>
-                            <SelectItem value="3">3</SelectItem>
-                            <SelectItem value="4">4</SelectItem>
-                            <SelectItem value="5">5</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell className="border text-center align-top">
-                        <Select
-                          value={evaluation.approverScore?.toString() || '0'}
-                          onValueChange={(value) => updateEvaluation(item.id, 'approverScore', Number(value))}
-                          disabled={!canEdit('approverScore')}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="เลือก" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="0">-</SelectItem>
-                            <SelectItem value="1">1</SelectItem>
-                            <SelectItem value="2">2</SelectItem>
-                            <SelectItem value="3">3</SelectItem>
-                            <SelectItem value="4">4</SelectItem>
-                            <SelectItem value="5">5</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell className="border align-top">
-                        <Textarea
-                          value={evaluation.feedback}
-                          onChange={(e) => updateEvaluation(item.id, 'feedback', e.target.value)}
-                          placeholder="กรอก Feedback..."
-                          rows={4}
-                          className="text-sm"
-                          disabled={!canEdit('feedback')}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
+      </Card>
 
-          {/* Summary Row */}
-          <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-semibold text-blue-900">รวมคะแนน Competency</h4>
-                <p className="text-sm text-blue-700">
-                  สูตรการคำนวณ: Σ(คะแนน ÷ 5) × น้ำหนัก%
-                </p>
+      {/* Competency Items */}
+      {competencyItems.map((item, index) => {
+        const evaluation = evaluations[item.id];
+        return (
+          <Card key={item.id} className="border border-gray-300">
+            <CardContent className="p-6">
+              {/* Header Table */}
+              <div className="grid grid-cols-4 gap-4 mb-6 border border-gray-300">
+                <div className="border-r border-gray-300 p-3 bg-gray-50">
+                  <div className="font-medium text-sm">ประเภท Competency (Competency Type)</div>
+                  <div className="text-sm mt-2">{item.type}</div>
+                </div>
+                <div className="border-r border-gray-300 p-3 bg-gray-50">
+                  <div className="font-medium text-sm">Item (หัวข้อ)</div>
+                  <div className="text-sm mt-2">
+                    <div className="font-medium text-blue-600 mb-1">{item.id}</div>
+                    {item.item}
+                  </div>
+                </div>
+                <div className="border-r border-gray-300 p-3 bg-gray-50 text-center">
+                  <div className="font-medium text-sm">Weight% (น้ำหนัก)</div>
+                  <div className="mt-2">
+                    <Badge variant="outline">{item.weight}%</Badge>
+                  </div>
+                </div>
+                <div className="p-3 bg-red-50">
+                  <div className="font-medium text-sm text-red-700">เป้าหมาย</div>
+                  <div className="text-sm mt-2 text-red-600">
+                    ข้อมูลจากการวิเคราะห์เพื่อเชื่อมโยงเป้าหมายและผลลัพธ์ (เป้าหมายจาก KPI Bonus, KPI)
+                  </div>
+                </div>
               </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-blue-600">
-                  {percentage.toFixed(2)}%
+
+              {/* Input & Process */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="border border-gray-300 p-3">
+                  <div className="font-medium text-sm mb-2 text-blue-600">
+                    Input & Process - ชี้ให้เห็นความเชื่อมโยงกับเป้าหมายขององค์กรและหน้าที่
+                  </div>
+                  <div className="text-xs leading-relaxed">
+                    {item.inputProcess.split('\n').map((line, i) => (
+                      <div key={i} className="mb-1">{line}</div>
+                    ))}
+                  </div>
                 </div>
-                <div className="text-sm text-blue-500">
-                  ({score.toFixed(2)} / {competencyItems.reduce((sum, item) => sum + item.weight, 0)})
+                <div className="border border-gray-300 p-3">
+                  <div className="font-medium text-sm mb-2 text-blue-600">
+                    Output - ผลลัพธ์ของงานในรูปขอบเขตชัดเจน (มีตัวเลขชี้วัดที่ใช้วัดผลสำเร็จ) ไม่ว่าจะเชิง KPI
+                  </div>
+                  <div className="text-xs leading-relaxed">
+                    {item.output.split('\n').map((line, i) => (
+                      <div key={i} className="mb-1">{line}</div>
+                    ))}
+                  </div>
                 </div>
+              </div>
+
+              {/* Evidence Section */}
+              <div className="border border-gray-300 p-4 mb-4">
+                <div className="font-medium text-sm mb-2">หลักฐานการดำเนินการ/การแสดงออกจริง</div>
+                <Textarea
+                  value={evaluation.evidence}
+                  onChange={(e) => updateEvaluation(item.id, 'evidence', e.target.value)}
+                  placeholder="กรอกหลักฐานการดำเนินการ..."
+                  rows={4}
+                  className="text-sm"
+                  disabled={!canEdit('evidence')}
+                />
+                <div className="mt-2">
+                  <Button variant="outline" size="sm" className="text-xs">
+                    <Upload className="w-3 h-3 mr-1" />
+                    เลือกไฟล์
+                  </Button>
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  ข้อมูลเพิ่มเติม ระบุ อีเมล หรือ เอกสารอ้างอิง...
+                </div>
+              </div>
+
+              {/* Self Assessment Section */}
+              <div className="border border-gray-300 p-4 mb-4 bg-gray-50">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
+                  <div className="text-right">
+                    <Select
+                      value={evaluation.selfScore.toString()}
+                      onValueChange={(value) => updateEvaluation(item.id, 'selfScore', Number(value))}
+                      disabled={!canEdit('selfScore')}
+                    >
+                      <SelectTrigger className="w-20">
+                        <SelectValue placeholder="-" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">-</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="2">2</SelectItem>
+                        <SelectItem value="3">3</SelectItem>
+                        <SelectItem value="4">4</SelectItem>
+                        <SelectItem value="5">5</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500 mt-1">%</div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500">
+                  การคำนวณ: X% × 7.5% ÷ 5 = 0.00 คะแนน
+                </div>
+              </div>
+
+              {/* Feedback Section */}
+              <div className="border border-gray-300 p-4 mb-4">
+                <div className="font-medium text-sm mb-2">หลักฐานการดำเนินการประกอบการประเมิน</div>
+                <Textarea
+                  value={evaluation.feedback}
+                  onChange={(e) => updateEvaluation(item.id, 'feedback', e.target.value)}
+                  placeholder="ข้อมูลเพิ่มเติม ระบุ อีเมล หรือ เอกสารอ้างอิง..."
+                  rows={3}
+                  className="text-sm"
+                  disabled={!canEdit('feedback')}
+                />
+              </div>
+
+              {/* Checker Feedback */}
+              <div className="border border-gray-300 p-4 mb-4">
+                <div className="font-medium text-sm mb-2">การ Feedback โดย Checker</div>
+                <Textarea
+                  placeholder="Feedback..."
+                  rows={2}
+                  className="text-sm mb-2"
+                  disabled={userRole !== 'checker'}
+                />
+                <div className="flex items-center justify-between">
+                  <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
+                  <div className="text-right">
+                    <Select
+                      value={evaluation.checkerScore?.toString() || '0'}
+                      onValueChange={(value) => updateEvaluation(item.id, 'checkerScore', Number(value))}
+                      disabled={!canEdit('checkerScore')}
+                    >
+                      <SelectTrigger className="w-20">
+                        <SelectValue placeholder="-" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">-</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="2">2</SelectItem>
+                        <SelectItem value="3">3</SelectItem>
+                        <SelectItem value="4">4</SelectItem>
+                        <SelectItem value="5">5</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500 mt-1">%</div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500">
+                  การคำนวณ: X% × 7.5% ÷ 5 = 0.00 คะแนน
+                </div>
+              </div>
+
+              {/* Approver Feedback */}
+              <div className="border border-gray-300 p-4">
+                <div className="font-medium text-sm mb-2">การ Feedback โดย Approver</div>
+                <Textarea
+                  placeholder="Feedback..."
+                  rows={2}
+                  className="text-sm mb-2"
+                  disabled={userRole !== 'approver'}
+                />
+                <div className="flex items-center justify-between">
+                  <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
+                  <div className="text-right">
+                    <Select
+                      value={evaluation.approverScore?.toString() || '0'}
+                      onValueChange={(value) => updateEvaluation(item.id, 'approverScore', Number(value))}
+                      disabled={!canEdit('approverScore')}
+                    >
+                      <SelectTrigger className="w-20">
+                        <SelectValue placeholder="-" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">-</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="2">2</SelectItem>
+                        <SelectItem value="3">3</SelectItem>
+                        <SelectItem value="4">4</SelectItem>
+                        <SelectItem value="5">5</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-gray-500 mt-1">%</div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500">
+                  การคำนวณ: X% × 7.5% ÷ 5 = 0.00 คะแนน
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+
+      {/* Summary Card */}
+      <Card className="bg-blue-50">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-semibold text-blue-900">รวมคะแนน Competency</h4>
+              <p className="text-sm text-blue-700">
+                สูตรการคำนวณ: Σ(คะแนน ÷ 5) × น้ำหนัก%
+              </p>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-blue-600">
+                {percentage.toFixed(2)}%
+              </div>
+              <div className="text-sm text-blue-500">
+                ({score.toFixed(2)} / {competencyItems.reduce((sum, item) => sum + item.weight, 0)})
               </div>
             </div>
           </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-3 mt-6">
-            <Button variant="outline" onClick={handleSave}>
-              <Save className="w-4 h-4 mr-2" />
-              บันทึก
-            </Button>
-            <Button onClick={handleSubmit}>
-              <Send className="w-4 h-4 mr-2" />
-              ส่งการประเมิน
-            </Button>
-          </div>
         </CardContent>
       </Card>
+
+      {/* Action Buttons */}
+      <div className="flex items-center justify-end gap-3">
+        <Button variant="outline" onClick={handleSave}>
+          <Save className="w-4 h-4 mr-2" />
+          บันทึก
+        </Button>
+        <Button onClick={handleSubmit}>
+          <Send className="w-4 h-4 mr-2" />
+          ส่งการประเมิน
+        </Button>
+      </div>
     </div>
   );
 };
