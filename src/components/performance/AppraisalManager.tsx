@@ -2,280 +2,391 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { 
+  Plus, 
+  Edit, 
+  Eye, 
   Search,
   Filter,
-  Eye,
-  Edit,
-  MessageSquare,
   Award,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  TrendingUp,
+  Target,
   User,
-  Building,
-  Calendar
+  Star,
+  Calendar,
+  CheckCircle,
+  Clock,
+  AlertCircle
 } from 'lucide-react';
-import { Appraisal } from '@/types/performance';
+import { Appraisal, AppraisalKRA, SelfRating } from '@/types/performance';
+import ScoreBreakdown from './ScoreBreakdown';
+import { calculateAllScores } from '@/utils/performanceScoring';
 
-const AppraisalManager = () => {
+const AppraisalManager: React.FC = () => {
+  const [appraisals, setAppraisals] = useState<Appraisal[]>([]);
+  const [selectedAppraisal, setSelectedAppraisal] = useState<Appraisal | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'form' | 'view'>('list');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [departmentFilter, setDepartmentFilter] = useState('all');
 
-  // Mock data for appraisals
-  const [appraisals, setAppraisals] = useState<Appraisal[]>([
+  // Mock data for demonstration
+  const mockAppraisals: Appraisal[] = [
     {
       id: '1',
-      employee_id: '001',
+      employee_id: 'EMP001',
       employee_name: 'สมชาย ใจดี',
+      department: 'IT',
       appraisal_cycle_id: '1',
       appraisal_template_id: '1',
-      start_date: new Date('2024-01-01'),
-      end_date: new Date('2024-03-31'),
-      status: 'Completed',
-      rate_goals_manually: false,
       appraisal_kra: [
         {
           id: '1',
-          kra: 'ความสำเร็จในงาน',
-          description: 'การบรรลุเป้าหมายงานที่ได้รับมอบหมาย',
+          kra: 'ความสำเร็จในการทำงาน',
           weightage: 40,
-          target: 'บรรลุเป้าหมาย 100%',
-          achievement: 'บรรลุเป้าหมาย 95%',
-          score: 85,
-          manager_score: 88,
-          comments: 'ทำงานได้ดีมาก แต่ยังมีที่ปรับปรุงได้',
-          manager_comments: 'ผลงานโดยรวมดีเยี่ยม'
+          achievement: 'ทำงานได้เกินเป้าหมาย 20%',
+          score: 4.5
+        },
+        {
+          id: '2',
+          kra: 'คุณภาพของงาน',
+          weightage: 30,
+          achievement: 'งานมีคุณภาพสูง ผิดพลาดน้อย',
+          score: 4.0
+        },
+        {
+          id: '3',
+          kra: 'การทำงานเป็นทีม',
+          weightage: 30,
+          achievement: 'ทำงานร่วมกับทีมได้ดี',
+          score: 4.2
         }
       ],
-      goals: [],
       self_ratings: [
         {
           id: '1',
           criteria: 'ความรับผิดชอบ',
-          description: 'ความรับผิดชอบต่องานและหน้าที่',
+          description: 'ความรับผิดชอบต่อหน้าที่',
           weightage: 25,
           max_rating: 5,
           rating: 4,
           comments: 'รับผิดชอบงานได้ดี'
+        },
+        {
+          id: '2',
+          criteria: 'การสื่อสาร',
+          description: 'ทักษะการสื่อสารและการนำเสนอ',
+          weightage: 25,
+          max_rating: 5,
+          rating: 3,
+          comments: 'สื่อสารได้ดี แต่ควรพัฒนาการนำเสนอ'
+        },
+        {
+          id: '3',
+          criteria: 'ความคิดสร้างสรรค์',
+          description: 'ความสามารถในการคิดสร้างสรรค์',
+          weightage: 25,
+          max_rating: 5,
+          rating: 4,
+          comments: 'มีไอเดียใหม่ๆ'
+        },
+        {
+          id: '4',
+          criteria: 'การเรียนรู้',
+          description: 'ความสามารถในการเรียนรู้สิ่งใหม่',
+          weightage: 25,
+          max_rating: 5,
+          rating: 5,
+          comments: 'เรียนรู้เร็วมาก'
         }
       ],
-      total_score: 85,
-      self_score: 80,
-      avg_feedback_score: 88,
-      final_score: 84,
-      submitted_by_employee: true,
-      submitted_date: new Date('2024-02-15'),
-      reviewed_by_manager: true,
-      reviewed_date: new Date('2024-02-20'),
-      manager_comments: 'พนักงานที่มีศักยภาพสูง ควรได้รับการพัฒนาต่อไป',
-      created_at: new Date('2024-01-01'),
-      modified_at: new Date('2024-02-20')
+      goal_score: 4.26,
+      self_score: 4.0,
+      avg_feedback_score: 4.1,
+      final_score: 4.12,
+      status: 'Self Assessment',
+      created_at: new Date(),
+      modified_at: new Date(),
+      created_by: 'system'
     },
     {
       id: '2',
-      employee_id: '002',
+      employee_id: 'EMP002',
       employee_name: 'สมหญิง รักษ์ดี',
+      department: 'Sales',
       appraisal_cycle_id: '1',
       appraisal_template_id: '1',
-      start_date: new Date('2024-01-01'),
-      end_date: new Date('2024-03-31'),
-      status: 'Manager Review',
-      rate_goals_manually: false,
-      appraisal_kra: [],
-      goals: [],
-      self_ratings: [],
-      total_score: 0,
-      self_score: 78,
-      avg_feedback_score: 0,
-      final_score: 0,
-      submitted_by_employee: true,
-      submitted_date: new Date('2024-02-10'),
-      reviewed_by_manager: false,
-      created_at: new Date('2024-01-01'),
-      modified_at: new Date('2024-02-10')
-    },
-    {
-      id: '3',
-      employee_id: '003',
-      employee_name: 'วิชัย เก่งมาก',
-      appraisal_cycle_id: '1',
-      appraisal_template_id: '1',
-      start_date: new Date('2024-01-01'),
-      end_date: new Date('2024-03-31'),
-      status: 'Self Assessment',
-      rate_goals_manually: false,
-      appraisal_kra: [],
-      goals: [],
-      self_ratings: [],
-      total_score: 0,
-      self_score: 0,
-      avg_feedback_score: 0,
-      final_score: 0,
-      submitted_by_employee: false,
-      reviewed_by_manager: false,
-      created_at: new Date('2024-01-01'),
-      modified_at: new Date('2024-01-05')
+      appraisal_kra: [
+        {
+          id: '4',
+          kra: 'ยอดขาย',
+          weightage: 50,
+          achievement: 'ทำยอดขายได้ 110% ของเป้าหมาย',
+          score: 4.8
+        },
+        {
+          id: '5',
+          kra: 'ความสัมพันธ์กับลูกค้า',
+          weightage: 30,
+          achievement: 'รักษาลูกค้าเก่าได้ 95%',
+          score: 4.5
+        },
+        {
+          id: '6',
+          kra: 'การพัฒนาตลาด',
+          weightage: 20,
+          achievement: 'หาลูกค้าใหม่ได้ 15 ราย',
+          score: 4.0
+        }
+      ],
+      self_ratings: [
+        {
+          id: '5',
+          criteria: 'ทักษะการขาย',
+          description: 'ความสามารถในการขายและปิดดีล',
+          weightage: 40,
+          max_rating: 5,
+          rating: 5,
+          comments: 'ขายได้ดีมาก'
+        },
+        {
+          id: '6',
+          criteria: 'การบริการลูกค้า',
+          description: 'ความสามารถในการดูแลลูกค้า',
+          weightage: 35,
+          max_rating: 5,
+          rating: 4,
+          comments: 'ลูกค้าพอใจ'
+        },
+        {
+          id: '7',
+          criteria: 'การวางแผน',
+          description: 'ความสามารถในการวางแผนงาน',
+          weightage: 25,
+          max_rating: 5,
+          rating: 3,
+          comments: 'ต้องปรับปรุงการวางแผน'
+        }
+      ],
+      goal_score: 4.55,
+      self_score: 4.15,
+      avg_feedback_score: 4.3,
+      final_score: 4.33,
+      status: 'Completed',
+      created_at: new Date(),
+      modified_at: new Date(),
+      created_by: 'system'
     }
-  ]);
+  ];
 
-  // Mock department data
-  const departments = ['IT', 'Sales', 'Marketing', 'HR', 'Finance', 'Operations'];
+  // Mock cycles and templates
+  const mockCycles = [
+    { id: '1', name: 'การประเมินผลงานประจำปี 2024' },
+    { id: '2', name: 'การประเมินผลงานไตรมาส Q4/2023' }
+  ];
+
+  const mockTemplates = [
+    { id: '1', name: 'เทมเพลตการประเมินพนักงานทั่วไป' },
+    { id: '2', name: 'เทมเพลตการประเมินผู้จัดการ' }
+  ];
+
+  const mockEmployees = [
+    { id: 'EMP001', name: 'สมชาย ใจดี', department: 'IT' },
+    { id: 'EMP002', name: 'สมหญิง รักษ์ดี', department: 'Sales' },
+    { id: 'EMP003', name: 'วิชัย เก่งมาก', department: 'Marketing' }
+  ];
+
+  React.useEffect(() => {
+    setAppraisals(mockAppraisals);
+  }, []);
+
+  const departments = [...new Set(mockAppraisals.map(a => a.department))];
+
+  const filteredAppraisals = appraisals.filter(appraisal => {
+    const matchesSearch = appraisal.employee_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         appraisal.employee_id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || appraisal.status === statusFilter;
+    const matchesDepartment = departmentFilter === 'all' || appraisal.department === departmentFilter;
+    return matchesSearch && matchesStatus && matchesDepartment;
+  });
+
+  const handleCreateNew = () => {
+    setSelectedAppraisal(null);
+    setViewMode('form');
+    setIsDialogOpen(true);
+  };
+
+  const handleView = (appraisal: Appraisal) => {
+    setSelectedAppraisal(appraisal);
+    setViewMode('view');
+    setIsDialogOpen(true);
+  };
+
+  const handleEdit = (appraisal: Appraisal) => {
+    setSelectedAppraisal(appraisal);
+    setViewMode('form');
+    setIsDialogOpen(true);
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'Completed':
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">เสร็จสิ้น</Badge>;
-      case 'Manager Review':
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">รอผู้จัดการ</Badge>;
       case 'Self Assessment':
         return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">ประเมินตนเอง</Badge>;
+      case 'Manager Review':
+        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">ผู้จัดการรีวิว</Badge>;
+      case 'Feedback':
+        return <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">รอ Feedback</Badge>;
+      case 'Completed':
+        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">เสร็จสิ้น</Badge>;
       case 'Draft':
         return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">ร่าง</Badge>;
-      case 'Cancelled':
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">ยกเลิก</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
   };
 
-  const getScoreBadge = (score: number) => {
-    if (score >= 90) return { badge: <Badge className="bg-green-100 text-green-800 hover:bg-green-100">ดีเยี่ยม</Badge>, color: 'green' };
-    if (score >= 80) return { badge: <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">ดี</Badge>, color: 'blue' };
-    if (score >= 70) return { badge: <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">ปานกลาง</Badge>, color: 'yellow' };
-    if (score > 0) return { badge: <Badge className="bg-red-100 text-red-800 hover:bg-red-100">ต้องปรับปรุง</Badge>, color: 'red' };
-    return { badge: null, color: 'gray' };
+  const getScoreColor = (score: number) => {
+    if (score >= 4.5) return 'text-green-600';
+    if (score >= 3.5) return 'text-blue-600';
+    if (score >= 2.5) return 'text-yellow-600';
+    return 'text-red-600';
   };
 
-  const getProgressColor = (status: string) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'Completed': return 'bg-green-500';
-      case 'Manager Review': return 'bg-blue-500';
-      case 'Self Assessment': return 'bg-yellow-500';
-      default: return 'bg-gray-300';
+      case 'Self Assessment':
+        return <User className="w-4 h-4" />;
+      case 'Manager Review':
+        return <Eye className="w-4 h-4" />;
+      case 'Feedback':
+        return <Star className="w-4 h-4" />;
+      case 'Completed':
+        return <CheckCircle className="w-4 h-4" />;
+      case 'Draft':
+        return <Clock className="w-4 h-4" />;
+      default:
+        return <AlertCircle className="w-4 h-4" />;
     }
-  };
-
-  const getProgressPercentage = (status: string) => {
-    switch (status) {
-      case 'Completed': return 100;
-      case 'Manager Review': return 75;
-      case 'Self Assessment': return 25;
-      default: return 0;
-    }
-  };
-
-  // Filter appraisals
-  const filteredAppraisals = appraisals.filter(appraisal => {
-    const matchesSearch = appraisal.employee_name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || appraisal.status === statusFilter;
-    // For department filter, we'd need department data - using employee_name for demo
-    const matchesDepartment = departmentFilter === 'all' || true; // Simplified for demo
-    
-    return matchesSearch && matchesStatus && matchesDepartment;
-  });
-
-  // Statistics
-  const stats = {
-    total: appraisals.length,
-    completed: appraisals.filter(a => a.status === 'Completed').length,
-    pending: appraisals.filter(a => a.status !== 'Completed' && a.status !== 'Cancelled').length,
-    overdue: appraisals.filter(a => a.end_date < new Date() && a.status !== 'Completed').length
   };
 
   return (
     <div className="space-y-6">
-      {/* Header and Quick Stats */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-100 text-sm">การประเมินทั้งหมด</p>
-                <p className="text-3xl font-bold">{stats.total}</p>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900">จัดการการประเมิน</h2>
+          <p className="text-gray-600">สร้างและจัดการการประเมินผลงานพนักงาน</p>
+        </div>
+        <Button onClick={handleCreateNew} className="bg-blue-600 hover:bg-blue-700">
+          <Plus className="w-4 h-4 mr-2" />
+          สร้างการประเมินใหม่
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+                <Award className="w-6 h-6" />
               </div>
-              <Award className="w-8 h-8 text-blue-200" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">การประเมินทั้งหมด</p>
+                <p className="text-2xl font-bold">{appraisals.length}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-green-500 to-green-600 text-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-green-100 text-sm">เสร็จสิ้นแล้ว</p>
-                <p className="text-3xl font-bold">{stats.completed}</p>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-green-100 text-green-600">
+                <CheckCircle className="w-6 h-6" />
               </div>
-              <CheckCircle className="w-8 h-8 text-green-200" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">เสร็จสิ้นแล้ว</p>
+                <p className="text-2xl font-bold">
+                  {appraisals.filter(a => a.status === 'Completed').length}
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-yellow-500 to-yellow-600 text-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-yellow-100 text-sm">รอดำเนินการ</p>
-                <p className="text-3xl font-bold">{stats.pending}</p>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                <Clock className="w-6 h-6" />
               </div>
-              <Clock className="w-8 h-8 text-yellow-200" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">อยู่ระหว่างดำเนินการ</p>
+                <p className="text-2xl font-bold">
+                  {appraisals.filter(a => a.status !== 'Completed').length}
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-red-500 to-red-600 text-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-red-100 text-sm">เลยกำหนด</p>
-                <p className="text-3xl font-bold">{stats.overdue}</p>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-purple-100 text-purple-600">
+                <Target className="w-6 h-6" />
               </div>
-              <AlertCircle className="w-8 h-8 text-red-200" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">คะแนนเฉลี่ย</p>
+                <p className="text-2xl font-bold">
+                  {appraisals.length > 0 
+                    ? (appraisals.reduce((sum, a) => sum + a.final_score, 0) / appraisals.length).toFixed(2)
+                    : '0.00'
+                  }
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filters */}
-      <Card className="shadow-lg border-0">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="w-5 h-5" />
-            ค้นหาและกรอง
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
+      {/* Search and Filter */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex gap-4">
+            <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder="ค้นหาชื่อพนักงาน..."
+                placeholder="ค้นหาชื่อหรือรหัสพนักงาน..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
+              <SelectTrigger className="w-48">
                 <SelectValue placeholder="สถานะ" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">สถานะทั้งหมด</SelectItem>
-                <SelectItem value="Completed">เสร็จสิ้น</SelectItem>
-                <SelectItem value="Manager Review">รอผู้จัดการ</SelectItem>
-                <SelectItem value="Self Assessment">ประเมินตนเอง</SelectItem>
                 <SelectItem value="Draft">ร่าง</SelectItem>
+                <SelectItem value="Self Assessment">ประเมินตนเอง</SelectItem>
+                <SelectItem value="Manager Review">ผู้จัดการรีวิว</SelectItem>
+                <SelectItem value="Feedback">รอ Feedback</SelectItem>
+                <SelectItem value="Completed">เสร็จสิ้น</SelectItem>
               </SelectContent>
             </Select>
             <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-              <SelectTrigger>
+              <SelectTrigger className="w-48">
                 <SelectValue placeholder="แผนก" />
               </SelectTrigger>
               <SelectContent>
@@ -285,16 +396,12 @@ const AppraisalManager = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="outline" className="w-full">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              ส่งออกข้อมูล
-            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Appraisals List */}
-      <Card className="shadow-lg border-0">
+      {/* Appraisals Table */}
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Award className="w-5 h-5" />
@@ -302,118 +409,274 @@ const AppraisalManager = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {filteredAppraisals.map((appraisal) => {
-              const scoreInfo = getScoreBadge(appraisal.final_score);
-              const progress = getProgressPercentage(appraisal.status);
-              
-              return (
-                <div key={appraisal.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold">{appraisal.employee_name}</h3>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>พนักงาน</TableHead>
+                  <TableHead>แผนก</TableHead>
+                  <TableHead className="text-center">สถานะ</TableHead>
+                  <TableHead className="text-center">คะแนน Goal</TableHead>
+                  <TableHead className="text-center">คะแนน Self</TableHead>
+                  <TableHead className="text-center">คะแนน Feedback</TableHead>
+                  <TableHead className="text-center">คะแนนสุดท้าย</TableHead>
+                  <TableHead className="text-center">อัปเดตล่าสุด</TableHead>
+                  <TableHead className="text-center">การจัดการ</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAppraisals.map((appraisal) => (
+                  <TableRow key={appraisal.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{appraisal.employee_name}</div>
+                        <div className="text-sm text-gray-500">{appraisal.employee_id}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>{appraisal.department}</TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        {getStatusIcon(appraisal.status)}
                         {getStatusBadge(appraisal.status)}
-                        {appraisal.final_score > 0 && scoreInfo.badge}
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-2">
-                          <User className="w-4 h-4" />
-                          <span>ID: {appraisal.employee_id}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4" />
-                          <span>
-                            {appraisal.start_date.toLocaleDateString('th-TH')} - {appraisal.end_date.toLocaleDateString('th-TH')}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Building className="w-4 h-4" />
-                          <span>รอบการประเมิน: {appraisal.appraisal_cycle_id}</span>
-                        </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className={`font-medium ${getScoreColor(appraisal.goal_score)}`}>
+                        {appraisal.goal_score.toFixed(2)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className={`font-medium ${getScoreColor(appraisal.self_score)}`}>
+                        {appraisal.self_score.toFixed(2)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className={`font-medium ${getScoreColor(appraisal.avg_feedback_score)}`}>
+                        {appraisal.avg_feedback_score.toFixed(2)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className={`text-lg font-bold ${getScoreColor(appraisal.final_score)}`}>
+                        {appraisal.final_score.toFixed(2)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center text-gray-600">
+                      {appraisal.modified_at.toLocaleDateString('th-TH')}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleView(appraisal)}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(appraisal)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
                       </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <MessageSquare className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">ความคืบหน้า</span>
-                      <span className="text-sm text-gray-600">{progress}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(appraisal.status)}`}
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Scores */}
-                  {appraisal.status === 'Completed' && (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="text-center p-3 bg-gray-50 rounded-lg">
-                        <div className="text-lg font-bold text-blue-600">{appraisal.total_score}%</div>
-                        <div className="text-xs text-gray-600">คะแนนเป้าหมาย</div>
-                      </div>
-                      <div className="text-center p-3 bg-gray-50 rounded-lg">
-                        <div className="text-lg font-bold text-green-600">{appraisal.self_score}%</div>
-                        <div className="text-xs text-gray-600">ประเมินตนเอง</div>
-                      </div>
-                      <div className="text-center p-3 bg-gray-50 rounded-lg">
-                        <div className="text-lg font-bold text-purple-600">{appraisal.avg_feedback_score}%</div>
-                        <div className="text-xs text-gray-600">ฟีดแบ็ก</div>
-                      </div>
-                      <div className="text-center p-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg">
-                        <div className="text-lg font-bold">{appraisal.final_score}%</div>
-                        <div className="text-xs">คะแนนสุดท้าย</div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Timeline */}
-                  <div className="mt-4 pt-4 border-t">
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <div className="flex items-center gap-4">
-                        {appraisal.submitted_by_employee && appraisal.submitted_date && (
-                          <span>ส่งแล้ว: {appraisal.submitted_date.toLocaleDateString('th-TH')}</span>
-                        )}
-                        {appraisal.reviewed_by_manager && appraisal.reviewed_date && (
-                          <span>รีวิวแล้ว: {appraisal.reviewed_date.toLocaleDateString('th-TH')}</span>
-                        )}
-                      </div>
-                      <span>อัปเดต: {appraisal.modified_at.toLocaleDateString('th-TH')}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-
-            {filteredAppraisals.length === 0 && (
-              <div className="text-center py-12">
-                <Award className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-600 mb-2">
-                  ไม่พบการประเมินที่ตรงกับเงื่อนไข
-                </h3>
-                <p className="text-gray-500">
-                  ลองปรับเปลี่ยนคำค้นหาหรือตัวกรอง
-                </p>
-              </div>
-            )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </CardContent>
       </Card>
+
+      {/* Appraisal Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {viewMode === 'view' ? 'ดูรายละเอียดการประเมิน' : 
+               selectedAppraisal ? 'แก้ไขการประเมิน' : 'สร้างการประเมินใหม่'}
+            </DialogTitle>
+            <DialogDescription>
+              {viewMode === 'view' ? 'ผลการประเมินและคะแนนต่างๆ' : 
+               'กำหนดข้อมูลการประเมินและคะแนน'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {viewMode === 'view' && selectedAppraisal && (
+            <AppraisalView appraisal={selectedAppraisal} />
+          )}
+          
+          {viewMode === 'form' && (
+            <AppraisalForm
+              appraisal={selectedAppraisal}
+              cycles={mockCycles}
+              templates={mockTemplates}
+              employees={mockEmployees}
+              onSave={() => setIsDialogOpen(false)}
+              onCancel={() => setIsDialogOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+// Appraisal View Component
+interface AppraisalViewProps {
+  appraisal: Appraisal;
+}
+
+const AppraisalView: React.FC<AppraisalViewProps> = ({ appraisal }) => {
+  // Mock cycle data for score calculation
+  const mockCycle = {
+    id: '1',
+    kra_evaluation_method: 'Manual' as const,
+    calculate_final_score_based_on_formula: false,
+    final_score_formula: ''
+  };
+
+  const mockFeedbacks = [
+    { status: 'Submitted', total_score: 4.2 },
+    { status: 'Submitted', total_score: 4.0 }
+  ];
+
+  const scoreResult = calculateAllScores(appraisal, mockCycle, mockFeedbacks);
+
+  return (
+    <div className="space-y-6">
+      {/* Employee Info */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="w-5 h-5" />
+            ข้อมูลพนักงาน
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <Label className="text-sm text-gray-600">ชื่อ-นามสกุล</Label>
+              <p className="font-medium">{appraisal.employee_name}</p>
+            </div>
+            <div>
+              <Label className="text-sm text-gray-600">รหัสพนักงาน</Label>
+              <p className="font-medium">{appraisal.employee_id}</p>
+            </div>
+            <div>
+              <Label className="text-sm text-gray-600">แผนก</Label>
+              <p className="font-medium">{appraisal.department}</p>
+            </div>
+            <div>
+              <Label className="text-sm text-gray-600">สถานะ</Label>
+              <div className="mt-1">
+                {/* Reuse getStatusBadge function */}
+                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                  {appraisal.status}
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Score Breakdown */}
+      <ScoreBreakdown scoreResult={scoreResult} />
+    </div>
+  );
+};
+
+// Appraisal Form Component
+interface AppraisalFormProps {
+  appraisal?: Appraisal | null;
+  cycles: Array<{id: string, name: string}>;
+  templates: Array<{id: string, name: string}>;
+  employees: Array<{id: string, name: string, department: string}>;
+  onSave: () => void;
+  onCancel: () => void;
+}
+
+const AppraisalForm: React.FC<AppraisalFormProps> = ({ 
+  appraisal, 
+  cycles, 
+  templates, 
+  employees, 
+  onSave, 
+  onCancel 
+}) => {
+  const [formData, setFormData] = useState({
+    employee_id: appraisal?.employee_id || '',
+    appraisal_cycle_id: appraisal?.appraisal_cycle_id || '',
+    appraisal_template_id: appraisal?.appraisal_template_id || '',
+    status: appraisal?.status || 'Draft'
+  });
+
+  const selectedEmployee = employees.find(emp => emp.id === formData.employee_id);
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>ข้อมูลการประเมิน</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label>พนักงาน</Label>
+              <Select 
+                value={formData.employee_id} 
+                onValueChange={(value) => setFormData({...formData, employee_id: value})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="เลือกพนักงาน" />
+                </SelectTrigger>
+                <SelectContent>
+                  {employees.map(employee => (
+                    <SelectItem key={employee.id} value={employee.id}>
+                      {employee.name} ({employee.department})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>รอบการประเมิน</Label>
+              <Select 
+                value={formData.appraisal_cycle_id} 
+                onValueChange={(value) => setFormData({...formData, appraisal_cycle_id: value})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="เลือกรอบการประเมิน" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cycles.map(cycle => (
+                    <SelectItem key={cycle.id} value={cycle.id}>
+                      {cycle.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          {selectedEmployee && (
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>พนักงานที่เลือก:</strong> {selectedEmployee.name} - {selectedEmployee.department}
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-end gap-3">
+        <Button variant="outline" onClick={onCancel}>
+          ยกเลิก
+        </Button>
+        <Button onClick={onSave} className="bg-blue-600 hover:bg-blue-700">
+          บันทึกการประเมิน
+        </Button>
+      </div>
     </div>
   );
 };

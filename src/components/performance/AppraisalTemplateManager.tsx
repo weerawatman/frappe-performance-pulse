@@ -2,66 +2,65 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   Plus, 
   Edit, 
   Trash2, 
-  Copy, 
-  Settings,
-  FileText,
+  Save, 
+  X, 
   Target,
-  Star
+  Star,
+  ClipboardList,
+  Search
 } from 'lucide-react';
-import { AppraisalTemplate, AppraisalGoal, RatingCriteria } from '@/types/performance';
-import TemplateBuilder from './TemplateBuilder';
+import { AppraisalTemplate, KRA, RatingCriteria } from '@/types/performance';
 
-const AppraisalTemplateManager = () => {
-  const [templates, setTemplates] = useState<AppraisalTemplate[]>([
+const AppraisalTemplateManager: React.FC = () => {
+  const [templates, setTemplates] = useState<AppraisalTemplate[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<AppraisalTemplate | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Mock data for demonstration
+  const mockTemplates: AppraisalTemplate[] = [
     {
       id: '1',
-      name: 'เทมเพลตมาตรฐาน - พนักงานทั่วไป',
+      name: 'เทมเพลตการประเมินพนักงานทั่วไป',
       description: 'เทมเพลตสำหรับการประเมินพนักงานทั่วไป',
-      goals: [
+      kra_list: [
         {
           id: '1',
-          kra: 'ความสำเร็จในงาน',
-          description: 'การบรรลุเป้าหมายงานที่ได้รับมอบหมาย',
+          kra: 'ความสำเร็จในการทำงาน',
           weightage: 40,
-          target: 'บรรลุเป้าหมาย 100%',
-          measurement_criteria: 'วัดจากผลงานที่ส่งมอบ'
+          achievement: '',
+          score: 0
         },
         {
           id: '2',
-          kra: 'คุณภาพงาน',
-          description: 'ความถูกต้องและคุณภาพของงาน',
+          kra: 'คุณภาพของงาน',
           weightage: 30,
-          target: 'ความถูกต้อง 95%',
-          measurement_criteria: 'วัดจากข้อผิดพลาดและการแก้ไข'
+          achievement: '',
+          score: 0
         },
         {
           id: '3',
           kra: 'การทำงานเป็นทีม',
-          description: 'ความสามารถในการทำงานร่วมกับผู้อื่น',
-          weightage: 20,
-          target: 'รีวิวจากทีมงาน',
-          measurement_criteria: 'ประเมินจากเพื่อนร่วมงาน'
-        },
-        {
-          id: '4',
-          kra: 'การพัฒนาตนเอง',
-          description: 'การเรียนรู้และพัฒนาทักษะใหม่',
-          weightage: 10,
-          target: 'อบรม 2 คอร์สต่อปี',
-          measurement_criteria: 'จำนวนคอร์สและการนำไปใช้'
+          weightage: 30,
+          achievement: '',
+          score: 0
         }
       ],
       rating_criteria: [
         {
           id: '1',
           criteria: 'ความรับผิดชอบ',
-          description: 'ความรับผิดชอบต่องานและหน้าที่',
+          description: 'ความรับผิดชอบต่อหน้าที่',
           weightage: 25,
           max_rating: 5
         },
@@ -75,391 +74,524 @@ const AppraisalTemplateManager = () => {
         {
           id: '3',
           criteria: 'ความคิดสร้างสรรค์',
-          description: 'ความสามารถในการคิดและแก้ปัญหา',
+          description: 'ความสามารถในการคิดสร้างสรรค์',
           weightage: 25,
           max_rating: 5
         },
         {
           id: '4',
-          criteria: 'การบริหารเวลา',
-          description: 'ความสามารถในการจัดการเวลา',
+          criteria: 'การเรียนรู้',
+          description: 'ความสามารถในการเรียนรู้สิ่งใหม่',
           weightage: 25,
           max_rating: 5
         }
       ],
-      is_active: true,
-      created_by: 'admin',
-      created_at: new Date('2024-01-01'),
-      modified_at: new Date('2024-01-15')
+      created_at: new Date(),
+      modified_at: new Date(),
+      created_by: 'admin'
     },
     {
       id: '2',
-      name: 'เทมเพลตผู้จัดการ',
-      description: 'เทมเพลตสำหรับการประเมินผู้จัดการและหัวหน้างาน',
-      goals: [
-        {
-          id: '1',
-          kra: 'ผลการดำเนินงานทีม',
-          description: 'ผลงานของทีมที่รับผิดชอบ',
-          weightage: 35,
-          target: 'ทีมบรรลุเป้าหมาย 90%',
-          measurement_criteria: 'วัดจากผลงานรวมของทีม'
-        },
-        {
-          id: '2',
-          kra: 'การพัฒนาทีมงาน',
-          description: 'การฝึกอบรมและพัฒนาสมาชิกในทีม',
-          weightage: 25,
-          target: 'พัฒนาทีมงาน 100%',
-          measurement_criteria: 'จำนวนการอบรมและผลลัพธ์'
-        },
-        {
-          id: '3',
-          kra: 'ภาวะผู้นำ',
-          description: 'ความสามารถในการนำทีม',
-          weightage: 25,
-          target: 'ประเมินจากทีมงาน',
-          measurement_criteria: 'แบบประเมิน 360 องศา'
-        },
+      name: 'เทมเพลตการประเมินผู้จัดการ',
+      description: 'เทมเพลตสำหรับการประเมินผู้จัดการ',
+      kra_list: [
         {
           id: '4',
-          kra: 'นวัตกรรมและการปรับปรุง',
-          description: 'การนำเสนอและปรับปรุงกระบวนการ',
-          weightage: 15,
-          target: 'โครงการปรับปรุง 2 โครงการ',
-          measurement_criteria: 'ผลของโครงการที่นำเสนอ'
+          kra: 'ภาวะผู้นำ',
+          weightage: 50,
+          achievement: '',
+          score: 0
+        },
+        {
+          id: '5',
+          kra: 'การจัดการทีม',
+          weightage: 30,
+          achievement: '',
+          score: 0
+        },
+        {
+          id: '6',
+          kra: 'ผลลัพธ์ธุรกิจ',
+          weightage: 20,
+          achievement: '',
+          score: 0
         }
       ],
       rating_criteria: [
         {
-          id: '1',
-          criteria: 'วิสัยทัศน์และกลยุทธ์',
-          description: 'ความสามารถในการวางแผนกลยุทธ์',
+          id: '5',
+          criteria: 'วิสัยทัศน์',
+          description: 'ความสามารถในการวางวิสัยทัศน์',
           weightage: 30,
           max_rating: 5
         },
         {
-          id: '2',
+          id: '6',
           criteria: 'การตัดสินใจ',
-          description: 'ความสามารถในการตัดสินใจอย่างมีประสิทธิภาพ',
-          weightage: 25,
+          description: 'ความสามารถในการตัดสินใจ',
+          weightage: 35,
           max_rating: 5
         },
         {
-          id: '3',
-          criteria: 'การสื่อสารและการมอบหมายงาน',
-          description: 'ทักษะการสื่อสารและการมอบหมายงาน',
-          weightage: 25,
-          max_rating: 5
-        },
-        {
-          id: '4',
-          criteria: 'การให้คำปรึกษาและการสนับสนุน',
-          description: 'การให้คำปรึกษาและสนับสนุนทีมงาน',
-          weightage: 20,
+          id: '7',
+          criteria: 'การพัฒนาทีม',
+          description: 'ความสามารถในการพัฒนาทีมงาน',
+          weightage: 35,
           max_rating: 5
         }
       ],
-      is_active: true,
-      created_by: 'admin',
-      created_at: new Date('2024-01-01'),
-      modified_at: new Date('2024-01-10')
-    }
-  ]);
-
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<AppraisalTemplate | null>(null);
-  const [newTemplate, setNewTemplate] = useState({
-    name: '',
-    description: '',
-    goals: [] as AppraisalGoal[],
-    rating_criteria: [] as RatingCriteria[]
-  });
-
-  const handleCreateTemplate = () => {
-    const template: AppraisalTemplate = {
-      id: Date.now().toString(),
-      ...newTemplate,
-      is_active: true,
-      created_by: 'current_user',
       created_at: new Date(),
-      modified_at: new Date()
-    };
-    
-    setTemplates([...templates, template]);
-    setNewTemplate({
-      name: '',
-      description: '',
-      goals: [],
-      rating_criteria: []
-    });
-    setIsCreateDialogOpen(false);
+      modified_at: new Date(),
+      created_by: 'admin'
+    }
+  ];
+
+  React.useEffect(() => {
+    setTemplates(mockTemplates);
+  }, []);
+
+  const filteredTemplates = templates.filter(template =>
+    template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    template.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleCreateNew = () => {
+    setSelectedTemplate(null);
+    setIsDialogOpen(true);
   };
 
-  const handleEditTemplate = (template: AppraisalTemplate) => {
-    setEditingTemplate(template);
-    setNewTemplate({
-      name: template.name,
-      description: template.description || '',
-      goals: [...template.goals],
-      rating_criteria: [...template.rating_criteria]
-    });
+  const handleEdit = (template: AppraisalTemplate) => {
+    setSelectedTemplate(template);
+    setIsDialogOpen(true);
   };
 
-  const handleUpdateTemplate = () => {
-    if (editingTemplate) {
+  const handleDelete = (templateId: string) => {
+    setTemplates(templates.filter(t => t.id !== templateId));
+  };
+
+  const handleSave = (templateData: Omit<AppraisalTemplate, 'id' | 'created_at' | 'modified_at'>) => {
+    if (selectedTemplate) {
+      // Update existing template
       setTemplates(templates.map(t => 
-        t.id === editingTemplate.id 
-          ? { 
-              ...t, 
-              ...newTemplate, 
-              modified_at: new Date() 
-            }
+        t.id === selectedTemplate.id 
+          ? { ...t, ...templateData, modified_at: new Date() }
           : t
       ));
-      setEditingTemplate(null);
-      setNewTemplate({
-        name: '',
-        description: '',
-        goals: [],
-        rating_criteria: []
-      });
+    } else {
+      // Create new template
+      const newTemplate: AppraisalTemplate = {
+        id: Date.now().toString(),
+        ...templateData,
+        created_at: new Date(),
+        modified_at: new Date()
+      };
+      setTemplates([...templates, newTemplate]);
     }
-  };
-
-  const handleDeleteTemplate = (id: string) => {
-    setTemplates(templates.filter(t => t.id !== id));
-  };
-
-  const handleToggleActive = (id: string) => {
-    setTemplates(templates.map(t => 
-      t.id === id ? { ...t, is_active: !t.is_active, modified_at: new Date() } : t
-    ));
-  };
-
-  const calculateTotalWeightage = (items: { weightage: number }[]) => {
-    return items.reduce((sum, item) => sum + item.weightage, 0);
+    setIsDialogOpen(false);
+    setSelectedTemplate(null);
   };
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card className="shadow-lg border-0">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900">จัดการเทมเพลตการประเมิน</h2>
+          <p className="text-gray-600">สร้างและจัดการเทมเพลตสำหรับการประเมินผลงาน</p>
+        </div>
+        <Button onClick={handleCreateNew} className="bg-blue-600 hover:bg-blue-700">
+          <Plus className="w-4 h-4 mr-2" />
+          สร้างเทมเพลตใหม่
+        </Button>
+      </div>
+
+      {/* Search */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="ค้นหาเทมเพลต..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Templates List */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ClipboardList className="w-5 h-5" />
+            รายการเทมเพลต ({filteredTemplates.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ชื่อเทมเพลต</TableHead>
+                  <TableHead>คำอธิบาย</TableHead>
+                  <TableHead className="text-center">จำนวน KRA</TableHead>
+                  <TableHead className="text-center">จำนวนเกณฑ์</TableHead>
+                  <TableHead className="text-center">วันที่สร้าง</TableHead>
+                  <TableHead className="text-center">การจัดการ</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredTemplates.map((template) => (
+                  <TableRow key={template.id}>
+                    <TableCell className="font-medium">{template.name}</TableCell>
+                    <TableCell className="text-gray-600">{template.description}</TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant="outline">{template.kra_list.length}</Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant="outline">{template.rating_criteria.length}</Badge>
+                    </TableCell>
+                    <TableCell className="text-center text-gray-600">
+                      {template.created_at.toLocaleDateString('th-TH')}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(template)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(template.id)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Template Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedTemplate ? 'แก้ไขเทมเพลต' : 'สร้างเทมเพลตใหม่'}
+            </DialogTitle>
+            <DialogDescription>
+              กำหนดข้อมูลเทมเพลต KRA และเกณฑ์การให้คะแนน
+            </DialogDescription>
+          </DialogHeader>
+          <TemplateForm
+            template={selectedTemplate}
+            onSave={handleSave}
+            onCancel={() => setIsDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+// Template Form Component
+interface TemplateFormProps {
+  template?: AppraisalTemplate | null;
+  onSave: (data: Omit<AppraisalTemplate, 'id' | 'created_at' | 'modified_at'>) => void;
+  onCancel: () => void;
+}
+
+const TemplateForm: React.FC<TemplateFormProps> = ({ template, onSave, onCancel }) => {
+  const [formData, setFormData] = useState({
+    name: template?.name || '',
+    description: template?.description || '',
+    created_by: template?.created_by || 'current_user'
+  });
+
+  const [kraList, setKraList] = useState<KRA[]>(
+    template?.kra_list || [
+      { id: '1', kra: '', weightage: 0, achievement: '', score: 0 }
+    ]
+  );
+
+  const [ratingCriteria, setRatingCriteria] = useState<RatingCriteria[]>(
+    template?.rating_criteria || [
+      { id: '1', criteria: '', description: '', weightage: 0, max_rating: 5 }
+    ]
+  );
+
+  const addKRA = () => {
+    const newKRA: KRA = {
+      id: Date.now().toString(),
+      kra: '',
+      weightage: 0,
+      achievement: '',
+      score: 0
+    };
+    setKraList([...kraList, newKRA]);
+  };
+
+  const removeKRA = (id: string) => {
+    setKraList(kraList.filter(kra => kra.id !== id));
+  };
+
+  const updateKRA = (id: string, field: keyof KRA, value: string | number) => {
+    setKraList(kraList.map(kra => 
+      kra.id === id ? { ...kra, [field]: value } : kra
+    ));
+  };
+
+  const addRatingCriteria = () => {
+    const newCriteria: RatingCriteria = {
+      id: Date.now().toString(),
+      criteria: '',
+      description: '',
+      weightage: 0,
+      max_rating: 5
+    };
+    setRatingCriteria([...ratingCriteria, newCriteria]);
+  };
+
+  const removeRatingCriteria = (id: string) => {
+    setRatingCriteria(ratingCriteria.filter(criteria => criteria.id !== id));
+  };
+
+  const updateRatingCriteria = (id: string, field: keyof RatingCriteria, value: string | number) => {
+    setRatingCriteria(ratingCriteria.map(criteria => 
+      criteria.id === id ? { ...criteria, [field]: value } : criteria
+    ));
+  };
+
+  const totalKRAWeight = kraList.reduce((sum, kra) => sum + kra.weightage, 0);
+  const totalRatingWeight = ratingCriteria.reduce((sum, criteria) => sum + criteria.weightage, 0);
+
+  const handleSave = () => {
+    const templateData: Omit<AppraisalTemplate, 'id' | 'created_at' | 'modified_at'> = {
+      name: formData.name,
+      description: formData.description,
+      kra_list: kraList,
+      rating_criteria: ratingCriteria,
+      created_by: formData.created_by
+    };
+    onSave(templateData);
+  };
+
+  const isValid = formData.name && 
+                  kraList.length > 0 && 
+                  ratingCriteria.length > 0 &&
+                  totalKRAWeight === 100 &&
+                  totalRatingWeight === 100;
+
+  return (
+    <div className="space-y-6">
+      {/* Basic Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle>ข้อมูลเทมเพลต</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="templateName">ชื่อเทมเพลต</Label>
+            <Input
+              id="templateName"
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              placeholder="ชื่อเทมเพลตการประเมิน"
+            />
+          </div>
+          <div>
+            <Label htmlFor="templateDescription">คำอธิบาย</Label>
+            <Textarea
+              id="templateDescription"
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              placeholder="คำอธิบายเทมเพลต"
+              rows={3}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* KRA Section */}
+      <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                จัดการเทมเพลตการประเมิน
+                <Target className="w-5 h-5" />
+                KRA (Key Result Areas)
               </CardTitle>
               <CardDescription>
-                สร้างและจัดการเทมเพลตสำหรับการประเมินผลงานพนักงาน
+                น้ำหนักรวม: {totalKRAWeight}% 
+                {totalKRAWeight !== 100 && (
+                  <span className="text-red-600 ml-2">
+                    (ต้องรวมเป็น 100%)
+                  </span>
+                )}
               </CardDescription>
             </div>
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                  <Plus className="w-4 h-4 mr-2" />
-                  สร้างเทมเพลตใหม่
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>สร้างเทมเพลตการประเมินใหม่</DialogTitle>
-                  <DialogDescription>
-                    สร้างเทมเพลตการประเมินพร้อมกำหนด KRA และเกณฑ์การประเมิน
-                  </DialogDescription>
-                </DialogHeader>
-                <TemplateBuilder
-                  templateName={newTemplate.name}
-                  description={newTemplate.description}
-                  goals={newTemplate.goals}
-                  ratingCriteria={newTemplate.rating_criteria}
-                  onTemplateNameChange={(name) => setNewTemplate({...newTemplate, name})}
-                  onDescriptionChange={(description) => setNewTemplate({...newTemplate, description})}
-                  onGoalsChange={(goals) => setNewTemplate({...newTemplate, goals})}
-                  onRatingCriteriaChange={(rating_criteria) => setNewTemplate({...newTemplate, rating_criteria})}
-                  onSave={handleCreateTemplate}
-                  onCancel={() => setIsCreateDialogOpen(false)}
-                />
-              </DialogContent>
-            </Dialog>
+            <Button onClick={addKRA} variant="outline" size="sm">
+              <Plus className="w-4 h-4 mr-2" />
+              เพิ่ม KRA
+            </Button>
           </div>
         </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {kraList.map((kra) => (
+              <div key={kra.id} className="border rounded-lg p-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-2">
+                    <Label>หัวข้อ KRA</Label>
+                    <Input
+                      value={kra.kra}
+                      onChange={(e) => updateKRA(kra.id, 'kra', e.target.value)}
+                      placeholder="เช่น ความสำเร็จในการทำงาน"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <Label>น้ำหนัก (%)</Label>
+                      <Input
+                        type="number"
+                        value={kra.weightage}
+                        onChange={(e) => updateKRA(kra.id, 'weightage', Number(e.target.value))}
+                        placeholder="0-100"
+                        min="0"
+                        max="100"
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeKRA(kra.id)}
+                        className="text-red-600"
+                        disabled={kraList.length === 1}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
       </Card>
 
-      {/* Edit Template Dialog */}
-      <Dialog open={!!editingTemplate} onOpenChange={(open) => !open && setEditingTemplate(null)}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>แก้ไขเทมเพลตการประเมิน</DialogTitle>
-            <DialogDescription>
-              แก้ไขข้อมูลเทมเพลตการประเมิน KRA และเกณฑ์การประเมิน
-            </DialogDescription>
-          </DialogHeader>
-          <TemplateBuilder
-            templateName={newTemplate.name}
-            description={newTemplate.description}
-            goals={newTemplate.goals}
-            ratingCriteria={newTemplate.rating_criteria}
-            onTemplateNameChange={(name) => setNewTemplate({...newTemplate, name})}
-            onDescriptionChange={(description) => setNewTemplate({...newTemplate, description})}
-            onGoalsChange={(goals) => setNewTemplate({...newTemplate, goals})}
-            onRatingCriteriaChange={(rating_criteria) => setNewTemplate({...newTemplate, rating_criteria})}
-            onSave={handleUpdateTemplate}
-            onCancel={() => setEditingTemplate(null)}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Templates List */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {templates.map((template) => (
-          <Card key={template.id} className="shadow-lg border-0 hover:shadow-xl transition-shadow duration-300">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg mb-2">{template.name}</CardTitle>
-                  <CardDescription className="mb-3">
-                    {template.description}
-                  </CardDescription>
-                  <div className="flex items-center gap-2">
-                    <Badge 
-                      variant={template.is_active ? "default" : "secondary"}
-                      className={template.is_active ? "bg-green-100 text-green-800 hover:bg-green-100" : ""}
-                    >
-                      {template.is_active ? 'ใช้งานอยู่' : 'ไม่ใช้งาน'}
-                    </Badge>
-                    <span className="text-sm text-gray-500">
-                      อัปเดต: {template.modified_at.toLocaleDateString('th-TH')}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex gap-1">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleEditTemplate(template)}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Copy className="w-4 h-4" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleDeleteTemplate(template.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Goals Summary */}
-              <div>
-                <h4 className="flex items-center gap-2 font-medium mb-3">
-                  <Target className="w-4 h-4" />
-                  เป้าหมาย KRA ({template.goals.length} รายการ)
-                </h4>
-                <div className="space-y-2">
-                  {template.goals.slice(0, 3).map((goal) => (
-                    <div key={goal.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                      <span className="text-sm font-medium">{goal.kra}</span>
-                      <Badge variant="outline">{goal.weightage}%</Badge>
-                    </div>
-                  ))}
-                  {template.goals.length > 3 && (
-                    <div className="text-sm text-gray-500 text-center py-2">
-                      และอีก {template.goals.length - 3} รายการ...
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center pt-2 border-t">
-                    <span className="text-sm font-medium">น้ำหนักรวม:</span>
-                    <Badge 
-                      variant={calculateTotalWeightage(template.goals) === 100 ? "default" : "destructive"}
-                    >
-                      {calculateTotalWeightage(template.goals)}%
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-
-              {/* Rating Criteria Summary */}
-              <div>
-                <h4 className="flex items-center gap-2 font-medium mb-3">
-                  <Star className="w-4 h-4" />
-                  เกณฑ์การประเมิน ({template.rating_criteria.length} รายการ)
-                </h4>
-                <div className="space-y-2">
-                  {template.rating_criteria.slice(0, 2).map((criteria) => (
-                    <div key={criteria.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                      <span className="text-sm font-medium">{criteria.criteria}</span>
-                      <div className="flex gap-2">
-                        <Badge variant="outline">{criteria.weightage}%</Badge>
-                        <Badge variant="outline">{criteria.max_rating} คะแนน</Badge>
-                      </div>
-                    </div>
-                  ))}
-                  {template.rating_criteria.length > 2 && (
-                    <div className="text-sm text-gray-500 text-center py-2">
-                      และอีก {template.rating_criteria.length - 2} รายการ...
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center pt-2 border-t">
-                    <span className="text-sm font-medium">น้ำหนักรวม:</span>
-                    <Badge 
-                      variant={calculateTotalWeightage(template.rating_criteria) === 100 ? "default" : "destructive"}
-                    >
-                      {calculateTotalWeightage(template.rating_criteria)}%
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-2 pt-4 border-t">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex-1"
-                  onClick={() => handleToggleActive(template.id)}
-                >
-                  {template.is_active ? 'ปิดการใช้งาน' : 'เปิดการใช้งาน'}
-                </Button>
-                <Button 
-                  size="sm" 
-                  className="flex-1"
-                  onClick={() => handleEditTemplate(template)}
-                >
-                  <Settings className="w-4 h-4 mr-2" />
-                  จัดการรายละเอียด
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Empty State */}
-      {templates.length === 0 && (
-        <Card className="shadow-lg border-0">
-          <CardContent className="text-center py-12">
-            <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-600 mb-2">
-              ยังไม่มีเทมเพลตการประเมิน
-            </h3>
-            <p className="text-gray-500 mb-6">
-              เริ่มต้นด้วยการสร้างเทมเพลตการประเมินแรกของคุณ
-            </p>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
+      {/* Rating Criteria Section */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Star className="w-5 h-5" />
+                เกณฑ์การให้คะแนน
+              </CardTitle>
+              <CardDescription>
+                น้ำหนักรวม: {totalRatingWeight}% 
+                {totalRatingWeight !== 100 && (
+                  <span className="text-red-600 ml-2">
+                    (ต้องรวมเป็น 100%)
+                  </span>
+                )}
+              </CardDescription>
+            </div>
+            <Button onClick={addRatingCriteria} variant="outline" size="sm">
               <Plus className="w-4 h-4 mr-2" />
-              สร้างเทมเพลตแรก
+              เพิ่มเกณฑ์
             </Button>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {ratingCriteria.map((criteria) => (
+              <div key={criteria.id} className="border rounded-lg p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>ชื่อเกณฑ์</Label>
+                    <Input
+                      value={criteria.criteria}
+                      onChange={(e) => updateRatingCriteria(criteria.id, 'criteria', e.target.value)}
+                      placeholder="เช่น ความรับผิดชอบ"
+                    />
+                  </div>
+                  <div>
+                    <Label>คำอธิบาย</Label>
+                    <Input
+                      value={criteria.description}
+                      onChange={(e) => updateRatingCriteria(criteria.id, 'description', e.target.value)}
+                      placeholder="คำอธิบายเกณฑ์การให้คะแนน"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <Label>น้ำหนัก (%)</Label>
+                      <Input
+                        type="number"
+                        value={criteria.weightage}
+                        onChange={(e) => updateRatingCriteria(criteria.id, 'weightage', Number(e.target.value))}
+                        placeholder="0-100"
+                        min="0"
+                        max="100"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Label>คะแนนสูงสุด</Label>
+                      <Input
+                        type="number"
+                        value={criteria.max_rating}
+                        onChange={(e) => updateRatingCriteria(criteria.id, 'max_rating', Number(e.target.value))}
+                        placeholder="5"
+                        min="1"
+                        max="10"
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeRatingCriteria(criteria.id)}
+                        className="text-red-600"
+                        disabled={ratingCriteria.length === 1}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Action Buttons */}
+      <div className="flex justify-end gap-3">
+        <Button variant="outline" onClick={onCancel}>
+          <X className="w-4 h-4 mr-2" />
+          ยกเลิก
+        </Button>
+        <Button 
+          onClick={handleSave}
+          disabled={!isValid}
+          className="bg-blue-600 hover:bg-blue-700"
+        >
+          <Save className="w-4 h-4 mr-2" />
+          บันทึกเทมเพลต
+        </Button>
+      </div>
     </div>
   );
 };
