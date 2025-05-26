@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -180,44 +179,41 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
                 </div>
               </div>
 
-              {/* Evidence Section */}
+              {/* Evidence Section with Self Assessment in same row */}
               <div className="border border-gray-300 p-4 mb-4">
                 <div className="font-medium text-sm mb-2">หลักฐานการดำเนินการ/การแสดงออกจริง</div>
-                <Textarea
-                  value={evaluation.evidence}
-                  onChange={(e) => updateEvaluation(item.id, 'evidence', e.target.value)}
-                  placeholder="กรอกหลักฐานการดำเนินการ..."
-                  rows={4}
-                  className="text-sm"
-                  disabled={!canEdit('evidence')}
-                />
-                <div className="mt-2">
-                  <Button variant="outline" size="sm" className="text-xs">
-                    <Upload className="w-3 h-3 mr-1" />
-                    เลือกไฟล์
-                  </Button>
-                </div>
-              </div>
-
-              {/* Self Assessment Section */}
-              <div className="border border-gray-300 p-4 mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
-                  <div className="flex items-center gap-2">
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <Textarea
+                      value={evaluation.evidence}
+                      onChange={(e) => updateEvaluation(item.id, 'evidence', e.target.value)}
+                      placeholder="กรอกหลักฐานการดำเนินการ..."
+                      rows={4}
+                      className="text-sm"
+                      disabled={!canEdit('evidence')}
+                    />
+                    <div className="mt-2">
+                      <Button variant="outline" size="sm" className="text-xs">
+                        <Upload className="w-3 h-3 mr-1" />
+                        เลือกไฟล์
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="w-32 flex flex-col justify-center">
+                    <div className="font-medium text-sm mb-2">% ความสำเร็จ (1-5) *</div>
                     <Input
                       type="number"
                       min="0"
                       max="5"
                       value={evaluation.selfScore}
                       onChange={(e) => updateEvaluation(item.id, 'selfScore', Number(e.target.value))}
-                      className="w-16 text-center"
+                      className="text-center"
                       disabled={!canEdit('selfScore')}
                     />
-                    <span className="text-sm">%</span>
+                    <div className="text-xs text-gray-500 mt-1">
+                      การคำนวณ: {evaluation.selfScore}% × {item.weight}% ÷ 5 = {((evaluation.selfScore / 5) * item.weight).toFixed(2)} คะแนน
+                    </div>
                   </div>
-                </div>
-                <div className="text-xs text-gray-500">
-                  การคำนวณ: {evaluation.selfScore}% × {item.weight}% ÷ 5 = {((evaluation.selfScore / 5) * item.weight).toFixed(2)} คะแนน
                 </div>
               </div>
 

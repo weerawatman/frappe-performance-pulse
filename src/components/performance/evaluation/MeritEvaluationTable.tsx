@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -211,39 +210,37 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
                 </div>
               </div>
 
-              {/* Evidence Section */}
+              {/* Evidence Section with Self Assessment in same row */}
               <div className="border border-gray-300 p-4 mb-4">
                 <div className="font-medium text-sm mb-2">หลักฐานการดำเนินการ/การแสดงออกจริง</div>
-                <Textarea
-                  value={evaluation.evidence}
-                  onChange={(e) => updateEvaluation(item.id, 'evidence', e.target.value)}
-                  placeholder="กรอกหลักฐานการดำเนินการ..."
-                  rows={4}
-                  className="text-sm"
-                  disabled={!canEdit('evidence')}
-                />
-                <div className="mt-2">
-                  <Button variant="outline" size="sm" className="text-xs">
-                    <Upload className="w-3 h-3 mr-1" />
-                    เลือกไฟล์
-                  </Button>
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  ข้อมูลเพิ่มเติม ระบุ อีเมล หรือ เอกสารอ้างอิง...
-                </div>
-              </div>
-
-              {/* Self Assessment Section */}
-              <div className="border border-gray-300 p-4 mb-4 bg-gray-50">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
-                  <div className="text-right">
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <Textarea
+                      value={evaluation.evidence}
+                      onChange={(e) => updateEvaluation(item.id, 'evidence', e.target.value)}
+                      placeholder="กรอกหลักฐานการดำเนินการ..."
+                      rows={4}
+                      className="text-sm"
+                      disabled={!canEdit('evidence')}
+                    />
+                    <div className="mt-2 flex gap-2">
+                      <Button variant="outline" size="sm" className="text-xs">
+                        <Upload className="w-3 h-3 mr-1" />
+                        เลือกไฟล์
+                      </Button>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      ข้อมูลเพิ่มเติม ระบุ อีเมล หรือ เอกสารอ้างอิง...
+                    </div>
+                  </div>
+                  <div className="w-32 flex flex-col justify-center">
+                    <div className="font-medium text-sm mb-2">% ความสำเร็จ (1-5) *</div>
                     <Select
                       value={evaluation.selfScore.toString()}
                       onValueChange={(value) => updateEvaluation(item.id, 'selfScore', Number(value))}
                       disabled={!canEdit('selfScore')}
                     >
-                      <SelectTrigger className="w-20">
+                      <SelectTrigger>
                         <SelectValue placeholder="-" />
                       </SelectTrigger>
                       <SelectContent>
@@ -264,10 +261,12 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
               <div className="border border-gray-300 p-4 mb-4">
                 <div className="font-medium text-sm mb-2">การ Feedback โดย Checker</div>
                 <Textarea
+                  value={evaluation.feedback}
+                  onChange={(e) => updateEvaluation(item.id, 'feedback', e.target.value)}
                   placeholder="Feedback..."
                   rows={2}
                   className="text-sm mb-2"
-                  disabled={userRole !== 'checker'}
+                  disabled={!canEdit('feedback')}
                 />
                 <div className="flex items-center justify-between">
                   <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
@@ -298,6 +297,8 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
               <div className="border border-gray-300 p-4">
                 <div className="font-medium text-sm mb-2">การ Feedback โดย Approver</div>
                 <Textarea
+                  value={evaluation.feedback}
+                  onChange={(e) => updateEvaluation(item.id, 'feedback', e.target.value)}
                   placeholder="Feedback..."
                   rows={2}
                   className="text-sm mb-2"
