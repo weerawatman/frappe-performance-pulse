@@ -161,6 +161,9 @@ const KPIMeritPage = () => {
     currentStatus.merit = 'draft';
     localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
     
+    // Dispatch custom event to update other components
+    window.dispatchEvent(new CustomEvent('kpiStatusUpdate'));
+    
     setStatus('draft');
     console.log('บันทึกร่าง Merit KPI');
   };
@@ -170,6 +173,9 @@ const KPIMeritPage = () => {
     const currentStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
     currentStatus.merit = 'pending_checker';
     localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
+    
+    // Dispatch custom event to update other components
+    window.dispatchEvent(new CustomEvent('kpiStatusUpdate'));
     
     setStatus('submitted');
     console.log('ส่งอนุมัติ Merit KPI');

@@ -27,6 +27,7 @@ const KPITrackingTable = () => {
     
     // Add event listener for storage changes to update status when localStorage changes
     const handleStorageChange = () => {
+      console.log('Storage changed, updating KPI status');
       fetchKPIStatus();
     };
     
@@ -34,6 +35,7 @@ const KPITrackingTable = () => {
     
     // Also listen for custom events when status changes within the same window
     const handleKPIStatusUpdate = () => {
+      console.log('KPI status update event received');
       fetchKPIStatus();
     };
     
@@ -48,6 +50,16 @@ const KPITrackingTable = () => {
   const fetchKPIStatus = async () => {
     try {
       setLoading(true);
+      
+      // Always check localStorage first for immediate updates
+      const savedStatus = localStorage.getItem('kpiStatus');
+      if (savedStatus) {
+        const parsedStatus = JSON.parse(savedStatus);
+        console.log('Updated KPI status from localStorage:', parsedStatus);
+        setKpiStatus(parsedStatus);
+      }
+      
+      // Then try to get from API as backup
       const status = await getEmployeeKPIStatus(currentEmployeeId);
       setKpiStatus(status);
     } catch (error) {
