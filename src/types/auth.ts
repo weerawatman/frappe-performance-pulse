@@ -21,6 +21,8 @@ export interface AuthState {
 export interface Role {
   id: string;
   name: string;
+  description: string;
+  level: number;
   permissions: Permission[];
 }
 
@@ -34,13 +36,26 @@ export interface SecuritySettings {
   passwordPolicy: string;
   sessionTimeout: number;
   twoFactorAuth: boolean;
+  passwordMinLength: number;
+  passwordRequireSpecialChar: boolean;
+  sessionTimeoutMinutes: number;
+  maxLoginAttempts: number;
+  lockoutDurationMinutes: number;
+  enableAuditLog: boolean;
+  enableDataEncryption: boolean;
+  autoBackupEnabled: boolean;
+  backupFrequencyHours: number;
 }
 
 export interface AccessLog {
   id: string;
   user: string;
+  userName: string;
   action: string;
-  timestamp: string;
+  resource: string;
+  timestamp: Date;
+  success: boolean;
+  ipAddress: string;
 }
 
 export interface TemporaryAssignment {

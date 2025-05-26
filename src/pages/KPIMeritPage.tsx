@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +13,7 @@ const KPIMeritPage = () => {
   const { user } = useAuth();
   const [status, setStatus] = useState<'draft' | 'submitted'>('draft');
 
-  // Mock data with evaluation_levels property
+  // Mock data with proper evaluation_levels structure
   const [competencyItems, setCompetencyItems] = useState<CompetencyItem[]>([
     {
       id: "1",
@@ -24,11 +23,11 @@ const KPIMeritPage = () => {
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
-        { level: 1, description: "ต้องการคำแนะนำในการแก้ไขปัญหา" },
-        { level: 2, description: "สามารถแก้ไขปัญหาเบื้องต้นได้" },
-        { level: 3, description: "แก้ไขปัญหาได้ดีและมีประสิทธิภาพ" },
-        { level: 4, description: "แก้ไขปัญหาซับซ้อนได้และช่วยเหลือผู้อื่น" },
-        { level: 5, description: "เป็นผู้เชี่ยวชาญในการแก้ไขปัญหา" }
+        { level: 1, title: "ระดับเริ่มต้น", description: "ต้องการคำแนะนำในการแก้ไขปัญหา", behavioral_examples: ["ต้องการคำแนะนำในการระบุปัญหา", "ใช้วิธีการที่เรียนรู้มาแล้ว"] },
+        { level: 2, title: "ระดับพัฒนา", description: "สามารถแก้ไขปัญหาเบื้องต้นได้", behavioral_examples: ["แก้ไขปัญหาง่ายๆ ได้เอง", "เริ่มคิดหาทางเลือก"] },
+        { level: 3, title: "ระดับชำนาญ", description: "แก้ไขปัญหาได้ดีและมีประสิทธิภาพ", behavioral_examples: ["วิเคราะห์ปัญหาได้อย่างครบถ้วน", "เสนอทางเลือกหลายแนวทาง"] },
+        { level: 4, title: "ระดับเชี่ยวชาญ", description: "แก้ไขปัญหาซับซ้อนได้และช่วยเหลือผู้อื่น", behavioral_examples: ["แก้ไขปัญหาซับซ้อน", "ช่วยเหลือเพื่อนร่วมงาน"] },
+        { level: 5, title: "ระดับผู้เชี่ยวชาญ", description: "เป็นผู้เชี่ยวชาญในการแก้ไขปัญหา", behavioral_examples: ["เป็นที่ปรึกษาของทีม", "สร้างระบบแก้ไขปัญหา"] }
       ]
     },
     {
@@ -39,11 +38,11 @@ const KPIMeritPage = () => {
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
-        { level: 1, description: "ทำงานได้ดีเมื่ออยู่คนเดียว" },
-        { level: 2, description: "ทำงานร่วมกับผู้อื่นได้" },
-        { level: 3, description: "ทำงานเป็นทีมได้ดี" },
-        { level: 4, description: "เป็นแกนนำในการทำงานทีม" },
-        { level: 5, description: "สร้างประสิทธิภาพทีมให้สูงขึ้น" }
+        { level: 1, title: "ระดับเริ่มต้น", description: "ทำงานได้ดีเมื่ออยู่คนเดียว", behavioral_examples: ["ทำงานคนเดียวได้ดี", "ไม่ค่อยมีส่วนร่วมกับทีม"] },
+        { level: 2, title: "ระดับพัฒนา", description: "ทำงานร่วมกับผู้อื่นได้", behavioral_examples: ["เริ่มทำงานร่วมกับผู้อื่น", "รับฟังความคิดเห็น"] },
+        { level: 3, title: "ระดับชำนาญ", description: "ทำงานเป็นทีมได้ดี", behavioral_examples: ["ร่วมมือกับทีม", "แบ่งปันความรู้"] },
+        { level: 4, title: "ระดับเชี่ยวชาญ", description: "เป็นแกนนำในการทำงานทีม", behavioral_examples: ["นำทีมแก้ไขปัญหา", "สร้างบรรยากาศที่ดี"] },
+        { level: 5, title: "ระดับผู้เชี่ยวชาญ", description: "สร้างประสิทธิภาพทีมให้สูงขึ้น", behavioral_examples: ["พัฒนาทีมให้มีประสิทธิภาพ", "เป็นที่ปรึกษาของทีม"] }
       ]
     },
     {
@@ -54,11 +53,11 @@ const KPIMeritPage = () => {
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
-        { level: 1, description: "เรียนรู้เมื่อมีความจำเป็น" },
-        { level: 2, description: "แสวงหาความรู้ใหม่เป็นครั้งคราว" },
-        { level: 3, description: "เรียนรู้อย่างต่อเนื่อง" },
-        { level: 4, description: "เรียนรู้และนำไปประยุกต์ใช้ได้ดี" },
-        { level: 5, description: "เป็นผู้นำในการเรียนรู้และแบ่งปัน" }
+        { level: 1, title: "ระดับเริ่มต้น", description: "เรียนรู้เมื่อมีความจำเป็น", behavioral_examples: ["เรียนรู้เมื่อจำเป็น", "ไม่ค่อยแสวงหาความรู้ใหม่"] },
+        { level: 2, title: "ระดับพัฒนา", description: "แสวงหาความรู้ใหม่เป็นครั้งคราว", behavioral_examples: ["เริ่มแสวงหาความรู้ใหม่", "เข้าร่วมอบรมบ้าง"] },
+        { level: 3, title: "ระดับชำนาญ", description: "เรียนรู้อย่างต่อเนื่อง", behavioral_examples: ["เรียนรู้อย่างสม่ำเสมอ", "ติดตามข่าวสาร"] },
+        { level: 4, title: "ระดับเชี่ยวชาญ", description: "เรียนรู้และนำไปประยุกต์ใช้ได้ดี", behavioral_examples: ["นำความรู้ไปใช้ในการทำงาน", "ปรับปรุงวิธีการทำงาน"] },
+        { level: 5, title: "ระดับผู้เชี่ยวชาญ", description: "เป็นผู้นำในการเรียนรู้และแบ่งปัน", behavioral_examples: ["แบ่งปันความรู้ให้ผู้อื่น", "สร้างวัฒนธรรมการเรียนรู้"] }
       ]
     },
     {
@@ -69,11 +68,11 @@ const KPIMeritPage = () => {
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
-        { level: 1, description: "สื่อสารได้เมื่อจำเป็น" },
-        { level: 2, description: "สื่อสารได้ชัดเจน" },
-        { level: 3, description: "สื่อสารได้ดีและเข้าใจง่าย" },
-        { level: 4, description: "สื่อสารได้ดีในทุกสถานการณ์" },
-        { level: 5, description: "เป็นแบบอย่างในการสื่อสาร" }
+        { level: 1, title: "ระดับเริ่มต้น", description: "สื่อสารได้เมื่อจำเป็น", behavioral_examples: ["สื่อสารเมื่อจำเป็น", "ไม่ค่อยแสดงความคิดเห็น"] },
+        { level: 2, title: "ระดับพัฒนา", description: "สื่อสารได้ชัดเจน", behavioral_examples: ["สื่อสารได้ชัดเจน", "ใช้ภาษาที่เข้าใจง่าย"] },
+        { level: 3, title: "ระดับชำนาญ", description: "สื่อสารได้ดีและเข้าใจง่าย", behavioral_examples: ["สื่อสารได้ดี", "อธิบายได้เข้าใจง่าย"] },
+        { level: 4, title: "ระดับเชี่ยวชาญ", description: "สื่อสารได้ดีในทุกสถานการณ์", behavioral_examples: ["สื่อสารได้ดีในทุกสถานการณ์", "ปรับวิธีการสื่อสารให้เหมาะสม"] },
+        { level: 5, title: "ระดับผู้เชี่ยวชาญ", description: "เป็นแบบอย่างในการสื่อสาร", behavioral_examples: ["เป็นแบบอย่างในการสื่อสาร", "สอนทักษะการสื่อสารให้ผู้อื่น"] }
       ]
     }
   ]);
@@ -87,11 +86,11 @@ const KPIMeritPage = () => {
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
-        { level: 1, description: "ปฏิบัติตามกฎระเบียบขั้นพื้นฐาน" },
-        { level: 2, description: "ซื่อสัตย์ในการทำงาน" },
-        { level: 3, description: "เป็นแบบอย่างความซื่อสัตย์" },
-        { level: 4, description: "ส่งเสริมความซื่อสัตย์ในทีม" },
-        { level: 5, description: "เป็นผู้นำด้านคุณธรรม" }
+        { level: 1, title: "ระดับเริ่มต้น", description: "ปฏิบัติตามกฎระเบียบขั้นพื้นฐาน", behavioral_examples: ["ปฏิบัติตามกฎระเบียบ", "ตรงต่อเวลา"] },
+        { level: 2, title: "ระดับพัฒนา", description: "ซื่อสัตย์ในการทำงาน", behavioral_examples: ["รายงานผลงานตรงตามความเป็นจริง", "ไม่ใช้เวลาส่วนตัวในการทำงาน"] },
+        { level: 3, title: "ระดับชำนาญ", description: "เป็นแบบอย่างความซื่อสัตย์", behavioral_examples: ["เป็นแบบอย่างให้เพื่อนร่วมงาน", "โปร่งใสในการทำงาน"] },
+        { level: 4, title: "ระดับเชี่ยวชาญ", description: "ส่งเสริมความซื่อสัตย์ในทีม", behavioral_examples: ["สร้างวัฒนธรรมความซื่อสัตย์", "แก้ไขปัญหาด้วยความยุติธรรม"] },
+        { level: 5, title: "ระดับผู้เชี่ยวชาญ", description: "เป็นผู้นำด้านคุณธรรม", behavioral_examples: ["เป็นผู้นำด้านจริยธรรม", "สร้างมาตรฐานคุณธรรม"] }
       ]
     },
     {
@@ -102,11 +101,11 @@ const KPIMeritPage = () => {
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
-        { level: 1, description: "ให้บริการลูกค้าตามมาตรฐาน" },
-        { level: 2, description: "ใส่ใจในความต้องการลูกค้า" },
-        { level: 3, description: "มุ่งมั่นสร้างความพึงพอใจ" },
-        { level: 4, description: "สร้างประสบการณ์ที่ดีให้ลูกค้า" },
-        { level: 5, description: "เป็นผู้เชี่ยวชาญด้านการบริการ" }
+        { level: 1, title: "ระดับเริ่มต้น", description: "ให้บริการลูกค้าตามมาตรฐาน", behavioral_examples: ["ให้บริการตามมาตรฐาน", "ตอบคำถามลูกค้า"] },
+        { level: 2, title: "ระดับพัฒนา", description: "ใส่ใจในความต้องการลูกค้า", behavioral_examples: ["สอบถามความต้องการลูกค้า", "ให้คำแนะนำ"] },
+        { level: 3, title: "ระดับชำนาญ", description: "มุ่งมั่นสร้างความพึงพอใจ", behavioral_examples: ["แก้ไขปัญหาให้ลูกค้า", "สร้างความประทับใจ"] },
+        { level: 4, title: "ระดับเชี่ยวชาญ", description: "สร้างประสบการณ์ที่ดีให้ลูกค้า", behavioral_examples: ["สร้างความสัมพันธ์ที่ดีกับลูกค้า", "นำเสนอสินค้าและบริการที่เหมาะสม"] },
+        { level: 5, title: "ระดับผู้เชี่ยวชาญ", description: "เป็นผู้เชี่ยวชาญด้านการบริการ", behavioral_examples: ["พัฒนาบริการให้ดีขึ้น", "เป็นที่ปรึกษาด้านบริการ"] }
       ]
     },
     {
@@ -117,11 +116,11 @@ const KPIMeritPage = () => {
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
-        { level: 1, description: "ปรับตัวเมื่อมีการเปลี่ยนแปลง" },
-        { level: 2, description: "รับการเปลี่ยนแปลงได้ดี" },
-        { level: 3, description: "มีแนวคิดใหม่ๆ เป็นครั้งคราว" },
-        { level: 4, description: "สร้างนวัตกรรมในการทำงาน" },
-        { level: 5, description: "เป็นผู้นำด้านนวัตกรรม" }
+        { level: 1, title: "ระดับเริ่มต้น", description: "ปรับตัวเมื่อมีการเปลี่ยนแปลง", behavioral_examples: ["ปรับตัวเมื่อมีการเปลี่ยนแปลง", "เรียนรู้สิ่งใหม่ๆ"] },
+        { level: 2, title: "ระดับพัฒนา", description: "รับการเปลี่ยนแปลงได้ดี", behavioral_examples: ["ยอมรับการเปลี่ยนแปลง", "ไม่ต่อต้านการเปลี่ยนแปลง"] },
+        { level: 3, title: "ระดับชำนาญ", description: "มีแนวคิดใหม่ๆ เป็นครั้งคราว", behavioral_examples: ["เสนอแนวคิดใหม่ๆ", "ปรับปรุงวิธีการทำงาน"] },
+        { level: 4, title: "ระดับเชี่ยวชาญ", description: "สร้างนวัตกรรมในการทำงาน", behavioral_examples: ["สร้างนวัตกรรม", "พัฒนาผลิตภัณฑ์ใหม่"] },
+        { level: 5, title: "ระดับผู้เชี่ยวชาญ", description: "เป็นผู้นำด้านนวัตกรรม", behavioral_examples: ["เป็นผู้นำด้านนวัตกรรม", "สร้างวัฒนธรรมนวัตกรรม"] }
       ]
     },
     {
@@ -132,11 +131,11 @@ const KPIMeritPage = () => {
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
-        { level: 1, description: "ทำงานตามที่ได้รับมอบหมาย" },
-        { level: 2, description: "รับผิดชอบงานของตนเอง" },
-        { level: 3, description: "รับผิดชอบและช่วยเหลือผู้อื่น" },
-        { level: 4, description: "มีความรับผิดชอบสูง" },
-        { level: 5, description: "เป็นแบบอย่างด้านความรับผิดชอบ" }
+        { level: 1, title: "ระดับเริ่มต้น", description: "ทำงานตามที่ได้รับมอบหมาย", behavioral_examples: ["ทำงานตามที่ได้รับมอบหมาย", "ส่งงานตรงเวลา"] },
+        { level: 2, title: "ระดับพัฒนา", description: "รับผิดชอบงานของตนเอง", behavioral_examples: ["รับผิดชอบงานของตนเอง", "แก้ไขข้อผิดพลาด"] },
+        { level: 3, title: "ระดับชำนาญ", description: "รับผิดชอบและช่วยเหลือผู้อื่น", behavioral_examples: ["ช่วยเหลือเพื่อนร่วมงาน", "แก้ไขปัญหาร่วมกัน"] },
+        { level: 4, title: "ระดับเชี่ยวชาญ", description: "มีความรับผิดชอบสูง", behavioral_examples: ["รับผิดชอบงานที่ได้รับมอบหมาย", "แก้ไขปัญหาอย่างรวดเร็ว"] },
+        { level: 5, title: "ระดับผู้เชี่ยวชาญ", description: "เป็นแบบอย่างด้านความรับผิดชอบ", behavioral_examples: ["เป็นแบบอย่างด้านความรับผิดชอบ", "สร้างวัฒนธรรมความรับผิดชอบ"] }
       ]
     }
   ]);

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Users, Shield, Clock, AlertTriangle, Search, Filter, Plus, Edit, Trash2, Eye } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, AccessLog, TemporaryAssignment, UserRole } from '@/types/auth';
+import { User, AccessLog, TemporaryAssignment } from '@/types/auth';
 import { userManagementService } from '@/services/userManagementService';
 
 const UserManagementDashboard: React.FC = () => {
@@ -32,12 +31,11 @@ const UserManagementDashboard: React.FC = () => {
     // Load temporary assignments would go here
   };
 
-  const getRoleBadgeColor = (role: UserRole) => {
+  const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'admin': return 'bg-red-500';
-      case 'executive': return 'bg-purple-500';
+      case 'checker': return 'bg-purple-500';
       case 'approver': return 'bg-blue-500';
-      case 'checker': return 'bg-green-500';
       case 'employee': return 'bg-gray-500';
       default: return 'bg-gray-500';
     }
@@ -72,9 +70,8 @@ const UserManagementDashboard: React.FC = () => {
     active: users.filter(u => u.isActive).length,
     byRole: {
       admin: users.filter(u => u.role === 'admin').length,
-      executive: users.filter(u => u.role === 'executive').length,
-      approver: users.filter(u => u.role === 'approver').length,
       checker: users.filter(u => u.role === 'checker').length,
+      approver: users.filter(u => u.role === 'approver').length,
       employee: users.filter(u => u.role === 'employee').length,
     }
   };
@@ -134,8 +131,8 @@ const UserManagementDashboard: React.FC = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">ผู้บริหาร</p>
-                <p className="text-2xl font-bold">{userStats.byRole.executive}</p>
+                <p className="text-sm font-medium text-gray-600">Checker</p>
+                <p className="text-2xl font-bold">{userStats.byRole.checker}</p>
               </div>
               <Users className="w-8 h-8 text-purple-600" />
             </div>

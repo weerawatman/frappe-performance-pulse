@@ -1,5 +1,5 @@
 
-import { User } from '@/types/auth';
+import { User, SecuritySettings, AccessLog, Role, Permission } from '@/types/auth';
 
 // Mock users data
 const users: User[] = [
@@ -74,52 +74,103 @@ export const authService = {
 
   getUsers: () => users,
 
-  getRoles: () => [
-    { id: 'admin', name: 'Administrator', permissions: [
-      { id: 'manage_users', name: 'Manage Users', description: 'Can manage user accounts' },
-      { id: 'view_all', name: 'View All Data', description: 'Can view all system data' }
-    ]},
-    { id: 'checker', name: 'Checker', permissions: [
-      { id: 'check_kpi', name: 'Check KPI', description: 'Can check KPI submissions' }
-    ]},
-    { id: 'approver', name: 'Approver', permissions: [
-      { id: 'approve_kpi', name: 'Approve KPI', description: 'Can approve KPI submissions' }
-    ]},
-    { id: 'employee', name: 'Employee', permissions: [
-      { id: 'submit_kpi', name: 'Submit KPI', description: 'Can submit KPI data' }
-    ]}
+  getRoles: (): Role[] => [
+    { 
+      id: 'admin', 
+      name: 'admin', 
+      description: 'Administrator', 
+      level: 1,
+      permissions: [
+        { id: 'manage_users', name: 'Manage Users', description: 'Can manage user accounts' },
+        { id: 'view_all', name: 'View All Data', description: 'Can view all system data' }
+      ]
+    },
+    { 
+      id: 'checker', 
+      name: 'checker', 
+      description: 'Checker', 
+      level: 2,
+      permissions: [
+        { id: 'check_kpi', name: 'Check KPI', description: 'Can check KPI submissions' }
+      ]
+    },
+    { 
+      id: 'approver', 
+      name: 'approver', 
+      description: 'Approver', 
+      level: 3,
+      permissions: [
+        { id: 'approve_kpi', name: 'Approve KPI', description: 'Can approve KPI submissions' }
+      ]
+    },
+    { 
+      id: 'employee', 
+      name: 'employee', 
+      description: 'Employee', 
+      level: 4,
+      permissions: [
+        { id: 'submit_kpi', name: 'Submit KPI', description: 'Can submit KPI data' }
+      ]
+    }
   ],
 
-  getPermissions: () => [
+  getPermissions: (): Permission[] => [
     { id: 'view_all', name: 'View All Data', description: 'View all system data' },
     { id: 'edit_users', name: 'Edit Users', description: 'Edit user information' },
     { id: 'approve_kpi', name: 'Approve KPI', description: 'Approve KPI submissions' },
     { id: 'check_kpi', name: 'Check KPI', description: 'Check KPI submissions' }
   ],
 
-  getAccessLogs: () => [
-    { id: '1', user: 'admin@company.com', action: 'Login', timestamp: new Date().toISOString() },
-    { id: '2', user: 'employee@company.com', action: 'View KPI', timestamp: new Date().toISOString() }
+  getAccessLogs: (userId?: string, limit?: number): AccessLog[] => [
+    { 
+      id: '1', 
+      user: 'admin@company.com', 
+      userName: 'ผู้ดูแลระบบ',
+      action: 'Login', 
+      resource: 'Authentication',
+      timestamp: new Date(), 
+      success: true,
+      ipAddress: '192.168.1.1'
+    },
+    { 
+      id: '2', 
+      user: 'employee@company.com', 
+      userName: 'สมชาย ใจดี',
+      action: 'View KPI', 
+      resource: 'KPI Management',
+      timestamp: new Date(), 
+      success: true,
+      ipAddress: '192.168.1.2'
+    }
   ],
 
-  getSecuritySettings: () => ({
+  getSecuritySettings: (): SecuritySettings => ({
     passwordPolicy: 'Strong',
     sessionTimeout: 30,
-    twoFactorAuth: false
+    twoFactorAuth: false,
+    passwordMinLength: 8,
+    passwordRequireSpecialChar: true,
+    sessionTimeoutMinutes: 480,
+    maxLoginAttempts: 5,
+    lockoutDurationMinutes: 15,
+    enableAuditLog: true,
+    enableDataEncryption: true,
+    autoBackupEnabled: true,
+    backupFrequencyHours: 24
   }),
 
-  updateSecuritySettings: (settings: any) => {
+  updateSecuritySettings: (settings: SecuritySettings) => {
     console.log('Security settings updated:', settings);
     return { success: true };
   },
 
-  updateUser: (user: User) => {
-    console.log('User updated:', user);
+  updateUser: (userId: string, userData: Partial<User>) => {
+    console.log('User updated:', userId, userData);
     return { success: true };
   },
 
-  createUser: (user: Omit<User, 'id'>) => {
-    const newUser = { ...user, id: `user-${Date.now()}` };
+  createUser: (userData: Omit<User, 'id'>) => {
+    const newUser = { ...userData, id: `user-${Date.now()}` };
     console.log('User created:', newUser);
     return { success: true, user: newUser };
   },
