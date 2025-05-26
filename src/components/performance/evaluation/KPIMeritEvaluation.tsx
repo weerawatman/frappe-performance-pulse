@@ -9,7 +9,7 @@ import CultureEvaluationTable from './CultureEvaluationTable';
 
 interface KPIMeritEvaluationProps {
   period: 'mid' | 'end';
-  userRole?: 'employee' | 'checker' | 'approver';
+  userRole?: 'employee' | 'checker' | 'approver' | 'admin';
 }
 
 const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ 
@@ -39,6 +39,8 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({
         return 'ผู้ตรวจสอบ';
       case 'approver':
         return 'ผู้อนุมัติ';
+      case 'admin':
+        return 'ผู้ดูแลระบบ';
       default:
         return 'พนักงาน';
     }
