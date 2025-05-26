@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -224,9 +225,7 @@ const KPIMeritPage = () => {
             </CardHeader>
             <CardContent>
               <CompetencyTable 
-                items={competencyItems} 
-                onUpdate={handleCompetencyUpdate}
-                readonly={status === 'submitted'}
+                competencyItems={competencyItems} 
               />
             </CardContent>
           </Card>
@@ -241,9 +240,7 @@ const KPIMeritPage = () => {
             </CardHeader>
             <CardContent>
               <CultureTable 
-                items={cultureItems} 
-                onUpdate={handleCultureUpdate}
-                readonly={status === 'submitted'}
+                cultureItems={cultureItems} 
               />
             </CardContent>
           </Card>
