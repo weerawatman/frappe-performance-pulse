@@ -9,7 +9,368 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      competency_items: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          kpi_merit_id: string | null
+          name: string
+          self_score: number | null
+          supervisor_score: number | null
+          weight: number
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          kpi_merit_id?: string | null
+          name: string
+          self_score?: number | null
+          supervisor_score?: number | null
+          weight: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          kpi_merit_id?: string | null
+          name?: string
+          self_score?: number | null
+          supervisor_score?: number | null
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competency_items_kpi_merit_id_fkey"
+            columns: ["kpi_merit_id"]
+            isOneToOne: false
+            referencedRelation: "kpi_merit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      culture_items: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          kpi_merit_id: string | null
+          name: string
+          self_score: number | null
+          supervisor_score: number | null
+          weight: number
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          kpi_merit_id?: string | null
+          name: string
+          self_score?: number | null
+          supervisor_score?: number | null
+          weight: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          kpi_merit_id?: string | null
+          name?: string
+          self_score?: number | null
+          supervisor_score?: number | null
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "culture_items_kpi_merit_id_fkey"
+            columns: ["kpi_merit_id"]
+            isOneToOne: false
+            referencedRelation: "kpi_merit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employees: {
+        Row: {
+          created_at: string | null
+          department: string
+          email: string | null
+          employee_id: string
+          employee_name: string
+          id: string
+          position: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          department: string
+          email?: string | null
+          employee_id: string
+          employee_name: string
+          id?: string
+          position?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          department?: string
+          email?: string | null
+          employee_id?: string
+          employee_name?: string
+          id?: string
+          position?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      kpi_bonus: {
+        Row: {
+          approved_date: string | null
+          approver_feedback: string | null
+          checked_date: string | null
+          checker_feedback: string | null
+          created_at: string | null
+          employee_id: string | null
+          id: string
+          rejection_reason: string | null
+          status: Database["public"]["Enums"]["kpi_status"] | null
+          submitted_date: string | null
+          total_weight: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          approved_date?: string | null
+          approver_feedback?: string | null
+          checked_date?: string | null
+          checker_feedback?: string | null
+          created_at?: string | null
+          employee_id?: string | null
+          id?: string
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["kpi_status"] | null
+          submitted_date?: string | null
+          total_weight?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          approved_date?: string | null
+          approver_feedback?: string | null
+          checked_date?: string | null
+          checker_feedback?: string | null
+          created_at?: string | null
+          employee_id?: string | null
+          id?: string
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["kpi_status"] | null
+          submitted_date?: string | null
+          total_weight?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kpi_bonus_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kpi_bonus_items: {
+        Row: {
+          actual_result: string | null
+          created_at: string | null
+          id: string
+          kpi_bonus_id: string | null
+          kpi_item_id: string | null
+          score: number | null
+        }
+        Insert: {
+          actual_result?: string | null
+          created_at?: string | null
+          id?: string
+          kpi_bonus_id?: string | null
+          kpi_item_id?: string | null
+          score?: number | null
+        }
+        Update: {
+          actual_result?: string | null
+          created_at?: string | null
+          id?: string
+          kpi_bonus_id?: string | null
+          kpi_item_id?: string | null
+          score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kpi_bonus_items_kpi_bonus_id_fkey"
+            columns: ["kpi_bonus_id"]
+            isOneToOne: false
+            referencedRelation: "kpi_bonus"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kpi_bonus_items_kpi_item_id_fkey"
+            columns: ["kpi_item_id"]
+            isOneToOne: false
+            referencedRelation: "kpi_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kpi_history: {
+        Row: {
+          action: string
+          actor_name: string
+          actor_role: string
+          comments: string | null
+          id: string
+          kpi_bonus_id: string | null
+          kpi_merit_id: string | null
+          target_role: string | null
+          timestamp: string | null
+        }
+        Insert: {
+          action: string
+          actor_name: string
+          actor_role: string
+          comments?: string | null
+          id?: string
+          kpi_bonus_id?: string | null
+          kpi_merit_id?: string | null
+          target_role?: string | null
+          timestamp?: string | null
+        }
+        Update: {
+          action?: string
+          actor_name?: string
+          actor_role?: string
+          comments?: string | null
+          id?: string
+          kpi_bonus_id?: string | null
+          kpi_merit_id?: string | null
+          target_role?: string | null
+          timestamp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kpi_history_kpi_bonus_id_fkey"
+            columns: ["kpi_bonus_id"]
+            isOneToOne: false
+            referencedRelation: "kpi_bonus"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kpi_history_kpi_merit_id_fkey"
+            columns: ["kpi_merit_id"]
+            isOneToOne: false
+            referencedRelation: "kpi_merit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kpi_items: {
+        Row: {
+          category_id: string
+          category_name: string
+          created_at: string | null
+          description: string | null
+          id: string
+          measurement_method: string | null
+          name: string
+          target: string
+          weight: number
+        }
+        Insert: {
+          category_id: string
+          category_name: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          measurement_method?: string | null
+          name: string
+          target: string
+          weight: number
+        }
+        Update: {
+          category_id?: string
+          category_name?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          measurement_method?: string | null
+          name?: string
+          target?: string
+          weight?: number
+        }
+        Relationships: []
+      }
+      kpi_merit: {
+        Row: {
+          approved_date: string | null
+          approver_feedback: string | null
+          checked_date: string | null
+          checker_feedback: string | null
+          competency_weight: number | null
+          created_at: string | null
+          culture_weight: number | null
+          employee_id: string | null
+          id: string
+          kpi_achievement_score: number | null
+          kpi_achievement_weight: number | null
+          rejection_reason: string | null
+          status: Database["public"]["Enums"]["kpi_status"] | null
+          submitted_date: string | null
+          total_score: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          approved_date?: string | null
+          approver_feedback?: string | null
+          checked_date?: string | null
+          checker_feedback?: string | null
+          competency_weight?: number | null
+          created_at?: string | null
+          culture_weight?: number | null
+          employee_id?: string | null
+          id?: string
+          kpi_achievement_score?: number | null
+          kpi_achievement_weight?: number | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["kpi_status"] | null
+          submitted_date?: string | null
+          total_score?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          approved_date?: string | null
+          approver_feedback?: string | null
+          checked_date?: string | null
+          checker_feedback?: string | null
+          competency_weight?: number | null
+          created_at?: string | null
+          culture_weight?: number | null
+          employee_id?: string | null
+          id?: string
+          kpi_achievement_score?: number | null
+          kpi_achievement_weight?: number | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["kpi_status"] | null
+          submitted_date?: string | null
+          total_score?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kpi_merit_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +379,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      kpi_status:
+        | "not_started"
+        | "draft"
+        | "pending_checker"
+        | "pending_approver"
+        | "completed"
+        | "rejected"
+      kpi_type: "bonus" | "merit"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +501,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      kpi_status: [
+        "not_started",
+        "draft",
+        "pending_checker",
+        "pending_approver",
+        "completed",
+        "rejected",
+      ],
+      kpi_type: ["bonus", "merit"],
+    },
   },
 } as const

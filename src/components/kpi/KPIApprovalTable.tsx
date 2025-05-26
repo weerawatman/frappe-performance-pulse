@@ -5,75 +5,82 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Eye, CheckCircle, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getKPIBonusByStatus, getKPIMeritByStatus, type KPIBonusWithEmployee, type KPIMeritWithEmployee } from '@/services/kpiService';
 
 interface KPIApprovalTableProps {
   userRole: 'checker' | 'approver';
 }
 
+interface PendingKPI {
+  id: string;
+  employee_name: string;
+  employee_id: string;
+  department: string;
+  kpi_type: 'KPI Bonus' | 'KPI Merit';
+  submitted_date: Date;
+  checked_date?: Date;
+  status: string;
+}
+
 const KPIApprovalTable: React.FC<KPIApprovalTableProps> = ({ userRole }) => {
-  const [kpiStatus, setKpiStatus] = useState({ bonus: 'not_started', merit: 'not_started' });
+  const [pendingKPIs, setPendingKPIs] = useState<PendingKPI[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const status = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
-    setKpiStatus(status);
-  }, []);
+    fetchPendingKPIs();
+  }, [userRole]);
 
-  // Create dynamic KPI list based on current status and user role
-  const getPendingKPIs = () => {
-    const kpis = [];
-    
-    // Check KPI Bonus
-    if (userRole === 'checker' && kpiStatus.bonus === 'pending_checker') {
-      kpis.push({
-        id: '1',
-        employee_name: 'สมชาย ใจดี',
-        employee_id: 'EMP001',
-        department: 'การขาย',
-        kpi_type: 'KPI Bonus',
-        submitted_date: new Date('2024-01-15'),
-        status: 'pending_checker'
+  const fetchPendingKPIs = async () => {
+    try {
+      setLoading(true);
+      const status = userRole === 'checker' ? 'pending_checker' : 'pending_approver';
+      
+      const [bonusData, meritData] = await Promise.all([
+        getKPIBonusByStatus(status),
+        getKPIMeritByStatus(status)
+      ]);
+
+      const kpis: PendingKPI[] = [];
+
+      // Process KPI Bonus data
+      bonusData.forEach((bonus: KPIBonusWithEmployee) => {
+        if (bonus.employee) {
+          kpis.push({
+            id: bonus.id,
+            employee_name: bonus.employee.employee_name,
+            employee_id: bonus.employee.employee_id,
+            department: bonus.employee.department,
+            kpi_type: 'KPI Bonus',
+            submitted_date: new Date(bonus.submitted_date || bonus.created_at),
+            checked_date: bonus.checked_date ? new Date(bonus.checked_date) : undefined,
+            status: bonus.status || 'pending_checker'
+          });
+        }
       });
-    } else if (userRole === 'approver' && kpiStatus.bonus === 'pending_approver') {
-      kpis.push({
-        id: '1',
-        employee_name: 'สมชาย ใจดี',
-        employee_id: 'EMP001',
-        department: 'การขาย',
-        kpi_type: 'KPI Bonus',
-        submitted_date: new Date('2024-01-15'),
-        checked_date: new Date('2024-01-17'),
-        status: 'pending_approver'
+
+      // Process KPI Merit data
+      meritData.forEach((merit: KPIMeritWithEmployee) => {
+        if (merit.employee) {
+          kpis.push({
+            id: merit.id,
+            employee_name: merit.employee.employee_name,
+            employee_id: merit.employee.employee_id,
+            department: merit.employee.department,
+            kpi_type: 'KPI Merit',
+            submitted_date: new Date(merit.submitted_date || merit.created_at),
+            checked_date: merit.checked_date ? new Date(merit.checked_date) : undefined,
+            status: merit.status || 'pending_checker'
+          });
+        }
       });
+
+      setPendingKPIs(kpis);
+    } catch (error) {
+      console.error('Error fetching pending KPIs:', error);
+    } finally {
+      setLoading(false);
     }
-
-    // Check KPI Merit
-    if (userRole === 'checker' && kpiStatus.merit === 'pending_checker') {
-      kpis.push({
-        id: '2',
-        employee_name: 'สมหญิง สวยใส',
-        employee_id: 'EMP002',
-        department: 'การตลาด',
-        kpi_type: 'KPI Merit',
-        submitted_date: new Date('2024-01-16'),
-        status: 'pending_checker'
-      });
-    } else if (userRole === 'approver' && kpiStatus.merit === 'pending_approver') {
-      kpis.push({
-        id: '2',
-        employee_name: 'สมหญิง สวยใส',
-        employee_id: 'EMP002',
-        department: 'การตลาด',
-        kpi_type: 'KPI Merit',
-        submitted_date: new Date('2024-01-16'),
-        checked_date: new Date('2024-01-18'),
-        status: 'pending_approver'
-      });
-    }
-
-    return kpis;
   };
-
-  const pendingKPIs = getPendingKPIs();
 
   const getActionLink = (kpiType: string) => {
     return userRole === 'checker' ? '/manager/kpi-checker' : '/manager/kpi-approver';
@@ -94,6 +101,25 @@ const KPIApprovalTable: React.FC<KPIApprovalTableProps> = ({ userRole }) => {
       );
     }
   };
+
+  if (loading) {
+    return (
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle className="w-5 h-5" />
+            รายการ KPI ที่รอการ{userRole === 'checker' ? 'ตรวจสอบ' : 'อนุมัติ'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">กำลังโหลดข้อมูล...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="shadow-lg">
@@ -133,9 +159,9 @@ const KPIApprovalTable: React.FC<KPIApprovalTableProps> = ({ userRole }) => {
                     <td className="border border-gray-300 px-4 py-3">
                       {kpi.submitted_date.toLocaleDateString('th-TH')}
                     </td>
-                    {userRole === 'approver' && 'checked_date' in kpi && (
+                    {userRole === 'approver' && (
                       <td className="border border-gray-300 px-4 py-3">
-                        {kpi.checked_date?.toLocaleDateString('th-TH')}
+                        {kpi.checked_date?.toLocaleDateString('th-TH') || '-'}
                       </td>
                     )}
                     <td className="border border-gray-300 px-4 py-3 text-center">

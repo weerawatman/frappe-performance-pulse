@@ -1,50 +1,118 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, MessageSquare, CheckCircle, XCircle, ArrowLeft, UserCheck } from 'lucide-react';
+import { Eye, CheckCircle, XCircle, ArrowLeft, UserCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { 
+  getKPIBonusByStatus, 
+  getKPIMeritByStatus, 
+  updateKPIBonusStatus,
+  updateKPIMeritStatus,
+  addKPIHistory,
+  type KPIBonusWithEmployee,
+  type KPIMeritWithEmployee
+} from '@/services/kpiService';
+
+interface PendingKPI {
+  id: string;
+  employee_id: string;
+  employee_name: string;
+  department: string;
+  kpi_type: 'KPI Bonus' | 'KPI Merit';
+  submitted_date: Date;
+  checked_date?: Date;
+  status: string;
+}
 
 const KPIApproverPage: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [selectedKPI, setSelectedKPI] = useState<any>(null);
+  const [selectedKPI, setSelectedKPI] = useState<PendingKPI | null>(null);
   const [feedback, setFeedback] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingKPIs, setPendingKPIs] = useState<PendingKPI[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data
-  const pendingKPIs = [
-    {
-      id: '1',
-      employee_id: 'EMP001',
-      employee_name: 'สมชาย ใจดี',
-      department: 'การขาย',
-      kpi_type: 'KPI Bonus',
-      submitted_date: new Date(),
-      checked_date: new Date(),
-      status: 'pending_approver'
+  useEffect(() => {
+    fetchPendingKPIs();
+  }, []);
+
+  const fetchPendingKPIs = async () => {
+    try {
+      setLoading(true);
+      const [bonusData, meritData] = await Promise.all([
+        getKPIBonusByStatus('pending_approver'),
+        getKPIMeritByStatus('pending_approver')
+      ]);
+
+      const kpis: PendingKPI[] = [];
+
+      bonusData.forEach((bonus: KPIBonusWithEmployee) => {
+        if (bonus.employee) {
+          kpis.push({
+            id: bonus.id,
+            employee_id: bonus.employee.id,
+            employee_name: bonus.employee.employee_name,
+            department: bonus.employee.department,
+            kpi_type: 'KPI Bonus',
+            submitted_date: new Date(bonus.submitted_date || bonus.created_at),
+            checked_date: bonus.checked_date ? new Date(bonus.checked_date) : undefined,
+            status: bonus.status || 'pending_approver'
+          });
+        }
+      });
+
+      meritData.forEach((merit: KPIMeritWithEmployee) => {
+        if (merit.employee) {
+          kpis.push({
+            id: merit.id,
+            employee_id: merit.employee.id,
+            employee_name: merit.employee.employee_name,
+            department: merit.employee.department,
+            kpi_type: 'KPI Merit',
+            submitted_date: new Date(merit.submitted_date || merit.created_at),
+            checked_date: merit.checked_date ? new Date(merit.checked_date) : undefined,
+            status: merit.status || 'pending_approver'
+          });
+        }
+      });
+
+      setPendingKPIs(kpis);
+    } catch (error) {
+      console.error('Error fetching pending KPIs:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถโหลดข้อมูล KPI ได้",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const handleFinalApprove = async () => {
     if (!selectedKPI) return;
     
     setIsSubmitting(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Update status in localStorage
-      const currentStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
       if (selectedKPI.kpi_type === 'KPI Bonus') {
-        currentStatus.bonus = 'completed';
+        await updateKPIBonusStatus(selectedKPI.id, 'completed', feedback);
       } else {
-        currentStatus.merit = 'completed';
+        await updateKPIMeritStatus(selectedKPI.id, 'completed', feedback);
       }
-      localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
+
+      await addKPIHistory(
+        selectedKPI.id,
+        selectedKPI.kpi_type === 'KPI Bonus' ? 'bonus' : 'merit',
+        'Approved',
+        'Approver',
+        'approver',
+        feedback
+      );
       
       toast({
         title: "อนุมัติสำเร็จ",
@@ -53,8 +121,8 @@ const KPIApproverPage: React.FC = () => {
       
       setSelectedKPI(null);
       setFeedback('');
+      await fetchPendingKPIs();
       
-      // Navigate back to approver dashboard
       navigate('/approver-dashboard');
     } catch (error) {
       toast({
@@ -79,16 +147,21 @@ const KPIApproverPage: React.FC = () => {
     
     setIsSubmitting(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Update status in localStorage
-      const currentStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
       if (selectedKPI.kpi_type === 'KPI Bonus') {
-        currentStatus.bonus = 'draft';
+        await updateKPIBonusStatus(selectedKPI.id, 'draft', feedback);
       } else {
-        currentStatus.merit = 'draft';
+        await updateKPIMeritStatus(selectedKPI.id, 'draft', feedback);
       }
-      localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
+
+      await addKPIHistory(
+        selectedKPI.id,
+        selectedKPI.kpi_type === 'KPI Bonus' ? 'bonus' : 'merit',
+        'Rejected',
+        'Approver',
+        'approver',
+        feedback,
+        'employee'
+      );
       
       toast({
         title: "ส่งกลับแก้ไขสำเร็จ",
@@ -97,8 +170,8 @@ const KPIApproverPage: React.FC = () => {
       
       setSelectedKPI(null);
       setFeedback('');
+      await fetchPendingKPIs();
       
-      // Navigate back to approver dashboard
       navigate('/approver-dashboard');
     } catch (error) {
       toast({
@@ -110,6 +183,17 @@ const KPIApproverPage: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">กำลังโหลดข้อมูล...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

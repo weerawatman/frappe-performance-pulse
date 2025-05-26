@@ -5,10 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Target, Building } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getEmployeeKPIStatus } from '@/services/kpiService';
 
 interface KPIStatus {
-  bonus: 'not_started' | 'draft' | 'pending_checker' | 'pending_approver' | 'completed';
-  merit: 'not_started' | 'draft' | 'pending_checker' | 'pending_approver' | 'completed';
+  bonus: string;
+  merit: string;
 }
 
 const KPITrackingTable = () => {
@@ -16,14 +17,31 @@ const KPITrackingTable = () => {
     bonus: 'not_started',
     merit: 'not_started'
   });
+  const [loading, setLoading] = useState(true);
 
-  // Load status from localStorage on component mount
+  // Mock employee ID - in real app, this would come from auth context
+  const currentEmployeeId = 'f47ac10b-58cc-4372-a567-0e02b2c3d479'; // This should match one of the UUIDs from the database
+
   useEffect(() => {
-    const savedStatus = localStorage.getItem('kpiStatus');
-    if (savedStatus) {
-      setKpiStatus(JSON.parse(savedStatus));
-    }
+    fetchKPIStatus();
   }, []);
+
+  const fetchKPIStatus = async () => {
+    try {
+      setLoading(true);
+      const status = await getEmployeeKPIStatus(currentEmployeeId);
+      setKpiStatus(status);
+    } catch (error) {
+      console.error('Error fetching KPI status:', error);
+      // Fallback to localStorage if API fails
+      const savedStatus = localStorage.getItem('kpiStatus');
+      if (savedStatus) {
+        setKpiStatus(JSON.parse(savedStatus));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Corporate KPIs - แสดงเฉพาะหัวข้อและเป้าหมาย
   const corporateKPIs = [
@@ -124,6 +142,19 @@ const KPITrackingTable = () => {
         );
     }
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Card className="shadow-lg">
+          <CardContent className="py-12 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">กำลังโหลดข้อมูล KPI...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
