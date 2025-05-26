@@ -7,10 +7,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, MessageSquare, CheckCircle, XCircle, ArrowLeft, UserCheck } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const KPIApproverPage: React.FC = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [selectedKPI, setSelectedKPI] = useState<any>(null);
   const [feedback, setFeedback] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,6 +53,9 @@ const KPIApproverPage: React.FC = () => {
       
       setSelectedKPI(null);
       setFeedback('');
+      
+      // Navigate back to approver dashboard
+      navigate('/approver-dashboard');
     } catch (error) {
       toast({
         title: "เกิดข้อผิดพลาด",
@@ -93,6 +97,9 @@ const KPIApproverPage: React.FC = () => {
       
       setSelectedKPI(null);
       setFeedback('');
+      
+      // Navigate back to approver dashboard
+      navigate('/approver-dashboard');
     } catch (error) {
       toast({
         title: "เกิดข้อผิดพลาด",
@@ -109,7 +116,7 @@ const KPIApproverPage: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link to="/employee-dashboard">
+            <Link to="/approver-dashboard">
               <Button variant="outline" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 กลับ

@@ -8,10 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, Send, MessageSquare, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const KPICheckerPage: React.FC = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [selectedKPI, setSelectedKPI] = useState<any>(null);
   const [feedback, setFeedback] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,6 +53,9 @@ const KPICheckerPage: React.FC = () => {
       
       setSelectedKPI(null);
       setFeedback('');
+      
+      // Navigate back to checker dashboard
+      navigate('/checker-dashboard');
     } catch (error) {
       toast({
         title: "เกิดข้อผิดพลาด",
@@ -93,6 +97,9 @@ const KPICheckerPage: React.FC = () => {
       
       setSelectedKPI(null);
       setFeedback('');
+      
+      // Navigate back to checker dashboard
+      navigate('/checker-dashboard');
     } catch (error) {
       toast({
         title: "เกิดข้อผิดพลาด",
@@ -109,7 +116,7 @@ const KPICheckerPage: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link to="/employee-dashboard">
+            <Link to="/checker-dashboard">
               <Button variant="outline" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 กลับ
