@@ -10,6 +10,7 @@ import PerformanceEvaluationPage from '@/pages/PerformanceEvaluationPage';
 import AdminReportsDashboard from '@/components/performance/reports/AdminReportsDashboard';
 import EmployeeDashboard from '@/pages/EmployeeDashboard';
 import ReportsPage from '@/pages/ReportsPage';
+import KPIManagementPage from '@/pages/KPIManagementPage';
 
 function App() {
   return (
@@ -29,7 +30,7 @@ function App() {
           } />
           <Route path="/kpi" element={
             <ProtectedRoute>
-              <MainLayout><div className="p-6"><h1 className="text-2xl font-bold">จัดการ KPI</h1><p className="text-gray-600">หน้าจัดการ KPI จะพร้อมใช้งานเร็วๆ นี้</p></div></MainLayout>
+              <MainLayout><KPIManagementPage /></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/employee/evaluation" element={

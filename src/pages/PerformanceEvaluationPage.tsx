@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -29,7 +30,7 @@ const PerformanceEvaluationPage: React.FC<PerformanceEvaluationPageProps> = ({ u
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="px-3 py-1">
               <Calendar className="w-4 h-4 mr-2" />
-              ปี 2024
+              ปี 2025
             </Badge>
             {isAdmin && (
               <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
