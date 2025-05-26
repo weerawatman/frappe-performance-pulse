@@ -6,11 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
-  BarChart,
   BarChart3, 
-  PieChart, 
   TrendingUp,
-  LineChart,
   CircleDollarSign,
   Users,
   Building,
@@ -120,7 +117,6 @@ const CorporateKPIDashboard: React.FC = () => {
             <Progress 
               value={overallAchievement} 
               className="h-2 mt-2"
-              indicatorClassName={getProgressColor(overallAchievement)}
             />
             <div className="text-xs text-gray-500 mt-2">
               คำนวณจากค่าเฉลี่ยถ่วงน้ำหนักของ KPI ทั้งหมด
@@ -227,7 +223,8 @@ const CorporateKPIDashboard: React.FC = () => {
             <TabsContent value="overall">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Achievement By Category Chart */}
-                <ChartContainer title="ผลการดำเนินงานตามหมวดหมู่" description="แสดงเปอร์เซ็นต์ความสำเร็จโดยเฉลี่ยในแต่ละหมวดหมู่">
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium">ผลการดำเนินงานตามหมวดหมู่</h4>
                   <ResponsiveContainer width="100%" height={300}>
                     <RechartsBarChart
                       data={categoryAchievementData}
@@ -240,10 +237,11 @@ const CorporateKPIDashboard: React.FC = () => {
                       <Bar dataKey="achievement" name="ความสำเร็จ (%)" fill="#8884d8" />
                     </RechartsBarChart>
                   </ResponsiveContainer>
-                </ChartContainer>
+                </div>
 
                 {/* KPI Weight Distribution */}
-                <ChartContainer title="การกระจายน้ำหนัก KPI" description="การกระจายน้ำหนักตามหมวดหมู่">
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium">การกระจายน้ำหนัก KPI</h4>
                   <ResponsiveContainer width="100%" height={300}>
                     <RechartsPieChart>
                       <Pie
@@ -264,7 +262,7 @@ const CorporateKPIDashboard: React.FC = () => {
                       <Legend />
                     </RechartsPieChart>
                   </ResponsiveContainer>
-                </ChartContainer>
+                </div>
               </div>
 
               {/* Summary Table */}
@@ -371,7 +369,6 @@ const CorporateKPIDashboard: React.FC = () => {
                                 <Progress 
                                   value={item.achievement_percentage} 
                                   className="h-1.5 mt-1 w-16"
-                                  indicatorClassName={getProgressColor(item.achievement_percentage)}
                                 />
                               </div>
                             </TableCell>
