@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,19 @@ import CultureTable from "@/components/merit/CultureTable";
 const KPIMeritPage = () => {
   const { user } = useAuth();
   const [status, setStatus] = useState<'draft' | 'submitted'>('draft');
+
+  // Load status from localStorage
+  React.useEffect(() => {
+    const savedStatus = localStorage.getItem('kpiStatus');
+    if (savedStatus) {
+      const parsedStatus = JSON.parse(savedStatus);
+      if (parsedStatus.merit) {
+        if (parsedStatus.merit === 'pending_checker' || parsedStatus.merit === 'pending_approver' || parsedStatus.merit === 'completed') {
+          setStatus('submitted');
+        }
+      }
+    }
+  }, []);
 
   // Mock data with proper evaluation_levels structure
   const [competencyItems, setCompetencyItems] = useState<CompetencyItem[]>([
@@ -225,7 +239,9 @@ const KPIMeritPage = () => {
             </CardHeader>
             <CardContent>
               <CompetencyTable 
-                competencyItems={competencyItems} 
+                competencyItems={competencyItems}
+                onUpdate={handleCompetencyUpdate}
+                readonly={status === 'submitted'}
               />
             </CardContent>
           </Card>
@@ -240,7 +256,9 @@ const KPIMeritPage = () => {
             </CardHeader>
             <CardContent>
               <CultureTable 
-                cultureItems={cultureItems} 
+                cultureItems={cultureItems}
+                onUpdate={handleCultureUpdate}
+                readonly={status === 'submitted'}
               />
             </CardContent>
           </Card>
