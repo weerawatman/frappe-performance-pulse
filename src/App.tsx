@@ -13,6 +13,7 @@ import KPIApproverPage from "./pages/KPIApproverPage";
 import PerformanceEvaluationPage from "./pages/PerformanceEvaluationPage";
 import EmployeePerformanceResultsPage from "./pages/EmployeePerformanceResultsPage";
 import AdminReportsPage from "./pages/AdminReportsPage";
+import UserManagementPage from "./pages/UserManagementPage";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PerformanceManagement from './pages/PerformanceManagement';
 import ReportsPage from './pages/ReportsPage';
