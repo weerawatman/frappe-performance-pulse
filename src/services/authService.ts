@@ -20,7 +20,9 @@ export class AuthService {
       enableAuditLog: true,
       enableDataEncryption: true,
       autoBackupEnabled: true,
-      backupFrequencyHours: 24
+      backupFrequencyHours: 24,
+      requireApprovalForCriticalChanges: true,
+      enableRoleBasedNotifications: true
     };
   }
 
@@ -59,7 +61,7 @@ export class AuthService {
       },
       {
         id: '2',
-        name: 'manager',
+        name: 'executive',
         description: 'ผู้บริหาร',
         level: 2,
         permissions: this.permissions.filter(p => 
@@ -68,8 +70,8 @@ export class AuthService {
       },
       {
         id: '3',
-        name: 'department_head',
-        description: 'หัวหน้าแผนก',
+        name: 'approver',
+        description: 'ผู้อนุมัติ',
         level: 3,
         permissions: this.permissions.filter(p => 
           ['view_team_appraisals', 'create_appraisal', 'edit_appraisal', 'view_reports'].includes(p.name)
@@ -77,16 +79,25 @@ export class AuthService {
       },
       {
         id: '4',
+        name: 'checker',
+        description: 'ผู้ตรวจสอบ',
+        level: 4,
+        permissions: this.permissions.filter(p => 
+          ['view_team_appraisals', 'edit_appraisal'].includes(p.name)
+        )
+      },
+      {
+        id: '5',
         name: 'employee',
         description: 'พนักงาน',
-        level: 4,
+        level: 5,
         permissions: this.permissions.filter(p => 
           ['view_own_appraisal'].includes(p.name)
         )
       }
     ];
 
-    // Initialize sample users - เพิ่ม employee user
+    // Initialize sample users - updated with correct roles
     this.users = [
       {
         id: '1',
@@ -100,11 +111,11 @@ export class AuthService {
       },
       {
         id: '2',
-        name: 'Manager User',
-        email: 'manager@company.com',
+        name: 'Executive User',
+        email: 'executive@company.com',
         department: 'Management',
         position: 'General Manager',
-        role: 'manager',
+        role: 'executive',
         isActive: true,
         createdAt: new Date()
       },
@@ -179,13 +190,18 @@ export class AuthService {
     const user = this.users.find(u => u.id === userId);
     if (!user) return false;
 
-    // Admin and Manager can view all
-    if (user.role === 'admin' || user.role === 'manager') {
+    // Admin and Executive can view all
+    if (user.role === 'admin' || user.role === 'executive') {
       return true;
     }
 
-    // Department head can view team appraisals
-    if (user.role === 'department_head' && department === user.department) {
+    // Approver can view team appraisals
+    if (user.role === 'approver' && department === user.department) {
+      return true;
+    }
+
+    // Checker can view team appraisals
+    if (user.role === 'checker' && department === user.department) {
       return true;
     }
 
