@@ -24,17 +24,10 @@ const KPITrackingTable = () => {
       evaluation1: 'Coming Soon',
       evaluation2: 'Coming Soon',
       link: '/employee/kpi-merit',
-      buttonColor: 'border-purple-600 text-purple-600 hover:bg-purple-50',
+      buttonColor: 'bg-green-600 hover:bg-green-700',
       buttonText: 'เริ่มกำหนด KPI Merit',
       available: true
     }
-  ];
-
-  const statusFlow = [
-    { step: 1, text: 'ถ้ายังไม่เริ่มกำหนดให้แสดงตามรูป' },
-    { step: 2, text: 'หากมีการจัดทำแล้ว แต่ยังไม่ส่งอนุมัติให้แสดงสถานะ "ร่าง"' },
-    { step: 3, text: 'หากส่งอนุมัติแล้ว หลังจาก Checker ตรวจสอบแล้ว ให้แสดงสถานะ "Checked" และส่งไปยัง Approver เพื่อพิจารณา' },
-    { step: 4, text: 'หา Approver อนุมัติแล้ว ให้แสดงสถานะ "Approved" และไม่สามารถกดต่อได้อีก' }
   ];
 
   return (
@@ -43,11 +36,18 @@ const KPITrackingTable = () => {
       <Card className="bg-yellow-50 border-yellow-200">
         <CardContent className="pt-6">
           <div className="space-y-2">
-            {statusFlow.map((item, index) => (
-              <p key={index} className="text-sm text-gray-700">
-                {item.step}) {item.text}
-              </p>
-            ))}
+            <p className="text-sm text-gray-700">
+              1) ถ้ายังไม่เริ่มกำหนดให้แสดงตามรูป
+            </p>
+            <p className="text-sm text-gray-700">
+              2) หากมีการจัดทำแล้ว แต่ยังไม่ส่งอนุมัติให้แสดงสถานะ "ร่าง"
+            </p>
+            <p className="text-sm text-gray-700">
+              3) หากส่งอนุมัติแล้ว หลังจาก Checker ตรวจสอบแล้ว ให้แสดงสถานะ "Checked" และส่งไปยัง Approver เพื่อพิจารณา
+            </p>
+            <p className="text-sm text-gray-700">
+              4) หา Approver อนุมัติแล้ว ให้แสดงสถานะ "Approved" และไม่สามารถกดต่อได้อีก
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -79,7 +79,6 @@ const KPITrackingTable = () => {
                         <Link to={item.link}>
                           <Button 
                             className={`${item.buttonColor} text-white flex items-center gap-2 mx-auto`}
-                            variant={item.type === 'KPI Merit' ? 'outline' : 'default'}
                           >
                             {item.buttonText}
                             <ArrowRight className="w-4 h-4" />
@@ -103,18 +102,6 @@ const KPITrackingTable = () => {
                 ))}
               </tbody>
             </table>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Status Flow Explanation */}
-      <Card className="border-gray-200">
-        <CardContent className="pt-6">
-          <div className="space-y-2 text-sm text-gray-600">
-            <p>1) ถ้ายังไม่เริ่มกำหนดให้แสดงตามรูป</p>
-            <p>2) หากมีการจัดทำแล้ว แต่ยังไม่ส่งอนุมัติให้แสดงสถานะ "ร่าง"</p>
-            <p>3) หากส่งอนุมัติแล้ว หลังจาก Checker ตรวจสอบแล้ว ให้แสดงสถานะ "Checked" และส่งไปยัง Approver เพื่อพิจารณา</p>
-            <p>4) หา Approver อนุมัติแล้ว ให้แสดงสถานะ "Approved" และไม่สามารถกดต่อได้อีก</p>
           </div>
         </CardContent>
       </Card>
