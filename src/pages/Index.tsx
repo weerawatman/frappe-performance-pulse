@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -47,7 +48,11 @@ const Index = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-white" />
+                <img 
+                  src="/lovable-uploads/3ee75ef7-d7d2-4357-8492-aeded3669568.png" 
+                  alt="Somboon Logo" 
+                  className="w-6 h-6" 
+                />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Somboon Performance Management System</h1>

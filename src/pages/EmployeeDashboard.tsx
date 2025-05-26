@@ -49,7 +49,11 @@ const EmployeeDashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
-                <Target className="w-6 h-6 text-white" />
+                <img 
+                  src="/lovable-uploads/3ee75ef7-d7d2-4357-8492-aeded3669568.png" 
+                  alt="Somboon Logo" 
+                  className="w-6 h-6" 
+                />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">

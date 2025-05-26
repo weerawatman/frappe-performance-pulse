@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,6 @@ import {
   BarChart3, 
   Settings,
   LogOut,
-  Building,
   UserCheck,
   ClipboardCheck
 } from 'lucide-react';
@@ -50,7 +50,11 @@ const Navigation: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <Building className="w-8 h-8 text-blue-600 mr-2" />
+            <img 
+              src="/lovable-uploads/3ee75ef7-d7d2-4357-8492-aeded3669568.png" 
+              alt="Somboon Logo" 
+              className="w-8 h-8 mr-2" 
+            />
             <span className="text-xl font-bold text-gray-900">Somboon Performance Management System</span>
           </div>
 

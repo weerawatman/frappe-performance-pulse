@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogIn, Building } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -52,7 +52,11 @@ const LoginPage: React.FC = () => {
         <div className="text-center">
           <div className="flex justify-center mb-4">
             <div className="bg-blue-600 p-3 rounded-full">
-              <Building className="w-8 h-8 text-white" />
+              <img 
+                src="/lovable-uploads/3ee75ef7-d7d2-4357-8492-aeded3669568.png" 
+                alt="Somboon Logo" 
+                className="w-8 h-8" 
+              />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Somboon Performance Management System</h1>
