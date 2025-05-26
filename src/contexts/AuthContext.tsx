@@ -20,7 +20,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users with the specified names
+// Mock users with the specified names and admin user
 const mockUsers: User[] = [
   {
     id: 'EMP001',
@@ -42,6 +42,13 @@ const mockUsers: User[] = [
     email: 'somboon@company.com',
     role: 'approver',
     department: 'การขาย'
+  },
+  {
+    id: 'ADM001',
+    name: 'ผู้ดูแลระบบ',
+    email: 'admin@company.com',
+    role: 'admin',
+    department: 'IT'
   }
 ];
 

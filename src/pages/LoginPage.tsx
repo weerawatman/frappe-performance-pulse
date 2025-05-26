@@ -118,6 +118,7 @@ const LoginPage: React.FC = () => {
               <div className="text-sm text-gray-600">
                 <p className="font-medium mb-2">บัญชีทดสอบ:</p>
                 <div className="bg-gray-50 p-3 rounded space-y-1">
+                  <p><strong>ผู้ดูแลระบบ:</strong> admin@company.com</p>
                   <p><strong>พนักงาน:</strong> somchai@company.com</p>
                   <p><strong>Checker:</strong> somsak@company.com</p>
                   <p><strong>Approver:</strong> somboon@company.com</p>
