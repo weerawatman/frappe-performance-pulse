@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,12 +32,12 @@ const AppraisalManager: React.FC = () => {
   const [appraisals, setAppraisals] = useState<Appraisal[]>([]);
   const [selectedAppraisal, setSelectedAppraisal] = useState<Appraisal | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'form' | 'view'>('list');
+  const [viewMode, setViewMode<'list' | 'form' | 'view'>('list');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [departmentFilter, setDepartmentFilter] = useState('all');
 
-  // Mock data for demonstration
+  // Mock data for demonstration with corrected types
   const mockAppraisals: Appraisal[] = [
     {
       id: '1',
@@ -47,10 +46,15 @@ const AppraisalManager: React.FC = () => {
       department: 'IT',
       appraisal_cycle_id: '1',
       appraisal_template_id: '1',
+      start_date: new Date('2024-01-01'),
+      end_date: new Date('2024-12-31'),
+      status: 'Self Assessment',
+      rate_goals_manually: false,
       appraisal_kra: [
         {
           id: '1',
           kra: 'ความสำเร็จในการทำงาน',
+          description: 'การบรรลุเป้าหมายการทำงาน',
           weightage: 40,
           achievement: 'ทำงานได้เกินเป้าหมาย 20%',
           score: 4.5
@@ -58,6 +62,7 @@ const AppraisalManager: React.FC = () => {
         {
           id: '2',
           kra: 'คุณภาพของงาน',
+          description: 'คุณภาพและความถูกต้องของงาน',
           weightage: 30,
           achievement: 'งานมีคุณภาพสูง ผิดพลาดน้อย',
           score: 4.0
@@ -65,11 +70,13 @@ const AppraisalManager: React.FC = () => {
         {
           id: '3',
           kra: 'การทำงานเป็นทีม',
+          description: 'ความสามารถในการทำงานร่วมกับทีม',
           weightage: 30,
           achievement: 'ทำงานร่วมกับทีมได้ดี',
           score: 4.2
         }
       ],
+      goals: [],
       self_ratings: [
         {
           id: '1',
@@ -108,11 +115,12 @@ const AppraisalManager: React.FC = () => {
           comments: 'เรียนรู้เร็วมาก'
         }
       ],
-      goal_score: 4.26,
+      total_score: 4.26,
       self_score: 4.0,
       avg_feedback_score: 4.1,
       final_score: 4.12,
-      status: 'Self Assessment',
+      submitted_by_employee: false,
+      reviewed_by_manager: false,
       created_at: new Date(),
       modified_at: new Date(),
       created_by: 'system'
@@ -124,10 +132,15 @@ const AppraisalManager: React.FC = () => {
       department: 'Sales',
       appraisal_cycle_id: '1',
       appraisal_template_id: '1',
+      start_date: new Date('2024-01-01'),
+      end_date: new Date('2024-12-31'),
+      status: 'Completed',
+      rate_goals_manually: false,
       appraisal_kra: [
         {
           id: '4',
           kra: 'ยอดขาย',
+          description: 'การบรรลุเป้าหมายยอดขาย',
           weightage: 50,
           achievement: 'ทำยอดขายได้ 110% ของเป้าหมาย',
           score: 4.8
@@ -135,6 +148,7 @@ const AppraisalManager: React.FC = () => {
         {
           id: '5',
           kra: 'ความสัมพันธ์กับลูกค้า',
+          description: 'การดูแลและรักษาความสัมพันธ์กับลูกค้า',
           weightage: 30,
           achievement: 'รักษาลูกค้าเก่าได้ 95%',
           score: 4.5
@@ -142,11 +156,13 @@ const AppraisalManager: React.FC = () => {
         {
           id: '6',
           kra: 'การพัฒนาตลาด',
+          description: 'การขยายตลาดและหาลูกค้าใหม่',
           weightage: 20,
           achievement: 'หาลูกค้าใหม่ได้ 15 ราย',
           score: 4.0
         }
       ],
+      goals: [],
       self_ratings: [
         {
           id: '5',
@@ -176,11 +192,12 @@ const AppraisalManager: React.FC = () => {
           comments: 'ต้องปรับปรุงการวางแผน'
         }
       ],
-      goal_score: 4.55,
+      total_score: 4.55,
       self_score: 4.15,
       avg_feedback_score: 4.3,
       final_score: 4.33,
-      status: 'Completed',
+      submitted_by_employee: true,
+      reviewed_by_manager: true,
       created_at: new Date(),
       modified_at: new Date(),
       created_by: 'system'
@@ -441,8 +458,8 @@ const AppraisalManager: React.FC = () => {
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
-                      <span className={`font-medium ${getScoreColor(appraisal.goal_score)}`}>
-                        {appraisal.goal_score.toFixed(2)}
+                      <span className={`font-medium ${getScoreColor(appraisal.total_score)}`}>
+                        {appraisal.total_score.toFixed(2)}
                       </span>
                     </TableCell>
                     <TableCell className="text-center">
@@ -532,9 +549,18 @@ const AppraisalView: React.FC<AppraisalViewProps> = ({ appraisal }) => {
   // Mock cycle data for score calculation
   const mockCycle = {
     id: '1',
+    name: 'การประเมินผลงานประจำปี 2024',
+    start_date: new Date('2024-01-01'),
+    end_date: new Date('2024-12-31'),
+    appraisal_template_id: '1',
     kra_evaluation_method: 'Manual' as const,
+    appraisees: [],
     calculate_final_score_based_on_formula: false,
-    final_score_formula: ''
+    final_score_formula: '',
+    status: 'Active' as const,
+    created_by: 'admin',
+    created_at: new Date(),
+    modified_at: new Date()
   };
 
   const mockFeedbacks = [

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,7 @@ import {
   ClipboardList,
   Search
 } from 'lucide-react';
-import { AppraisalTemplate, KRA, RatingCriteria } from '@/types/performance';
+import { AppraisalTemplate, AppraisalGoal, RatingCriteria } from '@/types/performance';
 
 const AppraisalTemplateManager: React.FC = () => {
   const [templates, setTemplates] = useState<AppraisalTemplate[]>([]);
@@ -27,33 +26,30 @@ const AppraisalTemplateManager: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Mock data for demonstration
+  // Mock data for demonstration with corrected property names
   const mockTemplates: AppraisalTemplate[] = [
     {
       id: '1',
       name: 'เทมเพลตการประเมินพนักงานทั่วไป',
       description: 'เทมเพลตสำหรับการประเมินพนักงานทั่วไป',
-      kra_list: [
+      goals: [
         {
           id: '1',
           kra: 'ความสำเร็จในการทำงาน',
-          weightage: 40,
-          achievement: '',
-          score: 0
+          description: 'การบรรลุเป้าหมายการทำงาน',
+          weightage: 40
         },
         {
           id: '2',
           kra: 'คุณภาพของงาน',
-          weightage: 30,
-          achievement: '',
-          score: 0
+          description: 'คุณภาพและความถูกต้องของงาน',
+          weightage: 30
         },
         {
           id: '3',
           kra: 'การทำงานเป็นทีม',
-          weightage: 30,
-          achievement: '',
-          score: 0
+          description: 'ความสามารถในการทำงานร่วมกับทีม',
+          weightage: 30
         }
       ],
       rating_criteria: [
@@ -86,6 +82,7 @@ const AppraisalTemplateManager: React.FC = () => {
           max_rating: 5
         }
       ],
+      is_active: true,
       created_at: new Date(),
       modified_at: new Date(),
       created_by: 'admin'
@@ -94,27 +91,24 @@ const AppraisalTemplateManager: React.FC = () => {
       id: '2',
       name: 'เทมเพลตการประเมินผู้จัดการ',
       description: 'เทมเพลตสำหรับการประเมินผู้จัดการ',
-      kra_list: [
+      goals: [
         {
           id: '4',
           kra: 'ภาวะผู้นำ',
-          weightage: 50,
-          achievement: '',
-          score: 0
+          description: 'ความสามารถในการเป็นผู้นำ',
+          weightage: 50
         },
         {
           id: '5',
           kra: 'การจัดการทีม',
-          weightage: 30,
-          achievement: '',
-          score: 0
+          description: 'ความสามารถในการจัดการทีมงาน',
+          weightage: 30
         },
         {
           id: '6',
           kra: 'ผลลัพธ์ธุรกิจ',
-          weightage: 20,
-          achievement: '',
-          score: 0
+          description: 'การบรรลุเป้าหมายทางธุรกิจ',
+          weightage: 20
         }
       ],
       rating_criteria: [
@@ -140,6 +134,7 @@ const AppraisalTemplateManager: React.FC = () => {
           max_rating: 5
         }
       ],
+      is_active: true,
       created_at: new Date(),
       modified_at: new Date(),
       created_by: 'admin'
@@ -247,7 +242,7 @@ const AppraisalTemplateManager: React.FC = () => {
                     <TableCell className="font-medium">{template.name}</TableCell>
                     <TableCell className="text-gray-600">{template.description}</TableCell>
                     <TableCell className="text-center">
-                      <Badge variant="outline">{template.kra_list.length}</Badge>
+                      <Badge variant="outline">{template.goals.length}</Badge>
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge variant="outline">{template.rating_criteria.length}</Badge>
@@ -304,7 +299,7 @@ const AppraisalTemplateManager: React.FC = () => {
   );
 };
 
-// Template Form Component
+// Template Form Component - fix property names
 interface TemplateFormProps {
   template?: AppraisalTemplate | null;
   onSave: (data: Omit<AppraisalTemplate, 'id' | 'created_at' | 'modified_at'>) => void;
@@ -315,12 +310,13 @@ const TemplateForm: React.FC<TemplateFormProps> = ({ template, onSave, onCancel 
   const [formData, setFormData] = useState({
     name: template?.name || '',
     description: template?.description || '',
+    is_active: template?.is_active ?? true,
     created_by: template?.created_by || 'current_user'
   });
 
-  const [kraList, setKraList] = useState<KRA[]>(
-    template?.kra_list || [
-      { id: '1', kra: '', weightage: 0, achievement: '', score: 0 }
+  const [goals, setGoals] = useState<AppraisalGoal[]>(
+    template?.goals || [
+      { id: '1', kra: '', description: '', weightage: 0 }
     ]
   );
 
@@ -330,24 +326,23 @@ const TemplateForm: React.FC<TemplateFormProps> = ({ template, onSave, onCancel 
     ]
   );
 
-  const addKRA = () => {
-    const newKRA: KRA = {
+  const addGoal = () => {
+    const newGoal: AppraisalGoal = {
       id: Date.now().toString(),
       kra: '',
-      weightage: 0,
-      achievement: '',
-      score: 0
+      description: '',
+      weightage: 0
     };
-    setKraList([...kraList, newKRA]);
+    setGoals([...goals, newGoal]);
   };
 
-  const removeKRA = (id: string) => {
-    setKraList(kraList.filter(kra => kra.id !== id));
+  const removeGoal = (id: string) => {
+    setGoals(goals.filter(goal => goal.id !== id));
   };
 
-  const updateKRA = (id: string, field: keyof KRA, value: string | number) => {
-    setKraList(kraList.map(kra => 
-      kra.id === id ? { ...kra, [field]: value } : kra
+  const updateGoal = (id: string, field: keyof AppraisalGoal, value: string | number) => {
+    setGoals(goals.map(goal => 
+      goal.id === id ? { ...goal, [field]: value } : goal
     ));
   };
 
@@ -372,24 +367,25 @@ const TemplateForm: React.FC<TemplateFormProps> = ({ template, onSave, onCancel 
     ));
   };
 
-  const totalKRAWeight = kraList.reduce((sum, kra) => sum + kra.weightage, 0);
+  const totalGoalWeight = goals.reduce((sum, goal) => sum + goal.weightage, 0);
   const totalRatingWeight = ratingCriteria.reduce((sum, criteria) => sum + criteria.weightage, 0);
 
   const handleSave = () => {
     const templateData: Omit<AppraisalTemplate, 'id' | 'created_at' | 'modified_at'> = {
       name: formData.name,
       description: formData.description,
-      kra_list: kraList,
+      goals: goals,
       rating_criteria: ratingCriteria,
+      is_active: formData.is_active,
       created_by: formData.created_by
     };
     onSave(templateData);
   };
 
   const isValid = formData.name && 
-                  kraList.length > 0 && 
+                  goals.length > 0 && 
                   ratingCriteria.length > 0 &&
-                  totalKRAWeight === 100 &&
+                  totalGoalWeight === 100 &&
                   totalRatingWeight === 100;
 
   return (
@@ -432,15 +428,15 @@ const TemplateForm: React.FC<TemplateFormProps> = ({ template, onSave, onCancel 
                 KRA (Key Result Areas)
               </CardTitle>
               <CardDescription>
-                น้ำหนักรวม: {totalKRAWeight}% 
-                {totalKRAWeight !== 100 && (
+                น้ำหนักรวม: {totalGoalWeight}% 
+                {totalGoalWeight !== 100 && (
                   <span className="text-red-600 ml-2">
                     (ต้องรวมเป็น 100%)
                   </span>
                 )}
               </CardDescription>
             </div>
-            <Button onClick={addKRA} variant="outline" size="sm">
+            <Button onClick={addGoal} variant="outline" size="sm">
               <Plus className="w-4 h-4 mr-2" />
               เพิ่ม KRA
             </Button>
@@ -448,14 +444,14 @@ const TemplateForm: React.FC<TemplateFormProps> = ({ template, onSave, onCancel 
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {kraList.map((kra) => (
-              <div key={kra.id} className="border rounded-lg p-4">
+            {goals.map((goal) => (
+              <div key={goal.id} className="border rounded-lg p-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="md:col-span-2">
                     <Label>หัวข้อ KRA</Label>
                     <Input
-                      value={kra.kra}
-                      onChange={(e) => updateKRA(kra.id, 'kra', e.target.value)}
+                      value={goal.kra}
+                      onChange={(e) => updateGoal(goal.id, 'kra', e.target.value)}
                       placeholder="เช่น ความสำเร็จในการทำงาน"
                     />
                   </div>
@@ -464,8 +460,8 @@ const TemplateForm: React.FC<TemplateFormProps> = ({ template, onSave, onCancel 
                       <Label>น้ำหนัก (%)</Label>
                       <Input
                         type="number"
-                        value={kra.weightage}
-                        onChange={(e) => updateKRA(kra.id, 'weightage', Number(e.target.value))}
+                        value={goal.weightage}
+                        onChange={(e) => updateGoal(goal.id, 'weightage', Number(e.target.value))}
                         placeholder="0-100"
                         min="0"
                         max="100"
@@ -475,9 +471,9 @@ const TemplateForm: React.FC<TemplateFormProps> = ({ template, onSave, onCancel 
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeKRA(kra.id)}
+                        onClick={() => removeGoal(goal.id)}
                         className="text-red-600"
-                        disabled={kraList.length === 1}
+                        disabled={goals.length === 1}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>

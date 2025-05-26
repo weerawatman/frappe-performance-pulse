@@ -67,6 +67,7 @@ export interface Appraisal {
   id: string;
   employee_id: string;
   employee_name: string;
+  department: string; // Add department property
   appraisal_cycle_id: string;
   appraisal_template_id: string;
   start_date: Date;
@@ -170,3 +171,6 @@ export interface PerformanceStats {
 }
 
 export type ScoreCategory = 'excellent' | 'good' | 'average' | 'poor' | 'critical';
+
+// Export KRA type alias for backwards compatibility
+export type KRA = AppraisalGoal;

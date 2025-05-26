@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,7 +20,7 @@ import {
   Pause,
   CheckCircle
 } from 'lucide-react';
-import { AppraisalCycle } from '@/types/performance';
+import { AppraisalCycle, Employee } from '@/types/performance';
 import CycleManager from './CycleManager';
 
 const AppraisalCycleManager: React.FC = () => {
@@ -94,28 +93,34 @@ const AppraisalCycleManager: React.FC = () => {
     { id: '2', name: 'เทมเพลตการประเมินผู้จัดการ' }
   ];
 
-  // Mock employees
-  const mockEmployees = [
+  // Mock employees with complete Employee interface
+  const mockEmployees: Employee[] = [
     {
       id: 'EMP001',
       employee_id: 'EMP001',
       name: 'สมชาย ใจดี',
+      email: 'somchai@company.com',
       department: 'IT',
-      position: 'Senior Developer'
+      position: 'Senior Developer',
+      join_date: new Date('2020-01-15')
     },
     {
       id: 'EMP002',
       employee_id: 'EMP002',
       name: 'สมหญิง รักษ์ดี',
+      email: 'somying@company.com',
       department: 'Sales',
-      position: 'Sales Manager'
+      position: 'Sales Manager',
+      join_date: new Date('2019-03-20')
     },
     {
       id: 'EMP003',
       employee_id: 'EMP003',
       name: 'วิชัย เก่งมาก',
+      email: 'wichai@company.com',
       department: 'Marketing',
-      position: 'Marketing Specialist'
+      position: 'Marketing Specialist',
+      join_date: new Date('2021-06-10')
     }
   ];
 
