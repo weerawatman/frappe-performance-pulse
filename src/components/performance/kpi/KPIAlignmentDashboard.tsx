@@ -456,15 +456,11 @@ const KPIAlignmentDashboard: React.FC = () => {
                     <TableHead>Weight</TableHead>
                     <TableHead>Achievement</TableHead>
                     <TableHead>Aligned President KPIs</TableHead>
-                    <TableHead>Alignment Score</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {mockCorporateKPIData.map((corpKpi) => {
                     const alignedPresKPIs = getAlignedPresidentKPIs(corpKpi.id);
-                    const avgAlignmentScore = alignedPresKPIs.length > 0 
-                      ? alignedPresKPIs.reduce((sum, kpi) => sum + kpi.alignment_score, 0) / alignedPresKPIs.length 
-                      : 0;
                     
                     return (
                       <TableRow key={corpKpi.id}>
@@ -485,15 +481,6 @@ const KPIAlignmentDashboard: React.FC = () => {
                               <span className="text-gray-400 text-xs">ไม่มี KPI ที่เชื่อมโยง</span>
                             )}
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          {alignedPresKPIs.length > 0 ? (
-                            <Badge className={getAlignmentStatus(avgAlignmentScore).color}>
-                              {avgAlignmentScore.toFixed(1)}%
-                            </Badge>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
                         </TableCell>
                       </TableRow>
                     );
