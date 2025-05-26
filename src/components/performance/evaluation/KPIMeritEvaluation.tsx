@@ -8,8 +8,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Save, Send, Users, Award, Brain, Heart } from 'lucide-react';
+import { Save, Send, Users, Brain, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { 
+  calculateCompetencyScore, 
+  calculateCultureScore, 
+  calculateKPIMeritScore,
+  convertLevelToScore,
+  getScoreColor, 
+  getScoreGrade 
+} from '@/utils/kpiScoring';
+import ScoreBreakdownCard from './ScoreBreakdownCard';
 
 interface KPIMeritEvaluationProps {
   period: 'mid' | 'end';
@@ -35,7 +44,6 @@ interface MeritEvaluation {
   id: string;
   level: number;
   supporting_info: string;
-  calculated_score: number;
 }
 
 const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
@@ -43,10 +51,8 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
   const [cultureItems, setCultureItems] = useState<CultureItem[]>([]);
   const [competencyEvaluations, setCompetencyEvaluations] = useState<{[key: string]: MeritEvaluation}>({});
   const [cultureEvaluations, setCultureEvaluations] = useState<{[key: string]: MeritEvaluation}>({});
-  const [competencyScore, setCompetencyScore] = useState(0);
-  const [cultureScore, setCultureScore] = useState(0);
-  const [totalScore, setTotalScore] = useState(0);
   const [status, setStatus] = useState<'draft' | 'submitted' | 'approved'>('draft');
+  const [kpiBonusScore, setKpiBonusScore] = useState(75); // Mock KPI Bonus score
   const { toast } = useToast();
 
   // Mock data
@@ -172,8 +178,7 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
       initCompetencyEvals[comp.id] = {
         id: comp.id,
         level: 0,
-        supporting_info: '',
-        calculated_score: 0
+        supporting_info: ''
       };
     });
 
@@ -181,8 +186,7 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
       initCultureEvals[cult.id] = {
         id: cult.id,
         level: 0,
-        supporting_info: '',
-        calculated_score: 0
+        supporting_info: ''
       };
     });
 
@@ -197,42 +201,19 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
     value: any
   ) => {
     const setter = type === 'competency' ? setCompetencyEvaluations : setCultureEvaluations;
-    const items = type === 'competency' ? competencyItems : cultureItems;
-
-    setter(prev => {
-      const updated = {
-        ...prev,
-        [id]: {
-          ...prev[id],
-          [field]: value
-        }
-      };
-
-      // Calculate score when level changes
-      if (field === 'level') {
-        const item = items.find(i => i.id === id);
-        if (item) {
-          updated[id].calculated_score = (value * item.weight) / 5; // Max level is 5
-        }
+    setter(prev => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        [field]: value
       }
-
-      return updated;
-    });
+    }));
   };
 
-  // Calculate scores
-  useEffect(() => {
-    const compTotal = Object.values(competencyEvaluations).reduce(
-      (sum, evaluation) => sum + evaluation.calculated_score, 0
-    );
-    const cultTotal = Object.values(cultureEvaluations).reduce(
-      (sum, evaluation) => sum + evaluation.calculated_score, 0
-    );
-    
-    setCompetencyScore(compTotal);
-    setCultureScore(cultTotal);
-    setTotalScore(compTotal + cultTotal);
-  }, [competencyEvaluations, cultureEvaluations]);
+  // คำนวณคะแนนโดยใช้ utility functions
+  const competencyResult = calculateCompetencyScore(competencyItems, competencyEvaluations);
+  const cultureResult = calculateCultureScore(cultureItems, cultureEvaluations);
+  const meritResult = calculateKPIMeritScore(kpiBonusScore, competencyResult.total_score, cultureResult.total_score);
 
   const handleSaveDraft = () => {
     toast({
@@ -259,6 +240,15 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
       return;
     }
 
+    if (!competencyResult.is_weight_valid || !cultureResult.is_weight_valid) {
+      toast({
+        title: 'น้ำหนักไม่ถูกต้อง',
+        description: 'น้ำหนักรวมของแต่ละส่วนต้องเท่ากับ 100%',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setStatus('submitted');
     toast({
       title: 'ส่งการประเมินสำเร็จ',
@@ -266,14 +256,7 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
     });
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600';
-    if (score >= 80) return 'text-blue-600';
-    if (score >= 70) return 'text-yellow-600';
-    return 'text-red-600';
-  };
-
-  const getBadgeVariant = (status: string) => {
+  const getBadgeVariant = (status: string): "default" | "secondary" | "outline" => {
     switch (status) {
       case 'draft':
         return 'secondary';
@@ -296,6 +279,9 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
     <div className="space-y-6">
       {items.map((item) => {
         const evaluation = evaluations[item.id];
+        const { score, percentage } = convertLevelToScore(evaluation?.level || 0);
+        const calculatedScore = (score * item.weight) / 5;
+        
         return (
           <Card key={item.id}>
             <CardHeader>
@@ -311,10 +297,13 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
                   </Badge>
                 </div>
                 <div className="text-right">
-                  <div className={`text-xl font-bold ${getScoreColor(evaluation?.calculated_score || 0)}`}>
-                    {(evaluation?.calculated_score || 0).toFixed(2)}
+                  <div className={`text-xl font-bold ${getScoreColor(calculatedScore)}`}>
+                    {calculatedScore.toFixed(2)}
                   </div>
                   <div className="text-sm text-gray-500">คะแนน</div>
+                  <div className="text-xs text-gray-400">
+                    Level {evaluation?.level || 0} ({percentage}%)
+                  </div>
                 </div>
               </div>
             </CardHeader>
@@ -348,7 +337,7 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
                 <div className="mt-2">
                   <Progress value={(evaluation?.level || 0) * 20} className="h-2" />
                   <div className="text-sm text-gray-600 mt-1">
-                    คะแนนที่ได้: {((evaluation?.level || 0) * item.weight / 5).toFixed(2)} / {item.weight}
+                    การคำนวณ: Level {evaluation?.level || 0} × {item.weight}% ÷ 5 = {calculatedScore.toFixed(2)} คะแนน
                   </div>
                 </div>
               </div>
@@ -387,38 +376,81 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
                 {status === 'draft' ? 'ร่าง' : status === 'submitted' ? 'รอการอนุมัติ' : 'อนุมัติแล้ว'}
               </Badge>
               <div className="text-right">
-                <div className={`text-2xl font-bold ${getScoreColor(totalScore)}`}>
-                  {totalScore.toFixed(2)}%
+                <div className={`text-2xl font-bold ${getScoreColor(meritResult.total_score)}`}>
+                  {meritResult.total_score.toFixed(2)}%
                 </div>
-                <div className="text-sm text-gray-500">คะแนนรวม</div>
+                <div className="text-sm text-gray-500">{getScoreGrade(meritResult.total_score)}</div>
               </div>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <div className={`text-lg font-bold ${getScoreColor(competencyScore)}`}>
-                {competencyScore.toFixed(2)}%
+          <div className="grid grid-cols-4 gap-4 mb-4">
+            <div className="text-center p-3 bg-green-50 rounded-lg">
+              <div className={`text-lg font-bold ${getScoreColor(meritResult.kpi_achievement_score)}`}>
+                {meritResult.kpi_achievement_score.toFixed(2)}%
               </div>
-              <div className="text-sm text-gray-600">Competency</div>
+              <div className="text-sm text-gray-600">KPI Achievement (40%)</div>
+            </div>
+            <div className="text-center p-3 bg-blue-50 rounded-lg">
+              <div className={`text-lg font-bold ${getScoreColor(meritResult.competency_score)}`}>
+                {meritResult.competency_score.toFixed(2)}%
+              </div>
+              <div className="text-sm text-gray-600">Competency (30%)</div>
             </div>
             <div className="text-center p-3 bg-purple-50 rounded-lg">
-              <div className={`text-lg font-bold ${getScoreColor(cultureScore)}`}>
-                {cultureScore.toFixed(2)}%
+              <div className={`text-lg font-bold ${getScoreColor(meritResult.culture_score)}`}>
+                {meritResult.culture_score.toFixed(2)}%
               </div>
-              <div className="text-sm text-gray-600">Culture</div>
+              <div className="text-sm text-gray-600">Culture (30%)</div>
             </div>
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <div className={`text-lg font-bold ${getScoreColor(totalScore)}`}>
-                {totalScore.toFixed(2)}%
+            <div className="text-center p-3 bg-gray-50 rounded-lg">
+              <div className={`text-lg font-bold ${getScoreColor(meritResult.total_score)}`}>
+                {meritResult.total_score.toFixed(2)}%
               </div>
               <div className="text-sm text-gray-600">รวม</div>
             </div>
           </div>
-          <Progress value={totalScore} className="h-3" />
+          <Progress value={meritResult.total_score} className="h-3" />
         </CardContent>
       </Card>
+
+      {/* Score Breakdown Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ScoreBreakdownCard
+          title="คะแนน Competency"
+          items={competencyResult.individual_scores.map(score => {
+            const item = competencyItems.find(c => c.id === score.id);
+            return {
+              id: score.id,
+              name: item?.name || '',
+              score: score.calculated_score,
+              weight: score.weight,
+              maxScore: 5
+            };
+          })}
+          totalScore={competencyResult.total_score}
+          totalWeight={competencyResult.total_weight}
+          isWeightValid={competencyResult.is_weight_valid}
+        />
+
+        <ScoreBreakdownCard
+          title="คะแนน Culture"
+          items={cultureResult.individual_scores.map(score => {
+            const item = cultureItems.find(c => c.id === score.id);
+            return {
+              id: score.id,
+              name: item?.name || '',
+              score: score.calculated_score,
+              weight: score.weight,
+              maxScore: 5
+            };
+          })}
+          totalScore={cultureResult.total_score}
+          totalWeight={cultureResult.total_weight}
+          isWeightValid={cultureResult.is_weight_valid}
+        />
+      </div>
 
       {/* Merit Evaluation Tabs */}
       <Tabs defaultValue="competency" className="space-y-6">
@@ -467,7 +499,14 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
                   <Save className="w-4 h-4 mr-2" />
                   บันทึกร่าง
                 </Button>
-                <Button onClick={handleSubmit} disabled={totalScore === 0}>
+                <Button 
+                  onClick={handleSubmit} 
+                  disabled={
+                    meritResult.total_score === 0 || 
+                    !competencyResult.is_weight_valid || 
+                    !cultureResult.is_weight_valid
+                  }
+                >
                   <Send className="w-4 h-4 mr-2" />
                   ส่งการประเมิน
                 </Button>

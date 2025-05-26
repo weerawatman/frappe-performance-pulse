@@ -7,9 +7,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Upload, FileText, Calculator, Save, Send, X } from 'lucide-react';
+import { Upload, FileText, Calculator, Save, Send } from 'lucide-react';
 import { KPIItem } from '@/types/kpi';
 import { useToast } from '@/hooks/use-toast';
+import { calculateKPIBonusScore, getScoreColor, getScoreGrade } from '@/utils/kpiScoring';
+import ScoreBreakdownCard from './ScoreBreakdownCard';
 
 interface KPIBonusEvaluationProps {
   period: 'mid' | 'end';
@@ -21,17 +23,15 @@ interface KPIEvaluation {
   achievement_percentage: number;
   evidence_files: string[];
   additional_info: string;
-  calculated_score: number;
 }
 
 const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
   const [approvedKPIs, setApprovedKPIs] = useState<KPIItem[]>([]);
   const [evaluations, setEvaluations] = useState<{[key: string]: KPIEvaluation}>({});
-  const [totalScore, setTotalScore] = useState(0);
   const [status, setStatus] = useState<'draft' | 'submitted' | 'approved'>('draft');
   const { toast } = useToast();
 
-  // Mock approved KPIs - in real app, fetch from API
+  // Mock approved KPIs
   useEffect(() => {
     const mockKPIs: KPIItem[] = [
       {
@@ -89,40 +89,24 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
         actual_result: '',
         achievement_percentage: 0,
         evidence_files: [],
-        additional_info: '',
-        calculated_score: 0
+        additional_info: ''
       };
     });
     setEvaluations(initialEvaluations);
   }, []);
 
   const updateEvaluation = (kpiId: string, field: keyof KPIEvaluation, value: any) => {
-    setEvaluations(prev => {
-      const updated = {
-        ...prev,
-        [kpiId]: {
-          ...prev[kpiId],
-          [field]: value
-        }
-      };
-
-      // Calculate score when achievement percentage changes
-      if (field === 'achievement_percentage') {
-        const kpi = approvedKPIs.find(k => k.id === kpiId);
-        if (kpi) {
-          updated[kpiId].calculated_score = (value * kpi.weight) / 100;
-        }
+    setEvaluations(prev => ({
+      ...prev,
+      [kpiId]: {
+        ...prev[kpiId],
+        [field]: value
       }
-
-      return updated;
-    });
+    }));
   };
 
-  // Calculate total score
-  useEffect(() => {
-    const total = Object.values(evaluations).reduce((sum, evaluation) => sum + evaluation.calculated_score, 0);
-    setTotalScore(total);
-  }, [evaluations]);
+  // คำนวณคะแนนโดยใช้ utility function
+  const scoreResult = calculateKPIBonusScore(approvedKPIs, evaluations);
 
   const handleFileUpload = (kpiId: string, files: FileList | null) => {
     if (files) {
@@ -158,6 +142,15 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
       return;
     }
 
+    if (!scoreResult.is_weight_valid) {
+      toast({
+        title: 'น้ำหนักไม่ถูกต้อง',
+        description: 'น้ำหนักรวมต้องเท่ากับ 100%',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setStatus('submitted');
     toast({
       title: 'ส่งการประเมินสำเร็จ',
@@ -165,21 +158,7 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
     });
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600';
-    if (score >= 80) return 'text-blue-600';
-    if (score >= 70) return 'text-yellow-600';
-    return 'text-red-600';
-  };
-
-  const getScoreGrade = (score: number) => {
-    if (score >= 90) return 'ดีเยี่ยม';
-    if (score >= 80) return 'ดี';
-    if (score >= 70) return 'พอใช้';
-    return 'ต้องปรับปรุง';
-  };
-
-  const getBadgeVariant = (status: string) => {
+  const getBadgeVariant = (status: string): "default" | "secondary" | "outline" => {
     switch (status) {
       case 'draft':
         return 'secondary';
@@ -207,25 +186,45 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
                 {status === 'draft' ? 'ร่าง' : status === 'submitted' ? 'รอการอนุมัติ' : 'อนุมัติแล้ว'}
               </Badge>
               <div className="text-right">
-                <div className={`text-2xl font-bold ${getScoreColor(totalScore)}`}>
-                  {totalScore.toFixed(2)}%
+                <div className={`text-2xl font-bold ${getScoreColor(scoreResult.total_score)}`}>
+                  {scoreResult.total_score.toFixed(2)}%
                 </div>
-                <div className="text-sm text-gray-500">{getScoreGrade(totalScore)}</div>
+                <div className="text-sm text-gray-500">{getScoreGrade(scoreResult.total_score)}</div>
               </div>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <Progress value={totalScore} className="h-3" />
+          <Progress value={scoreResult.total_score} className="h-3" />
           <div className="mt-2 text-sm text-gray-600">
-            คะแนนรวม: {totalScore.toFixed(2)} / 100
+            คะแนนรวม: {scoreResult.total_score.toFixed(2)} / 100 (น้ำหนักรวม: {scoreResult.total_weight}%)
           </div>
         </CardContent>
       </Card>
 
+      {/* Score Breakdown */}
+      <ScoreBreakdownCard
+        title="สรุปคะแนน KPI Bonus"
+        items={scoreResult.individual_scores.map(score => {
+          const kpi = approvedKPIs.find(k => k.id === score.kpi_id);
+          return {
+            id: score.kpi_id,
+            name: kpi?.name || '',
+            score: score.calculated_score,
+            weight: score.weight
+          };
+        })}
+        totalScore={scoreResult.total_score}
+        totalWeight={scoreResult.total_weight}
+        isWeightValid={scoreResult.is_weight_valid}
+        showDetailedCalculation={true}
+      />
+
       {/* KPI Evaluations */}
       {approvedKPIs.map((kpi) => {
         const evaluation = evaluations[kpi.id];
+        const individualScore = scoreResult.individual_scores.find(s => s.kpi_id === kpi.id);
+        
         return (
           <Card key={kpi.id}>
             <CardHeader>
@@ -243,8 +242,8 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className={`text-xl font-bold ${getScoreColor(evaluation?.calculated_score || 0)}`}>
-                    {(evaluation?.calculated_score || 0).toFixed(2)}
+                  <div className={`text-xl font-bold ${getScoreColor(individualScore?.calculated_score || 0)}`}>
+                    {(individualScore?.calculated_score || 0).toFixed(2)}
                   </div>
                   <div className="text-sm text-gray-500">คะแนน</div>
                 </div>
@@ -292,7 +291,7 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
                   </div>
                 </div>
                 <div className="text-sm text-gray-600 mt-1">
-                  คะแนนที่ได้: {((evaluation?.achievement_percentage || 0) * kpi.weight / 100).toFixed(2)} / {kpi.weight}
+                  การคำนวณ: {evaluation?.achievement_percentage || 0}% × {kpi.weight}% ÷ 100 = {((evaluation?.achievement_percentage || 0) * kpi.weight / 100).toFixed(2)} คะแนน
                 </div>
               </div>
 
@@ -360,7 +359,10 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
                   <Save className="w-4 h-4 mr-2" />
                   บันทึกร่าง
                 </Button>
-                <Button onClick={handleSubmit} disabled={totalScore === 0}>
+                <Button 
+                  onClick={handleSubmit} 
+                  disabled={scoreResult.total_score === 0 || !scoreResult.is_weight_valid}
+                >
                   <Send className="w-4 h-4 mr-2" />
                   ส่งการประเมิน
                 </Button>
