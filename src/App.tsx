@@ -6,6 +6,7 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import EmployeeKPI from "./pages/EmployeeKPI";
+import KPIBonusPage from "./pages/KPIBonusPage";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PerformanceManagement from './pages/PerformanceManagement';
 import ReportsPage from './pages/ReportsPage';
@@ -39,6 +40,11 @@ function App() {
               <Route path="/employee/kpi" element={
                 <ProtectedRoute>
                   <EmployeeKPI />
+                </ProtectedRoute>
+              } />
+              <Route path="/employee/kpi-bonus" element={
+                <ProtectedRoute>
+                  <KPIBonusPage />
                 </ProtectedRoute>
               } />
               <Route path="/performance" element={
