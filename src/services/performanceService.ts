@@ -153,6 +153,451 @@ export class PerformanceService {
         modified_at: new Date('2024-01-15')
       }
     ];
+
+    // Add sample cycles
+    this.cycles = [
+      {
+        id: '1',
+        name: 'การประเมินผลงานประจำปี 2024 Q1',
+        start_date: new Date('2024-01-01'),
+        end_date: new Date('2024-03-31'),
+        appraisal_template_id: '1',
+        kra_evaluation_method: 'Manual',
+        appraisees: [
+          {
+            id: '1',
+            employee_id: '1',
+            employee_name: 'สมชาย ใจดี',
+            department: 'IT'
+          },
+          {
+            id: '2',
+            employee_id: '2',
+            employee_name: 'สมหญิง รักษ์ดี',
+            department: 'Sales'
+          },
+          {
+            id: '3',
+            employee_id: '3',
+            employee_name: 'วิชัย เก่งมาก',
+            department: 'Marketing'
+          }
+        ],
+        calculate_final_score_based_on_formula: true,
+        status: 'Completed',
+        created_by: 'admin',
+        created_at: new Date('2024-01-01'),
+        modified_at: new Date('2024-03-31')
+      },
+      {
+        id: '2',
+        name: 'การประเมินผลงานประจำปี 2024 Q2',
+        start_date: new Date('2024-04-01'),
+        end_date: new Date('2024-06-30'),
+        appraisal_template_id: '1',
+        kra_evaluation_method: 'Manual',
+        appraisees: [
+          {
+            id: '4',
+            employee_id: '1',
+            employee_name: 'สมชาย ใจดี',
+            department: 'IT'
+          },
+          {
+            id: '5',
+            employee_id: '2',
+            employee_name: 'สมหญิง รักษ์ดี',
+            department: 'Sales'
+          },
+          {
+            id: '6',
+            employee_id: '4',
+            employee_name: 'อำนาจ กล้าหาญ',
+            department: 'HR'
+          }
+        ],
+        calculate_final_score_based_on_formula: true,
+        status: 'Active',
+        created_by: 'admin',
+        created_at: new Date('2024-04-01'),
+        modified_at: new Date('2024-06-30')
+      }
+    ];
+
+    // Add sample appraisals
+    this.appraisals = [
+      {
+        id: '1',
+        employee_id: '1',
+        employee_name: 'สมชาย ใจดี',
+        department: 'IT',
+        appraisal_cycle_id: '1',
+        appraisal_template_id: '1',
+        start_date: new Date('2024-01-01'),
+        end_date: new Date('2024-03-31'),
+        status: 'Completed',
+        rate_goals_manually: false,
+        appraisal_kra: [
+          {
+            id: '1',
+            kra: 'ความสำเร็จในงาน',
+            description: 'การบรรลุเป้าหมายงานที่ได้รับมอบหมาย',
+            weightage: 40,
+            target: 'บรรลุเป้าหมาย 100%',
+            achievement: 'บรรลุเป้าหมาย 120%',
+            score: 4.5
+          },
+          {
+            id: '2',
+            kra: 'คุณภาพงาน',
+            description: 'ความถูกต้องและคุณภาพของงาน',
+            weightage: 30,
+            target: 'ความถูกต้อง 95%',
+            achievement: 'ความถูกต้อง 98%',
+            score: 4.2
+          },
+          {
+            id: '3',
+            kra: 'การทำงานเป็นทีม',
+            description: 'ความสามารถในการทำงานร่วมกับผู้อื่น',
+            weightage: 20,
+            target: 'รีวิวจากทีมงาน',
+            achievement: 'ได้คะแนนดีจากทีม',
+            score: 4.0
+          },
+          {
+            id: '4',
+            kra: 'การพัฒนาตนเอง',
+            description: 'การเรียนรู้และพัฒนาทักษะใหม่',
+            weightage: 10,
+            target: 'อบรม 2 คอร์สต่อปี',
+            achievement: 'อบรม 3 คอร์ส',
+            score: 4.8
+          }
+        ],
+        goals: [],
+        self_ratings: [
+          {
+            id: '1',
+            criteria: 'ความรับผิดชอบ',
+            description: 'ความรับผิดชอบต่องานและหน้าที่',
+            weightage: 25,
+            max_rating: 5,
+            rating: 4,
+            comments: 'รับผิดชอบงานได้ดี'
+          },
+          {
+            id: '2',
+            criteria: 'การสื่อสาร',
+            description: 'ทักษะการสื่อสารและการนำเสนอ',
+            weightage: 25,
+            max_rating: 5,
+            rating: 4,
+            comments: 'สื่อสารได้ชัดเจน'
+          },
+          {
+            id: '3',
+            criteria: 'ความคิดสร้างสรรค์',
+            description: 'ความสามารถในการคิดและแก้ปัญหา',
+            weightage: 25,
+            max_rating: 5,
+            rating: 4,
+            comments: 'มีไอเดียดี'
+          },
+          {
+            id: '4',
+            criteria: 'การบริหารเวลา',
+            description: 'ความสามารถในการจัดการเวลา',
+            weightage: 25,
+            max_rating: 5,
+            rating: 4,
+            comments: 'จัดการเวลาได้ดี'
+          }
+        ],
+        total_score: 4.26,
+        self_score: 4.0,
+        avg_feedback_score: 4.1,
+        final_score: 4.12,
+        submitted_by_employee: true,
+        reviewed_by_manager: true,
+        created_at: new Date('2024-01-01'),
+        modified_at: new Date('2024-03-31')
+      },
+      {
+        id: '2',
+        employee_id: '2',
+        employee_name: 'สมหญิง รักษ์ดี',
+        department: 'Sales',
+        appraisal_cycle_id: '1',
+        appraisal_template_id: '1',
+        start_date: new Date('2024-01-01'),
+        end_date: new Date('2024-03-31'),
+        status: 'Completed',
+        rate_goals_manually: false,
+        appraisal_kra: [
+          {
+            id: '5',
+            kra: 'ยอดขาย',
+            description: 'การบรรลุเป้าหมายยอดขาย',
+            weightage: 50,
+            target: 'ยอดขาย 1 ล้าน',
+            achievement: 'ยอดขาย 1.2 ล้าน',
+            score: 4.8
+          },
+          {
+            id: '6',
+            kra: 'ความสัมพันธ์กับลูกค้า',
+            description: 'การดูแลและรักษาความสัมพันธ์กับลูกค้า',
+            weightage: 30,
+            target: 'รักษาลูกค้า 90%',
+            achievement: 'รักษาลูกค้า 95%',
+            score: 4.5
+          },
+          {
+            id: '7',
+            kra: 'การพัฒนาตลาด',
+            description: 'การขยายตลาดและหาลูกค้าใหม่',
+            weightage: 20,
+            target: 'ลูกค้าใหม่ 10 ราย',
+            achievement: 'ลูกค้าใหม่ 12 ราย',
+            score: 4.2
+          }
+        ],
+        goals: [],
+        self_ratings: [
+          {
+            id: '5',
+            criteria: 'ความรับผิดชอบ',
+            description: 'ความรับผิดชอบต่องานและหน้าที่',
+            weightage: 25,
+            max_rating: 5,
+            rating: 5,
+            comments: 'รับผิดชอบสูงมาก'
+          },
+          {
+            id: '6',
+            criteria: 'การสื่อสาร',
+            description: 'ทักษะการสื่อสารและการนำเสนอ',
+            weightage: 25,
+            max_rating: 5,
+            rating: 5,
+            comments: 'สื่อสารเยอะมาก'
+          },
+          {
+            id: '7',
+            criteria: 'ความคิดสร้างสรรค์',
+            description: 'ความสามารถในการคิดและแก้ปัญหา',
+            weightage: 25,
+            max_rating: 5,
+            rating: 4,
+            comments: 'คิดเก่งมาก'
+          },
+          {
+            id: '8',
+            criteria: 'การบริหารเวลา',
+            description: 'ความสามารถในการจัดการเวลา',
+            weightage: 25,
+            max_rating: 5,
+            rating: 4,
+            comments: 'จัดการเวลาดี'
+          }
+        ],
+        total_score: 4.56,
+        self_score: 4.5,
+        avg_feedback_score: 4.3,
+        final_score: 4.45,
+        submitted_by_employee: true,
+        reviewed_by_manager: true,
+        created_at: new Date('2024-01-01'),
+        modified_at: new Date('2024-03-31')
+      },
+      {
+        id: '3',
+        employee_id: '3',
+        employee_name: 'วิชัย เก่งมาก',
+        department: 'Marketing',
+        appraisal_cycle_id: '1',
+        appraisal_template_id: '1',
+        start_date: new Date('2024-01-01'),
+        end_date: new Date('2024-03-31'),
+        status: 'Completed',
+        rate_goals_manually: false,
+        appraisal_kra: [
+          {
+            id: '8',
+            kra: 'แคมเปญการตลาด',
+            description: 'การสร้างและดำเนินแคมเปญการตลาด',
+            weightage: 40,
+            target: 'แคมเปญ 5 โครงการ',
+            achievement: 'แคมเปญ 6 โครงการ',
+            score: 4.2
+          },
+          {
+            id: '9',
+            kra: 'การวิเคราะห์ตลาด',
+            description: 'การวิเคราะห์และรายงานสถานการณ์ตลาด',
+            weightage: 30,
+            target: 'รายงาน 12 ฉบับ',
+            achievement: 'รายงาน 13 ฉบับ',
+            score: 4.1
+          },
+          {
+            id: '10',
+            kra: 'การสร้างเนื้อหา',
+            description: 'การสร้างเนื้อหาการตลาด',
+            weightage: 30,
+            target: 'เนื้อหา 50 ชิ้น',
+            achievement: 'เนื้อหา 48 ชิ้น',
+            score: 3.8
+          }
+        ],
+        goals: [],
+        self_ratings: [
+          {
+            id: '9',
+            criteria: 'ความรับผิดชอบ',
+            description: 'ความรับผิดชอบต่องานและหน้าที่',
+            weightage: 25,
+            max_rating: 5,
+            rating: 4,
+            comments: 'รับผิดชอบดี'
+          },
+          {
+            id: '10',
+            criteria: 'การสื่อสาร',
+            description: 'ทักษะการสื่อสารและการนำเสนอ',
+            weightage: 25,
+            max_rating: 5,
+            rating: 4,
+            comments: 'สื่อสารได้ดี'
+          },
+          {
+            id: '11',
+            criteria: 'ความคิดสร้างสรรค์',
+            description: 'ความสามารถในการคิดและแก้ปัญหา',
+            weightage: 25,
+            max_rating: 5,
+            rating: 5,
+            comments: 'มีความคิดสร้างสรรค์สูง'
+          },
+          {
+            id: '12',
+            criteria: 'การบริหารเวลา',
+            description: 'ความสามารถในการจัดการเวลา',
+            weightage: 25,
+            max_rating: 5,
+            rating: 3,
+            comments: 'ควรปรับปรุงการจัดการเวลา'
+          }
+        ],
+        total_score: 4.04,
+        self_score: 4.0,
+        avg_feedback_score: 3.9,
+        final_score: 3.98,
+        submitted_by_employee: true,
+        reviewed_by_manager: true,
+        created_at: new Date('2024-01-01'),
+        modified_at: new Date('2024-03-31')
+      },
+      // Q2 appraisals
+      {
+        id: '4',
+        employee_id: '1',
+        employee_name: 'สมชาย ใจดี',
+        department: 'IT',
+        appraisal_cycle_id: '2',
+        appraisal_template_id: '1',
+        start_date: new Date('2024-04-01'),
+        end_date: new Date('2024-06-30'),
+        status: 'Completed',
+        rate_goals_manually: false,
+        appraisal_kra: [
+          {
+            id: '11',
+            kra: 'ความสำเร็จในงาน',
+            description: 'การบรรลุเป้าหมายงานที่ได้รับมอบหมาย',
+            weightage: 40,
+            target: 'บรรลุเป้าหมาย 100%',
+            achievement: 'บรรลุเป้าหมาย 130%',
+            score: 4.7
+          },
+          {
+            id: '12',
+            kra: 'คุณภาพงาน',
+            description: 'ความถูกต้องและคุณภาพของงาน',
+            weightage: 30,
+            target: 'ความถูกต้อง 95%',
+            achievement: 'ความถูกต้อง 99%',
+            score: 4.5
+          },
+          {
+            id: '13',
+            kra: 'การทำงานเป็นทีม',
+            description: 'ความสามารถในการทำงานร่วมกับผู้อื่น',
+            weightage: 20,
+            target: 'รีวิวจากทีมงาน',
+            achievement: 'ได้คะแนนยอดเยี่ยมจากทีม',
+            score: 4.3
+          },
+          {
+            id: '14',
+            kra: 'การพัฒนาตนเอง',
+            description: 'การเรียนรู้และพัฒนาทักษะใหม่',
+            weightage: 10,
+            target: 'อบรม 2 คอร์สต่อปี',
+            achievement: 'อบรม 4 คอร์ส',
+            score: 5.0
+          }
+        ],
+        goals: [],
+        self_ratings: [
+          {
+            id: '13',
+            criteria: 'ความรับผิดชอบ',
+            description: 'ความรับผิดชอบต่องานและหน้าที่',
+            weightage: 25,
+            max_rating: 5,
+            rating: 5,
+            comments: 'รับผิดชอบงานได้ยอดเยี่ยม'
+          },
+          {
+            id: '14',
+            criteria: 'การสื่อสาร',
+            description: 'ทักษะการสื่อสารและการนำเสนอ',
+            weightage: 25,
+            max_rating: 5,
+            rating: 4,
+            comments: 'สื่อสารได้ดีขึ้น'
+          },
+          {
+            id: '15',
+            criteria: 'ความคิดสร้างสรรค์',
+            description: 'ความสามารถในการคิดและแก้ปัญหา',
+            weightage: 25,
+            max_rating: 5,
+            rating: 5,
+            comments: 'มีไอเดียใหม่ๆ มากมาย'
+          },
+          {
+            id: '16',
+            criteria: 'การบริหารเวลา',
+            description: 'ความสามารถในการจัดการเวลา',
+            weightage: 25,
+            max_rating: 5,
+            rating: 4,
+            comments: 'จัดการเวลาได้ดีขึ้น'
+          }
+        ],
+        total_score: 4.58,
+        self_score: 4.5,
+        avg_feedback_score: 4.4,
+        final_score: 4.49,
+        submitted_by_employee: true,
+        reviewed_by_manager: true,
+        created_at: new Date('2024-04-01'),
+        modified_at: new Date('2024-06-30')
+      }
+    ];
   }
 
   // Template methods
