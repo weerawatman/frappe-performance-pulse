@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User } from '@/types/auth';
 import { authService } from '@/services/authService';
 
@@ -24,6 +25,7 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if user is already logged in
@@ -36,6 +38,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const result = authService.login(email, password);
     if (result.success && result.user) {
       setUser(result.user);
+      
+      // Navigate based on role
+      if (result.user.role === 'admin') {
+        navigate('/');
+      } else if (result.user.role === 'manager') {
+        navigate('/manager-dashboard');
+      } else {
+        navigate('/employee-dashboard');
+      }
+      
       return { success: true, user: result.user };
     }
     return { success: false, error: result.error };

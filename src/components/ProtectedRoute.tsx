@@ -6,9 +6,16 @@ import { useAuth } from '@/contexts/AuthContext';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
+  requireManager?: boolean;
+  requireManagerOrAdmin?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin = false }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  requireAdmin = false,
+  requireManager = false,
+  requireManagerOrAdmin = false
+}) => {
   const { isAuthenticated, user, loading } = useAuth();
 
   if (loading) {
@@ -26,7 +33,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
     return <Navigate to="/login" replace />;
   }
 
-  if (requireAdmin && user?.role !== 'admin' && user?.role !== 'manager') {
+  // Check for admin-only access
+  if (requireAdmin && user?.role !== 'admin') {
+    if (user?.role === 'manager') {
+      return <Navigate to="/manager-dashboard" replace />;
+    }
+    return <Navigate to="/employee-dashboard" replace />;
+  }
+
+  // Check for manager-only access
+  if (requireManager && user?.role !== 'manager') {
+    if (user?.role === 'admin') {
+      return <Navigate to="/" replace />;
+    }
+    return <Navigate to="/employee-dashboard" replace />;
+  }
+
+  // Check for manager or admin access
+  if (requireManagerOrAdmin && user?.role !== 'manager' && user?.role !== 'admin') {
     return <Navigate to="/employee-dashboard" replace />;
   }
 

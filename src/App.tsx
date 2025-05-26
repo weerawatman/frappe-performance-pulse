@@ -5,6 +5,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
+import ManagerDashboard from "./pages/ManagerDashboard";
 import EmployeeKPI from "./pages/EmployeeKPI";
 import KPIBonusPage from "./pages/KPIBonusPage";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
@@ -32,6 +33,11 @@ function App() {
                   <Index />
                 </ProtectedRoute>
               } />
+              <Route path="/manager-dashboard" element={
+                <ProtectedRoute requireManager={true}>
+                  <ManagerDashboard />
+                </ProtectedRoute>
+              } />
               <Route path="/employee-dashboard" element={
                 <ProtectedRoute>
                   <EmployeeDashboard />
@@ -48,17 +54,17 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/performance" element={
-                <ProtectedRoute requireAdmin={true}>
+                <ProtectedRoute requireManagerOrAdmin={true}>
                   <PerformanceManagement />
                 </ProtectedRoute>
               } />
               <Route path="/reports" element={
-                <ProtectedRoute requireAdmin={true}>
+                <ProtectedRoute requireManagerOrAdmin={true}>
                   <ReportsPage />
                 </ProtectedRoute>
               } />
               <Route path="/workflows" element={
-                <ProtectedRoute requireAdmin={true}>
+                <ProtectedRoute requireManagerOrAdmin={true}>
                   <WorkflowsPage />
                 </ProtectedRoute>
               } />
