@@ -50,11 +50,14 @@ const KPIBonusPage: React.FC = () => {
       
       // Save draft status to localStorage
       const currentStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
+      console.log('Current status before save draft:', currentStatus);
       currentStatus.bonus = 'draft';
       localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
+      console.log('Updated status after save draft:', currentStatus);
       
       // Dispatch custom event to update other components
-      window.dispatchEvent(new CustomEvent('kpiStatusUpdate'));
+      window.dispatchEvent(new CustomEvent('kpiStatusUpdate', { detail: { type: 'bonus', status: 'draft' } }));
+      console.log('Dispatched kpiStatusUpdate event for draft');
       
       toast({
         title: "บันทึกร่างสำเร็จ",
@@ -87,11 +90,22 @@ const KPIBonusPage: React.FC = () => {
       
       // Save submitted status to localStorage
       const currentStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
+      console.log('Current status before submit:', currentStatus);
       currentStatus.bonus = 'pending_checker';
       localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
+      console.log('Updated status after submit:', currentStatus);
       
-      // Dispatch custom event to update other components
-      window.dispatchEvent(new CustomEvent('kpiStatusUpdate'));
+      // Dispatch custom event to update other components immediately
+      window.dispatchEvent(new CustomEvent('kpiStatusUpdate', { detail: { type: 'bonus', status: 'pending_checker' } }));
+      console.log('Dispatched kpiStatusUpdate event for submit');
+      
+      // Also trigger a storage event manually for same-window updates
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'kpiStatus',
+        newValue: JSON.stringify(currentStatus),
+        storageArea: localStorage
+      }));
+      console.log('Dispatched storage event manually');
       
       toast({
         title: "ส่งอนุมัติสำเร็จ",

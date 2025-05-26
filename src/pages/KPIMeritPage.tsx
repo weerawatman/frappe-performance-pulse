@@ -158,11 +158,14 @@ const KPIMeritPage = () => {
   const handleSaveDraft = () => {
     // Save draft status to localStorage
     const currentStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
+    console.log('Current status before save draft (Merit):', currentStatus);
     currentStatus.merit = 'draft';
     localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
+    console.log('Updated status after save draft (Merit):', currentStatus);
     
     // Dispatch custom event to update other components
-    window.dispatchEvent(new CustomEvent('kpiStatusUpdate'));
+    window.dispatchEvent(new CustomEvent('kpiStatusUpdate', { detail: { type: 'merit', status: 'draft' } }));
+    console.log('Dispatched kpiStatusUpdate event for Merit draft');
     
     setStatus('draft');
     console.log('บันทึกร่าง Merit KPI');
@@ -171,11 +174,22 @@ const KPIMeritPage = () => {
   const handleSubmit = () => {
     // Save submitted status to localStorage
     const currentStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
+    console.log('Current status before submit (Merit):', currentStatus);
     currentStatus.merit = 'pending_checker';
     localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
+    console.log('Updated status after submit (Merit):', currentStatus);
     
-    // Dispatch custom event to update other components
-    window.dispatchEvent(new CustomEvent('kpiStatusUpdate'));
+    // Dispatch custom event to update other components immediately
+    window.dispatchEvent(new CustomEvent('kpiStatusUpdate', { detail: { type: 'merit', status: 'pending_checker' } }));
+    console.log('Dispatched kpiStatusUpdate event for Merit submit');
+    
+    // Also trigger a storage event manually for same-window updates
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'kpiStatus',
+      newValue: JSON.stringify(currentStatus),
+      storageArea: localStorage
+    }));
+    console.log('Dispatched storage event manually for Merit');
     
     setStatus('submitted');
     console.log('ส่งอนุมัติ Merit KPI');

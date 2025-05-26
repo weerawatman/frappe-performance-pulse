@@ -23,45 +23,68 @@ const KPITrackingTable = () => {
   const currentEmployeeId = 'f47ac10b-58cc-4372-a567-0e02b2c3d479'; // This should match one of the UUIDs from the database
 
   useEffect(() => {
+    console.log('KPITrackingTable mounted, fetching initial status');
     fetchKPIStatus();
     
     // Add event listener for storage changes to update status when localStorage changes
-    const handleStorageChange = () => {
-      console.log('Storage changed, updating KPI status');
-      fetchKPIStatus();
+    const handleStorageChange = (e: StorageEvent) => {
+      console.log('Storage changed event:', e.key, e.newValue);
+      if (e.key === 'kpiStatus') {
+        console.log('KPI status storage changed, updating...');
+        fetchKPIStatus();
+      }
     };
     
     window.addEventListener('storage', handleStorageChange);
     
     // Also listen for custom events when status changes within the same window
     const handleKPIStatusUpdate = () => {
-      console.log('KPI status update event received');
+      console.log('KPI status update event received, fetching new status...');
       fetchKPIStatus();
     };
     
     window.addEventListener('kpiStatusUpdate', handleKPIStatusUpdate);
     
+    // Add focus event to refresh when user comes back to the page
+    const handleFocus = () => {
+      console.log('Window focused, refreshing KPI status');
+      fetchKPIStatus();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('kpiStatusUpdate', handleKPIStatusUpdate);
+      window.removeEventListener('focus', handleFocus);
     };
   }, []);
 
   const fetchKPIStatus = async () => {
     try {
+      console.log('Fetching KPI status...');
       setLoading(true);
       
       // Always check localStorage first for immediate updates
       const savedStatus = localStorage.getItem('kpiStatus');
       if (savedStatus) {
         const parsedStatus = JSON.parse(savedStatus);
-        console.log('Updated KPI status from localStorage:', parsedStatus);
+        console.log('Found KPI status in localStorage:', parsedStatus);
         setKpiStatus(parsedStatus);
+        
+        // Set loading to false immediately when we have localStorage data
+        setLoading(false);
       }
       
-      // Then try to get from API as backup
-      const status = await getEmployeeKPIStatus(currentEmployeeId);
-      setKpiStatus(status);
+      // Then try to get from API as backup (but don't set loading to true again)
+      try {
+        const status = await getEmployeeKPIStatus(currentEmployeeId);
+        console.log('Fetched KPI status from API:', status);
+        setKpiStatus(status);
+      } catch (apiError) {
+        console.log('API fetch failed, using localStorage data');
+      }
+      
     } catch (error) {
       console.error('Error fetching KPI status:', error);
       // Fallback to localStorage if API fails
@@ -117,6 +140,7 @@ const KPITrackingTable = () => {
   ];
 
   function getKPIButtonText(type: 'bonus' | 'merit', status: string): string {
+    console.log(`Getting button text for ${type} with status: ${status}`);
     switch (status) {
       case 'not_started':
         return `เริ่มกำหนด KPI ${type === 'bonus' ? 'Bonus' : 'Merit'}`;
