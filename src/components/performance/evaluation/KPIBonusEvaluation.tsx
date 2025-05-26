@@ -120,7 +120,7 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
 
   // Calculate total score
   useEffect(() => {
-    const total = Object.values(evaluations).reduce((sum, eval) => sum + eval.calculated_score, 0);
+    const total = Object.values(evaluations).reduce((sum, evaluation) => sum + evaluation.calculated_score, 0);
     setTotalScore(total);
   }, [evaluations]);
 
@@ -145,8 +145,8 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
   const handleSubmit = () => {
     // Validate required fields
     const incompleteKPIs = approvedKPIs.filter(kpi => {
-      const eval = evaluations[kpi.id];
-      return !eval.actual_result || eval.achievement_percentage === 0;
+      const evaluation = evaluations[kpi.id];
+      return !evaluation.actual_result || evaluation.achievement_percentage === 0;
     });
 
     if (incompleteKPIs.length > 0) {
@@ -179,6 +179,19 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
     return 'ต้องปรับปรุง';
   };
 
+  const getBadgeVariant = (status: string) => {
+    switch (status) {
+      case 'draft':
+        return 'secondary';
+      case 'submitted':
+        return 'default';
+      case 'approved':
+        return 'outline';
+      default:
+        return 'secondary';
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -190,7 +203,7 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
               ประเมิน KPI Bonus - {period === 'mid' ? 'กลางปี' : 'ปลายปี'}
             </CardTitle>
             <div className="flex items-center gap-4">
-              <Badge variant={status === 'draft' ? 'secondary' : status === 'submitted' ? 'default' : 'success'}>
+              <Badge variant={getBadgeVariant(status)}>
                 {status === 'draft' ? 'ร่าง' : status === 'submitted' ? 'รอการอนุมัติ' : 'อนุมัติแล้ว'}
               </Badge>
               <div className="text-right">
@@ -212,7 +225,7 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
 
       {/* KPI Evaluations */}
       {approvedKPIs.map((kpi) => {
-        const evaluation = evaluations[kpi.id] || {};
+        const evaluation = evaluations[kpi.id];
         return (
           <Card key={kpi.id}>
             <CardHeader>
@@ -230,8 +243,8 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className={`text-xl font-bold ${getScoreColor(evaluation.calculated_score || 0)}`}>
-                    {(evaluation.calculated_score || 0).toFixed(2)}
+                  <div className={`text-xl font-bold ${getScoreColor(evaluation?.calculated_score || 0)}`}>
+                    {(evaluation?.calculated_score || 0).toFixed(2)}
                   </div>
                   <div className="text-sm text-gray-500">คะแนน</div>
                 </div>
@@ -251,7 +264,7 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
                 <Label htmlFor={`actual-${kpi.id}`}>ผลงานจริงที่ได้ *</Label>
                 <Textarea
                   id={`actual-${kpi.id}`}
-                  value={evaluation.actual_result || ''}
+                  value={evaluation?.actual_result || ''}
                   onChange={(e) => updateEvaluation(kpi.id, 'actual_result', e.target.value)}
                   placeholder="อธิบายผลงานจริงที่ได้รับ..."
                   rows={3}
@@ -268,18 +281,18 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
                     type="number"
                     min="0"
                     max="100"
-                    value={evaluation.achievement_percentage || ''}
+                    value={evaluation?.achievement_percentage || ''}
                     onChange={(e) => updateEvaluation(kpi.id, 'achievement_percentage', Number(e.target.value))}
                     className="w-32"
                     disabled={status !== 'draft'}
                   />
                   <span className="text-sm text-gray-500">%</span>
                   <div className="flex-1">
-                    <Progress value={evaluation.achievement_percentage || 0} className="h-2" />
+                    <Progress value={evaluation?.achievement_percentage || 0} className="h-2" />
                   </div>
                 </div>
                 <div className="text-sm text-gray-600 mt-1">
-                  คะแนนที่ได้: {((evaluation.achievement_percentage || 0) * kpi.weight / 100).toFixed(2)} / {kpi.weight}
+                  คะแนนที่ได้: {((evaluation?.achievement_percentage || 0) * kpi.weight / 100).toFixed(2)} / {kpi.weight}
                 </div>
               </div>
 
@@ -304,7 +317,7 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
                     <Upload className="w-4 h-4" />
                     เลือกไฟล์
                   </label>
-                  {evaluation.evidence_files && evaluation.evidence_files.length > 0 && (
+                  {evaluation?.evidence_files && evaluation.evidence_files.length > 0 && (
                     <div className="mt-2 space-y-1">
                       {evaluation.evidence_files.map((fileName, index) => (
                         <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
@@ -322,7 +335,7 @@ const KPIBonusEvaluation: React.FC<KPIBonusEvaluationProps> = ({ period }) => {
                 <Label htmlFor={`info-${kpi.id}`}>ข้อมูลเพิ่มเติมหรือคำอธิบาย</Label>
                 <Textarea
                   id={`info-${kpi.id}`}
-                  value={evaluation.additional_info || ''}
+                  value={evaluation?.additional_info || ''}
                   onChange={(e) => updateEvaluation(kpi.id, 'additional_info', e.target.value)}
                   placeholder="ข้อมูลเพิ่มเติม คำอธิบาย หรือปัญหาที่พบ..."
                   rows={2}

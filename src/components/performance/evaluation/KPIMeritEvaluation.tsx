@@ -223,10 +223,10 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
   // Calculate scores
   useEffect(() => {
     const compTotal = Object.values(competencyEvaluations).reduce(
-      (sum, eval) => sum + eval.calculated_score, 0
+      (sum, evaluation) => sum + evaluation.calculated_score, 0
     );
     const cultTotal = Object.values(cultureEvaluations).reduce(
-      (sum, eval) => sum + eval.calculated_score, 0
+      (sum, evaluation) => sum + evaluation.calculated_score, 0
     );
     
     setCompetencyScore(compTotal);
@@ -273,6 +273,19 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
     return 'text-red-600';
   };
 
+  const getBadgeVariant = (status: string) => {
+    switch (status) {
+      case 'draft':
+        return 'secondary';
+      case 'submitted':
+        return 'default';
+      case 'approved':
+        return 'outline';
+      default:
+        return 'secondary';
+    }
+  };
+
   const renderEvaluationSection = (
     type: 'competency' | 'culture',
     items: (CompetencyItem | CultureItem)[],
@@ -282,7 +295,7 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
   ) => (
     <div className="space-y-6">
       {items.map((item) => {
-        const evaluation = evaluations[item.id] || {};
+        const evaluation = evaluations[item.id];
         return (
           <Card key={item.id}>
             <CardHeader>
@@ -298,8 +311,8 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
                   </Badge>
                 </div>
                 <div className="text-right">
-                  <div className={`text-xl font-bold ${getScoreColor(evaluation.calculated_score || 0)}`}>
-                    {(evaluation.calculated_score || 0).toFixed(2)}
+                  <div className={`text-xl font-bold ${getScoreColor(evaluation?.calculated_score || 0)}`}>
+                    {(evaluation?.calculated_score || 0).toFixed(2)}
                   </div>
                   <div className="text-sm text-gray-500">คะแนน</div>
                 </div>
@@ -320,7 +333,7 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
               <div>
                 <Label>เลือกระดับการประเมิน *</Label>
                 <RadioGroup
-                  value={evaluation.level?.toString() || '0'}
+                  value={evaluation?.level?.toString() || '0'}
                   onValueChange={(value) => updateEvaluation(type, item.id, 'level', Number(value))}
                   disabled={status !== 'draft'}
                   className="flex gap-6 mt-2"
@@ -333,9 +346,9 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
                   ))}
                 </RadioGroup>
                 <div className="mt-2">
-                  <Progress value={(evaluation.level || 0) * 20} className="h-2" />
+                  <Progress value={(evaluation?.level || 0) * 20} className="h-2" />
                   <div className="text-sm text-gray-600 mt-1">
-                    คะแนนที่ได้: {((evaluation.level || 0) * item.weight / 5).toFixed(2)} / {item.weight}
+                    คะแนนที่ได้: {((evaluation?.level || 0) * item.weight / 5).toFixed(2)} / {item.weight}
                   </div>
                 </div>
               </div>
@@ -345,7 +358,7 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
                 <Label htmlFor={`supporting-${item.id}`}>ข้อมูลสนับสนุนการประเมิน</Label>
                 <Textarea
                   id={`supporting-${item.id}`}
-                  value={evaluation.supporting_info || ''}
+                  value={evaluation?.supporting_info || ''}
                   onChange={(e) => updateEvaluation(type, item.id, 'supporting_info', e.target.value)}
                   placeholder="อธิบายเหตุผลในการให้คะแนนและยกตัวอย่างที่สนับสนุน..."
                   rows={3}
@@ -370,7 +383,7 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({ period }) => {
               ประเมิน KPI Merit - {period === 'mid' ? 'กลางปี' : 'ปลายปี'}
             </CardTitle>
             <div className="flex items-center gap-4">
-              <Badge variant={status === 'draft' ? 'secondary' : status === 'submitted' ? 'default' : 'success'}>
+              <Badge variant={getBadgeVariant(status)}>
                 {status === 'draft' ? 'ร่าง' : status === 'submitted' ? 'รอการอนุมัติ' : 'อนุมัติแล้ว'}
               </Badge>
               <div className="text-right">
