@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, CheckCircle, XCircle, ArrowLeft, UserCheck } from 'lucide-react';
+import { Eye, CheckCircle, XCircle, ArrowLeft, UserCheck, MessageSquare } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   getKPIBonusByStatus, 
