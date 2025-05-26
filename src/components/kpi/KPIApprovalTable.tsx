@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,41 +11,88 @@ interface KPIApprovalTableProps {
 }
 
 const KPIApprovalTable: React.FC<KPIApprovalTableProps> = ({ userRole }) => {
-  // Mock data - ในระบบจริงควรดึงจาก API
-  const pendingKPIs = userRole === 'checker' ? [
-    {
-      id: '1',
-      employee_name: 'สมชาย ใจดี',
-      employee_id: 'EMP001',
-      department: 'การขาย',
-      kpi_type: 'KPI Bonus',
-      submitted_date: new Date('2024-01-15'),
-      status: 'pending_checker'
-    },
-    {
-      id: '2',
-      employee_name: 'สมหญิง สวยใส',
-      employee_id: 'EMP002',
-      department: 'การตลาด',
-      kpi_type: 'KPI Merit',
-      submitted_date: new Date('2024-01-16'),
-      status: 'pending_checker'
+  const [kpiStatus, setKpiStatus] = useState({ bonus: 'not_started', merit: 'not_started' });
+
+  useEffect(() => {
+    const status = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
+    setKpiStatus(status);
+  }, []);
+
+  // Create dynamic KPI list based on current status and user role
+  const getPendingKPIs = () => {
+    const kpis = [];
+    
+    // Check KPI Bonus
+    if (userRole === 'checker' && kpiStatus.bonus === 'pending_checker') {
+      kpis.push({
+        id: '1',
+        employee_name: 'สมชาย ใจดี',
+        employee_id: 'EMP001',
+        department: 'การขาย',
+        kpi_type: 'KPI Bonus',
+        submitted_date: new Date('2024-01-15'),
+        status: 'pending_checker'
+      });
+    } else if (userRole === 'approver' && kpiStatus.bonus === 'pending_approver') {
+      kpis.push({
+        id: '1',
+        employee_name: 'สมชาย ใจดี',
+        employee_id: 'EMP001',
+        department: 'การขาย',
+        kpi_type: 'KPI Bonus',
+        submitted_date: new Date('2024-01-15'),
+        checked_date: new Date('2024-01-17'),
+        status: 'pending_approver'
+      });
     }
-  ] : [
-    {
-      id: '3',
-      employee_name: 'สมศักดิ์ ดีมาก',
-      employee_id: 'EMP003',
-      department: 'IT',
-      kpi_type: 'KPI Bonus',
-      submitted_date: new Date('2024-01-14'),
-      checked_date: new Date('2024-01-17'),
-      status: 'pending_approver'
+
+    // Check KPI Merit
+    if (userRole === 'checker' && kpiStatus.merit === 'pending_checker') {
+      kpis.push({
+        id: '2',
+        employee_name: 'สมหญิง สวยใส',
+        employee_id: 'EMP002',
+        department: 'การตลาด',
+        kpi_type: 'KPI Merit',
+        submitted_date: new Date('2024-01-16'),
+        status: 'pending_checker'
+      });
+    } else if (userRole === 'approver' && kpiStatus.merit === 'pending_approver') {
+      kpis.push({
+        id: '2',
+        employee_name: 'สมหญิง สวยใส',
+        employee_id: 'EMP002',
+        department: 'การตลาด',
+        kpi_type: 'KPI Merit',
+        submitted_date: new Date('2024-01-16'),
+        checked_date: new Date('2024-01-18'),
+        status: 'pending_approver'
+      });
     }
-  ];
+
+    return kpis;
+  };
+
+  const pendingKPIs = getPendingKPIs();
 
   const getActionLink = (kpiType: string) => {
     return userRole === 'checker' ? '/manager/kpi-checker' : '/manager/kpi-approver';
+  };
+
+  const getStatusBadge = (status: string) => {
+    if (userRole === 'checker') {
+      return (
+        <Badge className="bg-blue-100 text-blue-700">
+          รอตรวจสอบ
+        </Badge>
+      );
+    } else {
+      return (
+        <Badge className="bg-purple-100 text-purple-700">
+          รออนุมัติ
+        </Badge>
+      );
+    }
   };
 
   return (
@@ -92,11 +139,7 @@ const KPIApprovalTable: React.FC<KPIApprovalTableProps> = ({ userRole }) => {
                       </td>
                     )}
                     <td className="border border-gray-300 px-4 py-3 text-center">
-                      <Badge className={
-                        userRole === 'checker' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
-                      }>
-                        {userRole === 'checker' ? 'รอตรวจสอบ' : 'รออนุมัติ'}
-                      </Badge>
+                      {getStatusBadge(kpi.status)}
                     </td>
                     <td className="border border-gray-300 px-4 py-3 text-center">
                       <Link to={getActionLink(kpi.kpi_type)}>
