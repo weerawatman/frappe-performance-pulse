@@ -58,7 +58,7 @@ export const DEFAULT_COMPETENCY_ITEMS: CompetencyItem[] = [
     id: '1',
     name: 'Leadership',
     description: 'ความสามารถในการนำทีมและสร้างแรงบันดาลใจ',
-    weight: 20,
+    weight: 7.5,
     evaluation_levels: [
       {
         level: 1,
@@ -96,7 +96,7 @@ export const DEFAULT_COMPETENCY_ITEMS: CompetencyItem[] = [
     id: '2',
     name: 'Communication',
     description: 'ความสามารถในการสื่อสารและถ่ายทอดข้อมูล',
-    weight: 25,
+    weight: 7.5,
     evaluation_levels: [
       {
         level: 1,
@@ -134,7 +134,7 @@ export const DEFAULT_COMPETENCY_ITEMS: CompetencyItem[] = [
     id: '3',
     name: 'Problem Solving',
     description: 'ความสามารถในการแก้ไขปัญหาและคิดวิเคราะห์',
-    weight: 25,
+    weight: 7.5,
     evaluation_levels: [
       {
         level: 1,
@@ -172,7 +172,7 @@ export const DEFAULT_COMPETENCY_ITEMS: CompetencyItem[] = [
     id: '4',
     name: 'Teamwork',
     description: 'ความสามารถในการทำงานเป็นทีม',
-    weight: 30,
+    weight: 7.5,
     evaluation_levels: [
       {
         level: 1,
