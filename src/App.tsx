@@ -72,6 +72,16 @@ function App() {
               <MainLayout><PerformanceEvaluationPage userRole="employee" /></MainLayout>
             </ProtectedRoute>
           } />
+          <Route path="/employee/evaluation/bonus" element={
+            <ProtectedRoute requireEmployee>
+              <MainLayout><PerformanceEvaluationPage userRole="employee" /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/employee/evaluation/merit" element={
+            <ProtectedRoute requireEmployee>
+              <MainLayout><PerformanceEvaluationPage userRole="employee" /></MainLayout>
+            </ProtectedRoute>
+          } />
           <Route path="/manager/evaluation" element={
             <ProtectedRoute requireManager>
               <MainLayout><PerformanceEvaluationPage userRole="checker" /></MainLayout>

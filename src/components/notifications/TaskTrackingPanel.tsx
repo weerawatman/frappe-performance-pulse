@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Clock, CheckCircle, AlertTriangle, Calendar, Target, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TaskItem {
   id: string;
@@ -26,35 +26,21 @@ interface TaskTrackingPanelProps {
 }
 
 const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole }) => {
+  const { user } = useAuth();
   const [tasks, setTasks] = useState<TaskItem[]>([]);
 
   useEffect(() => {
-    // Mock task data based on user role
-    const mockTasks: TaskItem[] = [];
+    const updateTasks = () => {
+      const mockTasks: TaskItem[] = [];
 
-    if (userRole === 'employee') {
-      // Check if we're in Q1 (Jan-Mar) for KPI setup period
-      const currentDate = new Date();
-      const isQ1 = currentDate.getMonth() < 3; // 0-2 = Jan-Mar
-      
-      if (isQ1) {
-        // During Q1 - KPI setup period
-        mockTasks.push(
-          {
-            id: '1',
-            title: 'กำหนด KPI Bonus',
-            description: 'กำหนด KPI สำหรับการคำนวณโบนัสประจำปี',
-            type: 'kpi_bonus',
-            priority: 'high',
-            dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
-            status: 'pending',
-            actionUrl: '/employee/kpi-bonus'
-          }
-        );
-      } else {
-        // Past Q1 - KPI setup is overdue
-        mockTasks.push(
-          {
+      if (userRole === 'employee' && user?.name === 'สมชาย ใจดี') {
+        // Check KPI status from localStorage
+        const kpiStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
+        console.log('Current KPI status for สมชาย ใจดี:', kpiStatus);
+
+        // Add overdue KPI Bonus task if not completed
+        if (kpiStatus.bonus !== 'completed') {
+          mockTasks.push({
             id: '1',
             title: 'กำหนด KPI Bonus',
             description: 'กำหนด KPI สำหรับการคำนวณโบนัสประจำปี (เกินกำหนด)',
@@ -64,71 +50,83 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
             status: 'overdue',
             actionUrl: '/employee/kpi-bonus',
             isOverdue: true
-          }
-        );
-      }
+          });
+        }
 
-      // Add upcoming evaluation periods - only show when it's time for evaluation
-      const currentMonth = currentDate.getMonth();
-      const isEvaluationPeriod1 = currentMonth >= 5 && currentMonth <= 6; // June-July
-      const isEvaluationPeriod2 = currentMonth >= 11 || currentMonth <= 0; // Dec-Jan
+        // Add overdue KPI Merit task if not completed
+        if (kpiStatus.merit !== 'completed') {
+          mockTasks.push({
+            id: '2',
+            title: 'กำหนด KPI Merit',
+            description: 'กำหนด KPI สำหรับการประเมินสมรรถนะ (เกินกำหนด)',
+            type: 'kpi_merit',
+            priority: 'high',
+            dueDate: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000), // 25 days ago
+            status: 'overdue',
+            actionUrl: '/employee/kpi-merit',
+            isOverdue: true
+          });
+        }
 
-      if (isEvaluationPeriod1) {
-        mockTasks.push(
-          {
+        // Add evaluation tasks if KPI is completed
+        if (kpiStatus.bonus === 'completed') {
+          mockTasks.push({
             id: '3',
-            title: 'การประเมินผลงานครั้งที่ 1',
+            title: 'ประเมินผลงาน KPI Bonus ครั้งที่ 1',
             description: 'ช่วงการประเมินผลงานครึ่งปีแรก',
             type: 'evaluation',
             priority: 'medium',
             dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
             status: 'pending',
-            actionUrl: '/employee/evaluation'
-          }
-        );
-      }
+            actionUrl: '/employee/evaluation/bonus'
+          });
+        }
 
-      if (isEvaluationPeriod2) {
-        mockTasks.push(
-          {
+        if (kpiStatus.merit === 'completed') {
+          mockTasks.push({
             id: '4',
-            title: 'การประเมินผลงานครั้งที่ 2',
-            description: 'ช่วงการประเมินผลงานครึ่งปีหลัง',
+            title: 'ประเมินผลงาน KPI Merit ครั้งที่ 1',
+            description: 'ช่วงการประเมินสมรรถนะครึ่งปีแรก',
             type: 'evaluation',
             priority: 'medium',
             dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
             status: 'pending',
-            actionUrl: '/employee/evaluation'
-          }
-        );
-      }
-    } else if (userRole === 'manager') {
-      mockTasks.push(
-        {
+            actionUrl: '/employee/evaluation/merit'
+          });
+        }
+      } else if (userRole === 'checker' || userRole === 'approver') {
+        // Mock tasks for checker/approver roles
+        mockTasks.push({
           id: '3',
           title: 'ตรวจสอบ KPI ของทีม',
-          description: 'ตรวจสอบและให้ความเห็นต่อ KPI ที่พนักงานส่งมา (3 รายการ)',
+          description: 'ตรวจสอบและให้ความเห็นต่อ KPI ที่พนักงานส่งมา',
           type: 'kpi_bonus',
           priority: 'high',
-          dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
+          dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
           status: 'pending',
-          actionUrl: '/kpi-checker'
-        },
-        {
-          id: '4',
-          title: 'อนุมัติการประเมินผลงาน',
-          description: 'อนุมัติการประเมินผลงานของพนักงาน (2 รายการ)',
-          type: 'evaluation',
-          priority: 'medium',
-          dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
-          status: 'pending',
-          actionUrl: '/kpi-approver'
-        }
-      );
-    }
+          actionUrl: userRole === 'checker' ? '/manager/kpi-checker' : '/manager/kpi-approver'
+        });
+      }
 
-    setTasks(mockTasks);
-  }, [userId, userRole]);
+      setTasks(mockTasks);
+    };
+
+    updateTasks();
+
+    // Listen for KPI status updates
+    const handleKPIStatusUpdate = () => {
+      console.log('KPI status updated, refreshing tasks');
+      updateTasks();
+    };
+
+    window.addEventListener('kpiStatusUpdate', handleKPIStatusUpdate);
+    window.addEventListener('storage', handleKPIStatusUpdate);
+
+    return () => {
+      window.removeEventListener('kpiStatusUpdate', handleKPIStatusUpdate);
+      window.removeEventListener('storage', handleKPIStatusUpdate);
+    };
+  }, [userId, userRole, user]);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -258,7 +256,7 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
             <div className="space-y-4">
               {upcomingTasks.map((task) => {
                 const daysLeft = getDaysUntilDue(task.dueDate);
-                const isKPISetup = task.type === 'kpi_bonus' || task.type === 'kpi_merit';
+                const isEvaluation = task.type === 'evaluation';
                 
                 return (
                   <div key={task.id} className="p-4 border rounded-lg hover:bg-gray-50">
@@ -276,9 +274,9 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
                         </div>
                       </div>
                       
-                      <Link to={isKPISetup ? task.actionUrl : '/employee/evaluation'}>
+                      <Link to={task.actionUrl}>
                         <Button size="sm" variant="outline">
-                          {isKPISetup ? 'กำหนด KPI' : 'ดูรายละเอียด'}
+                          {isEvaluation ? 'ประเมินตนเอง' : 'ดูรายละเอียด'}
                         </Button>
                       </Link>
                     </div>

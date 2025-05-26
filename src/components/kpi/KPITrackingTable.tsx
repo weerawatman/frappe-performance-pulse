@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Target, Building } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getEmployeeKPIStatus } from '@/services/kpiService';
 
 interface KPIStatus {
   bonus: string;
@@ -19,44 +18,45 @@ const KPITrackingTable = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  // Mock employee ID - in real app, this would come from auth context
-  const currentEmployeeId = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
-
   useEffect(() => {
     console.log('KPITrackingTable mounted, fetching initial status');
     
-    // Clear any corrupted localStorage data and start fresh
-    const savedStatus = localStorage.getItem('kpiStatus');
-    if (savedStatus) {
-      try {
-        const parsedStatus = JSON.parse(savedStatus);
-        console.log('Found existing localStorage:', parsedStatus);
-        
-        // Validate that the status values are correct
-        const validStatuses = ['not_started', 'draft', 'pending_checker', 'pending_approver', 'completed'];
-        if (validStatuses.includes(parsedStatus.bonus) && validStatuses.includes(parsedStatus.merit)) {
-          console.log('Using valid localStorage data');
-          setKpiStatus(parsedStatus);
-        } else {
-          console.log('Invalid localStorage data, resetting to default');
-          localStorage.removeItem('kpiStatus');
-          setKpiStatus({ bonus: 'not_started', merit: 'not_started' });
+    const loadKPIStatus = () => {
+      const savedStatus = localStorage.getItem('kpiStatus');
+      if (savedStatus) {
+        try {
+          const parsedStatus = JSON.parse(savedStatus);
+          console.log('Found existing localStorage:', parsedStatus);
+          
+          const validStatuses = ['not_started', 'draft', 'pending_checker', 'pending_approver', 'completed'];
+          if (validStatuses.includes(parsedStatus.bonus) && validStatuses.includes(parsedStatus.merit)) {
+            console.log('Using valid localStorage data');
+            setKpiStatus(parsedStatus);
+          } else {
+            console.log('Invalid localStorage data, resetting to default');
+            const defaultStatus = { bonus: 'not_started', merit: 'not_started' };
+            localStorage.setItem('kpiStatus', JSON.stringify(defaultStatus));
+            setKpiStatus(defaultStatus);
+          }
+        } catch (error) {
+          console.log('Corrupted localStorage data, clearing...');
+          const defaultStatus = { bonus: 'not_started', merit: 'not_started' };
+          localStorage.setItem('kpiStatus', JSON.stringify(defaultStatus));
+          setKpiStatus(defaultStatus);
         }
-      } catch (error) {
-        console.log('Corrupted localStorage data, clearing...');
-        localStorage.removeItem('kpiStatus');
-        setKpiStatus({ bonus: 'not_started', merit: 'not_started' });
+      } else {
+        console.log('No localStorage data, using default values');
+        const defaultStatus = { bonus: 'not_started', merit: 'not_started' };
+        localStorage.setItem('kpiStatus', JSON.stringify(defaultStatus));
+        setKpiStatus(defaultStatus);
       }
-    } else {
-      console.log('No localStorage data, using default values');
-      setKpiStatus({ bonus: 'not_started', merit: 'not_started' });
-    }
-    
+    };
+
+    loadKPIStatus();
     setLoading(false);
     
-    // Add event listener for storage changes
+    // Add event listeners for status changes
     const handleStorageChange = (e: StorageEvent) => {
-      console.log('Storage changed event:', e.key, e.newValue);
       if (e.key === 'kpiStatus' && e.newValue) {
         try {
           const newStatus = JSON.parse(e.newValue);
@@ -68,40 +68,18 @@ const KPITrackingTable = () => {
       }
     };
     
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Listen for custom events when status changes within the same window
     const handleKPIStatusUpdate = (event: CustomEvent) => {
       console.log('KPI status update event received:', event.detail);
-      const savedStatus = localStorage.getItem('kpiStatus');
-      if (savedStatus) {
-        try {
-          const parsedStatus = JSON.parse(savedStatus);
-          console.log('Updating from custom event with localStorage:', parsedStatus);
-          setKpiStatus(parsedStatus);
-        } catch (error) {
-          console.error('Error parsing localStorage in custom event:', error);
-        }
-      }
+      loadKPIStatus();
     };
     
-    window.addEventListener('kpiStatusUpdate', handleKPIStatusUpdate as EventListener);
-    
-    // Add focus event to refresh when user comes back to the page
     const handleFocus = () => {
       console.log('Window focused, checking localStorage');
-      const savedStatus = localStorage.getItem('kpiStatus');
-      if (savedStatus) {
-        try {
-          const parsedStatus = JSON.parse(savedStatus);
-          console.log('Refreshing from focus with localStorage:', parsedStatus);
-          setKpiStatus(parsedStatus);
-        } catch (error) {
-          console.error('Error parsing localStorage on focus:', error);
-        }
-      }
+      loadKPIStatus();
     };
     
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('kpiStatusUpdate', handleKPIStatusUpdate as EventListener);
     window.addEventListener('focus', handleFocus);
     
     return () => {
@@ -178,7 +156,7 @@ const KPITrackingTable = () => {
     }
     
     // หากเสร็จสิ้นแล้วให้แสดงสถานะการประเมิน
-    return `ประเมินครั้งที่ ${round}`;
+    return `ประเมินตนเอง`;
   }
 
   const getEvaluationStatus = (status: string, evaluationRound: number) => {
@@ -192,11 +170,12 @@ const KPITrackingTable = () => {
     }
 
     // หากเสร็จสิ้นการกำหนด KPI แล้ว ให้แสดงสถานะการประเมิน
-    // ในระบบจริงควรมีการตรวจสอบสถานะการประเมินจากฐานข้อมูล
     return (
-      <Badge className="bg-blue-100 text-blue-700 border-blue-300">
-        พร้อมประเมิน
-      </Badge>
+      <Link to={`/employee/evaluation/${status === 'completed' ? 'bonus' : 'merit'}`}>
+        <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+          ประเมินตนเอง
+        </Button>
+      </Link>
     );
   };
 
@@ -215,7 +194,7 @@ const KPITrackingTable = () => {
 
   return (
     <div className="space-y-6">
-      {/* Corporate KPI Section - แสดงเฉพาะหัวข้อและเป้าหมาย */}
+      {/* Corporate KPI Section */}
       <Card className="shadow-lg border-0 border-l-4 border-l-blue-500">
         <CardHeader>
           <CardTitle className="text-center text-lg font-bold flex items-center justify-center gap-2">
