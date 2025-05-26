@@ -64,8 +64,8 @@ const KPITrackingTable = () => {
     {
       type: 'KPI Bonus',
       definition: getKPIButtonText('bonus', kpiStatus.bonus),
-      evaluation1: 'Coming Soon',
-      evaluation2: 'Coming Soon',
+      evaluation1: getEvaluationText('bonus', kpiStatus.bonus, 1),
+      evaluation2: getEvaluationText('bonus', kpiStatus.bonus, 2),
       link: '/employee/kpi-bonus',
       buttonColor: 'bg-green-600 hover:bg-green-700',
       buttonText: getKPIButtonText('bonus', kpiStatus.bonus),
@@ -75,8 +75,8 @@ const KPITrackingTable = () => {
     {
       type: 'KPI Merit',
       definition: getKPIButtonText('merit', kpiStatus.merit),
-      evaluation1: 'Coming Soon',
-      evaluation2: 'Coming Soon',
+      evaluation1: getEvaluationText('merit', kpiStatus.merit, 1),
+      evaluation2: getEvaluationText('merit', kpiStatus.merit, 2),
       link: '/employee/kpi-merit',
       buttonColor: 'bg-green-600 hover:bg-green-700',
       buttonText: getKPIButtonText('merit', kpiStatus.merit),
@@ -96,51 +96,39 @@ const KPITrackingTable = () => {
       case 'pending_approver':
         return 'รอ Approve';
       case 'completed':
-        return 'Completed';
+        return 'เสร็จสิ้น';
       default:
         return `เริ่มกำหนด KPI ${type === 'bonus' ? 'Bonus' : 'Merit'}`;
     }
   }
 
-  const getEvaluationStatus = (status: string, evaluationRound: number) => {
-    switch (status) {
-      case 'not_started':
-        return (
-          <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">
-            Coming Soon
-          </Badge>
-        );
-      case 'draft':
-        return (
-          <Badge className="bg-gray-100 text-gray-700 border-gray-300">
-            ร่าง
-          </Badge>
-        );
-      case 'pending_checker':
-        return (
-          <Badge className="bg-blue-100 text-blue-700 border-blue-300">
-            รอ Checker
-          </Badge>
-        );
-      case 'pending_approver':
-        return (
-          <Badge className="bg-purple-100 text-purple-700 border-purple-300">
-            รอ Approve
-          </Badge>
-        );
-      case 'completed':
-        return (
-          <Badge className="bg-green-100 text-green-700 border-green-300">
-            Completed
-          </Badge>
-        );
-      default:
-        return (
-          <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">
-            Coming Soon
-          </Badge>
-        );
+  function getEvaluationText(type: 'bonus' | 'merit', status: string, round: number): string {
+    // หากยังไม่เสร็จสิ้นการกำหนด KPI ให้แสดง Coming Soon
+    if (status !== 'completed') {
+      return 'Coming Soon';
     }
+    
+    // หากเสร็จสิ้นแล้วให้แสดงสถานะการประเมิน
+    return `ประเมินครั้งที่ ${round}`;
+  }
+
+  const getEvaluationStatus = (status: string, evaluationRound: number) => {
+    // หากยังไม่เสร็จสิ้นการกำหนด KPI
+    if (status !== 'completed') {
+      return (
+        <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">
+          Coming Soon
+        </Badge>
+      );
+    }
+
+    // หากเสร็จสิ้นการกำหนด KPI แล้ว ให้แสดงสถานะการประเมิน
+    // ในระบบจริงควรมีการตรวจสอบสถานะการประเมินจากฐานข้อมูล
+    return (
+      <Badge className="bg-blue-100 text-blue-700 border-blue-300">
+        พร้อมประเมิน
+      </Badge>
+    );
   };
 
   if (loading) {

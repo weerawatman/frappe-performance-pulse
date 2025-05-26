@@ -42,24 +42,13 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
         mockTasks.push(
           {
             id: '1',
-            title: 'กำหนด KPI Bonus ไตรมาส 4',
-            description: 'กำหนด KPI สำหรับการคำนวณโบนัสไตรมาส 4',
+            title: 'กำหนด KPI Bonus',
+            description: 'กำหนด KPI สำหรับการคำนวณโบนัสประจำปี',
             type: 'kpi_bonus',
             priority: 'high',
             dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
             status: 'pending',
             actionUrl: '/employee/kpi-bonus'
-          },
-          {
-            id: '2',
-            title: 'ประเมิน KPI Merit ประจำปี',
-            description: 'ประเมิน Competency และ Culture สำหรับการปรับเงินเดือน',
-            type: 'kpi_merit',
-            priority: 'medium',
-            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-            status: 'in_progress',
-            actionUrl: '/employee/kpi-merit',
-            progress: 65
           }
         );
       } else {
@@ -67,52 +56,52 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
         mockTasks.push(
           {
             id: '1',
-            title: 'กำหนด KPI Bonus ไตรมาส 4',
-            description: 'กำหนด KPI สำหรับการคำนวณโบนัสไตรมาส 4 (เกินกำหนด)',
+            title: 'กำหนด KPI Bonus',
+            description: 'กำหนด KPI สำหรับการคำนวณโบนัสประจำปี (เกินกำหนด)',
             type: 'kpi_bonus',
             priority: 'high',
             dueDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
             status: 'overdue',
             actionUrl: '/employee/kpi-bonus',
             isOverdue: true
-          },
-          {
-            id: '2',
-            title: 'ประเมิน KPI Merit ประจำปี',
-            description: 'ประเมิน Competency และ Culture สำหรับการปรับเงินเดือน (เกินกำหนด)',
-            type: 'kpi_merit',
-            priority: 'high',
-            dueDate: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000), // 20 days ago
-            status: 'overdue',
-            actionUrl: '/employee/kpi-merit',
-            isOverdue: true
           }
         );
       }
 
-      // Add upcoming evaluation periods
-      mockTasks.push(
-        {
-          id: '3',
-          title: 'การประเมินผลงานครั้งที่ 1',
-          description: 'ช่วงการประเมินผลงานครึ่งปีแรก',
-          type: 'evaluation',
-          priority: 'medium',
-          dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-          status: 'pending',
-          actionUrl: '/employee/evaluation'
-        },
-        {
-          id: '4',
-          title: 'การประเมินผลงานครั้งที่ 2',
-          description: 'ช่วงการประเมินผลงานครึ่งปีหลัง',
-          type: 'evaluation',
-          priority: 'medium',
-          dueDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000), // 180 days from now
-          status: 'pending',
-          actionUrl: '/employee/evaluation'
-        }
-      );
+      // Add upcoming evaluation periods - only show when it's time for evaluation
+      const currentMonth = currentDate.getMonth();
+      const isEvaluationPeriod1 = currentMonth >= 5 && currentMonth <= 6; // June-July
+      const isEvaluationPeriod2 = currentMonth >= 11 || currentMonth <= 0; // Dec-Jan
+
+      if (isEvaluationPeriod1) {
+        mockTasks.push(
+          {
+            id: '3',
+            title: 'การประเมินผลงานครั้งที่ 1',
+            description: 'ช่วงการประเมินผลงานครึ่งปีแรก',
+            type: 'evaluation',
+            priority: 'medium',
+            dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
+            status: 'pending',
+            actionUrl: '/employee/evaluation'
+          }
+        );
+      }
+
+      if (isEvaluationPeriod2) {
+        mockTasks.push(
+          {
+            id: '4',
+            title: 'การประเมินผลงานครั้งที่ 2',
+            description: 'ช่วงการประเมินผลงานครึ่งปีหลัง',
+            type: 'evaluation',
+            priority: 'medium',
+            dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
+            status: 'pending',
+            actionUrl: '/employee/evaluation'
+          }
+        );
+      }
     } else if (userRole === 'manager') {
       mockTasks.push(
         {
