@@ -20,6 +20,7 @@ export interface CorporateKPI {
   last_updated?: Date;
   responsible_person?: string;
   status?: 'on_track' | 'at_risk' | 'off_track';
+  current_value?: string;
 }
 
 export const mockCorporateKPIData: CorporateKPI[] = [
@@ -393,4 +394,13 @@ export const calculateOverallAchievement = (): number => {
   const totalWeight = mockCorporateKPIData.reduce((sum, kpi) => sum + kpi.weight, 0);
   
   return totalWeight > 0 ? (totalWeightedScore / totalWeight) * 100 : 0;
+};
+
+export const getKPICategories = (): string[] => {
+  const categories = new Set(mockCorporateKPIData.map(kpi => kpi.category));
+  return Array.from(categories);
+};
+
+export const getCorporateKPIByCategory = (category: string): CorporateKPI[] => {
+  return mockCorporateKPIData.filter(kpi => kpi.category === category);
 };
