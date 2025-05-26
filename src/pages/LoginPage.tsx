@@ -55,7 +55,7 @@ const LoginPage: React.FC = () => {
               <Building className="w-8 h-8 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Performance Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Somboon Performance Management System</h1>
           <p className="text-gray-600 mt-2">ระบบบริหารผลงานและประเมินพนักงาน</p>
         </div>
 
@@ -66,7 +66,7 @@ const LoginPage: React.FC = () => {
               เข้าสู่ระบบ
             </CardTitle>
             <CardDescription>
-              กรุณาเข้าสู่ระบบเพื่อใช้งานระบบ Performance Management
+              กรุณาเข้าสู่ระบบเพื่อใช้งานระบบ Somboon Performance Management System
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -52,7 +51,7 @@ const Navigation: React.FC = () => {
           {/* Logo */}
           <div className="flex items-center">
             <Building className="w-8 h-8 text-blue-600 mr-2" />
-            <span className="text-xl font-bold text-gray-900">Performance Management</span>
+            <span className="text-xl font-bold text-gray-900">Somboon Performance Management System</span>
           </div>
 
           {/* Navigation Links */}

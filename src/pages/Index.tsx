@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -51,7 +50,7 @@ const Index = () => {
                 <Users className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">HR Management System</h1>
+                <h1 className="text-xl font-bold text-gray-900">Somboon Performance Management System</h1>
                 <p className="text-sm text-gray-600">ระบบจัดการทรัพยากรบุคคลครบวงจร</p>
               </div>
             </div>
@@ -75,7 +74,7 @@ const Index = () => {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            ยินดีต้อนรับสู่ระบบ HR Management
+            ยินดีต้อนรับสู่ระบบ Somboon Performance Management System
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             เพิ่มประสิทธิภาพการจัดการทรัพยากรบุคคลด้วยเครื่องมือที่ทันสมัย

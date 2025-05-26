@@ -110,7 +110,7 @@ const EmployeeDashboard = () => {
       <footer className="bg-white border-t">
         <div className="container mx-auto px-4 py-6">
           <div className="text-center text-gray-600">
-            <p>&copy; 2025 HR Management System - {getDashboardTitle()}</p>
+            <p>&copy; 2025 Somboon Performance Management System - {getDashboardTitle()}</p>
           </div>
         </div>
       </footer>
