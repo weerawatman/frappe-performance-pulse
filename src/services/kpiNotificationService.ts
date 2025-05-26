@@ -1,11 +1,10 @@
 
-import { Notification, NotificationSettings, NotificationType } from '@/types/notifications';
+import { notificationService } from '@/services/notificationService';
 import { KPIBonus } from '@/types/kpi';
+import { KPIMerit } from '@/types/merit';
 
 export class KPINotificationService {
   private static instance: KPINotificationService;
-  private notifications: Notification[] = [];
-  private settings: Map<string, NotificationSettings> = new Map();
 
   static getInstance(): KPINotificationService {
     if (!KPINotificationService.instance) {
@@ -14,235 +13,216 @@ export class KPINotificationService {
     return KPINotificationService.instance;
   }
 
-  // Create notification
-  createNotification(notification: Omit<Notification, 'id' | 'createdAt' | 'isRead'>): Notification {
-    const newNotification: Notification = {
-      ...notification,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      isRead: false
-    };
-    
-    this.notifications.push(newNotification);
-    
-    // Send email/push notification based on user settings
-    this.sendNotification(newNotification);
-    
-    return newNotification;
-  }
-
-  // Get notifications for user
-  getNotifications(userId: string, unreadOnly: boolean = false): Notification[] {
-    return this.notifications
-      .filter(n => n.userId === userId && (!unreadOnly || !n.isRead))
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-  }
-
-  // Mark notification as read
-  markAsRead(notificationId: string): boolean {
-    const notification = this.notifications.find(n => n.id === notificationId);
-    if (notification && !notification.isRead) {
-      notification.isRead = true;
-      notification.readAt = new Date();
-      return true;
-    }
-    return false;
-  }
-
-  // Mark all notifications as read for user
-  markAllAsRead(userId: string): number {
-    let count = 0;
-    this.notifications
-      .filter(n => n.userId === userId && !n.isRead)
-      .forEach(n => {
-        n.isRead = true;
-        n.readAt = new Date();
-        count++;
-      });
-    return count;
-  }
-
-  // Send notification (email/push)
-  private sendNotification(notification: Notification): void {
-    const userSettings = this.settings.get(notification.userId);
-    if (!userSettings) return;
-
-    console.log(`Sending KPI notification: ${notification.title} to user ${notification.userId}`);
-    
-    // Here you would integrate with email service or push notification service
-    if (userSettings.emailEnabled) {
-      this.sendEmailNotification(notification);
-    }
-    
-    if (userSettings.pushEnabled) {
-      this.sendPushNotification(notification);
-    }
-  }
-
-  private sendEmailNotification(notification: Notification): void {
-    // Integration with email service
-    console.log(`Email notification sent: ${notification.title}`);
-  }
-
-  private sendPushNotification(notification: Notification): void {
-    // Integration with push notification service
-    console.log(`Push notification sent: ${notification.title}`);
-  }
-
-  // Notification settings
-  getUserSettings(userId: string): NotificationSettings {
-    return this.settings.get(userId) || {
-      userId,
-      emailEnabled: true,
-      pushEnabled: true,
-      kpiSubmitted: true,
-      kpiApproved: true,
-      kpiRejected: true,
-      kpiNeedsCheck: true,
-      kpiNeedsApproval: true,
-      appraisalDue: true,
-      appraisalAssigned: true,
-      feedbackRequested: true,
-      appraisalCompleted: true,
-      deadlineApproaching: true,
-      reminderDaysBefore: 3
-    };
-  }
-
-  updateUserSettings(userId: string, settings: Partial<NotificationSettings>): void {
-    const currentSettings = this.getUserSettings(userId);
-    this.settings.set(userId, { ...currentSettings, ...settings });
-  }
-
-  // KPI-specific notification creators
-  notifyKPISubmitted(kpi: KPIBonus, checkerIds: string[]): void {
-    // Notify employee
-    this.createNotification({
-      title: 'KPI ถูกส่งเรียบร้อยแล้ว',
-      message: `KPI ของคุณได้ถูกส่งเพื่อรอการตรวจสอบแล้ว`,
-      type: 'kpi_submitted',
+  // KPI Bonus Notifications
+  notifyKPIBonusSubmitted(kpiBonus: KPIBonus): void {
+    // Notify checker
+    notificationService.createNotification({
+      title: 'มี KPI Bonus ใหม่ที่รอตรวจสอบ',
+      message: `${kpiBonus.employee_name} (${kpiBonus.department}) ส่ง KPI Bonus เพื่อขอรับการตรวจสอบ`,
+      type: 'kpi_needs_check',
       priority: 'medium',
-      userId: kpi.employee_id,
-      relatedId: kpi.id,
+      userId: 'CHECKER001', // In real app, get from workflow assignment
+      relatedId: kpiBonus.id,
       relatedType: 'kpi_bonus',
-      actionUrl: `/employee/kpi-bonus`,
-      actionLabel: 'ดู KPI'
+      actionUrl: `/kpi-checker`,
+      actionLabel: 'ตรวจสอบ KPI'
     });
 
-    // Notify checkers
+    // Notify employee
+    notificationService.createNotification({
+      title: 'ส่ง KPI Bonus สำเร็จ',
+      message: `KPI Bonus ของคุณถูกส่งเพื่อรอการตรวจสอบแล้ว`,
+      type: 'kpi_submitted',
+      priority: 'low',
+      userId: kpiBonus.employee_id,
+      relatedId: kpiBonus.id,
+      relatedType: 'kpi_bonus',
+      actionUrl: `/employee/kpi-bonus`,
+      actionLabel: 'ดู KPI ของฉัน'
+    });
+  }
+
+  notifyKPIBonusChecked(kpiBonus: KPIBonus, checkerFeedback: string): void {
+    // Notify approver
+    notificationService.createNotification({
+      title: 'มี KPI Bonus ใหม่ที่รอการอนุมัติ',
+      message: `${kpiBonus.employee_name} (${kpiBonus.department}) - KPI Bonus ผ่านการตรวจสอบแล้ว รอการอนุมัติ`,
+      type: 'kpi_needs_approval',
+      priority: 'medium',
+      userId: 'APPROVER001', // In real app, get from workflow assignment
+      relatedId: kpiBonus.id,
+      relatedType: 'kpi_bonus',
+      actionUrl: `/kpi-approver`,
+      actionLabel: 'อนุมัติ KPI'
+    });
+
+    // Notify employee
+    notificationService.createNotification({
+      title: 'KPI Bonus ผ่านการตรวจสอบ',
+      message: `KPI Bonus ของคุณผ่านการตรวจสอบแล้ว กำลังรอการอนุมัติ${checkerFeedback ? ` - ข้อเสนอแนะ: ${checkerFeedback}` : ''}`,
+      type: 'kpi_submitted',
+      priority: 'low',
+      userId: kpiBonus.employee_id,
+      relatedId: kpiBonus.id,
+      relatedType: 'kpi_bonus',
+      actionUrl: `/employee/kpi-bonus`,
+      actionLabel: 'ดู KPI ของฉัน'
+    });
+  }
+
+  notifyKPIBonusApproved(kpiBonus: KPIBonus): void {
+    // Notify employee
+    notificationService.createNotification({
+      title: 'KPI Bonus ได้รับการอนุมัติแล้ว',
+      message: `ยินดีด้วย! KPI Bonus ของคุณได้รับการอนุมัติแล้ว`,
+      type: 'kpi_approved',
+      priority: 'high',
+      userId: kpiBonus.employee_id,
+      relatedId: kpiBonus.id,
+      relatedType: 'kpi_bonus',
+      actionUrl: `/employee/results`,
+      actionLabel: 'ดูผลการอนุมัติ'
+    });
+
+    // Notify manager
+    notificationService.createNotification({
+      title: 'KPI Bonus ของทีมได้รับการอนุมัติ',
+      message: `KPI Bonus ของ ${kpiBonus.employee_name} ได้รับการอนุมัติแล้ว`,
+      type: 'kpi_approved',
+      priority: 'low',
+      userId: 'MANAGER001', // In real app, get from employee's manager
+      relatedId: kpiBonus.id,
+      relatedType: 'kpi_bonus',
+      actionUrl: `/performance`,
+      actionLabel: 'ดูผลงานทีม'
+    });
+  }
+
+  notifyKPIBonusRejected(kpiBonus: KPIBonus, feedback: string): void {
+    // Notify employee
+    notificationService.createNotification({
+      title: 'KPI Bonus ต้องแก้ไข',
+      message: `KPI Bonus ของคุณต้องการการแก้ไข - ${feedback}`,
+      type: 'kpi_rejected',
+      priority: 'high',
+      userId: kpiBonus.employee_id,
+      relatedId: kpiBonus.id,
+      relatedType: 'kpi_bonus',
+      actionUrl: `/employee/kpi-bonus`,
+      actionLabel: 'แก้ไข KPI'
+    });
+  }
+
+  // KPI Merit Notifications
+  notifyKPIMeritSubmitted(kpiMerit: KPIMerit): void {
+    // Notify checker
+    notificationService.createNotification({
+      title: 'มี KPI Merit ใหม่ที่รอตรวจสอบ',
+      message: `${kpiMerit.employee_name} (${kpiMerit.department}) ส่ง KPI Merit เพื่อขอรับการตรวจสอบ`,
+      type: 'kpi_needs_check',
+      priority: 'medium',
+      userId: 'CHECKER001',
+      relatedId: kpiMerit.id,
+      relatedType: 'kpi_merit',
+      actionUrl: `/kpi-checker`,
+      actionLabel: 'ตรวจสอบ KPI Merit'
+    });
+
+    // Notify employee
+    notificationService.createNotification({
+      title: 'ส่ง KPI Merit สำเร็จ',
+      message: `KPI Merit ของคุณถูกส่งเพื่อรอการตรวจสอบแล้ว`,
+      type: 'kpi_submitted',
+      priority: 'low',
+      userId: kpiMerit.employee_id,
+      relatedId: kpiMerit.id,
+      relatedType: 'kpi_merit',
+      actionUrl: `/employee/kpi-merit`,
+      actionLabel: 'ดู KPI Merit ของฉัน'
+    });
+  }
+
+  // Deadline Notifications
+  notifyKPIDeadlineApproaching(userId: string, type: 'bonus' | 'merit', daysLeft: number): void {
+    const title = type === 'bonus' ? 'ใกล้ถึงกำหนดส่ง KPI Bonus' : 'ใกล้ถึงกำหนดส่ง KPI Merit';
+    const actionUrl = type === 'bonus' ? '/employee/kpi-bonus' : '/employee/kpi-merit';
+    
+    notificationService.createNotification({
+      title,
+      message: `เหลือเวลาอีก ${daysLeft} วัน สำหรับการกำหนด ${type === 'bonus' ? 'KPI Bonus' : 'KPI Merit'}`,
+      type: 'deadline_approaching',
+      priority: daysLeft <= 1 ? 'high' : 'medium',
+      userId,
+      actionUrl,
+      actionLabel: 'ดำเนินการ'
+    });
+  }
+
+  notifyEvaluationDeadlineApproaching(userId: string, evaluationType: string, daysLeft: number): void {
+    notificationService.createNotification({
+      title: 'ใกล้ถึงกำหนดการประเมิน',
+      message: `เหลือเวลาอีก ${daysLeft} วัน สำหรับการประเมิน${evaluationType}`,
+      type: 'deadline_approaching',
+      priority: daysLeft <= 1 ? 'high' : 'medium',
+      userId,
+      actionUrl: '/employee/evaluation',
+      actionLabel: 'เข้าสู่การประเมิน'
+    });
+  }
+
+  // Checker and Approver Notifications
+  notifyCheckerPending(checkerIds: string[], pendingCount: number): void {
     checkerIds.forEach(checkerId => {
-      this.createNotification({
-        title: 'มี KPI ใหม่ที่รอการตรวจสอบ',
-        message: `${kpi.employee_name} ได้ส่ง KPI เพื่อรอการตรวจสอบ`,
+      notificationService.createNotification({
+        title: 'มีงานรอการตรวจสอบ',
+        message: `คุณมี KPI รอการตรวจสอบจำนวน ${pendingCount} รายการ`,
         type: 'kpi_needs_check',
-        priority: 'high',
+        priority: pendingCount > 5 ? 'high' : 'medium',
         userId: checkerId,
-        relatedId: kpi.id,
-        relatedType: 'kpi_bonus',
-        actionUrl: `/kpi-checker`,
+        actionUrl: '/kpi-checker',
         actionLabel: 'ตรวจสอบ KPI'
       });
     });
   }
 
-  notifyKPIChecked(kpi: KPIBonus, approverIds: string[], isApproved: boolean): void {
-    if (isApproved) {
-      // Notify approvers
-      approverIds.forEach(approverId => {
-        this.createNotification({
-          title: 'มี KPI ใหม่ที่รอการอนุมัติ',
-          message: `KPI ของ ${kpi.employee_name} ผ่านการตรวจสอบแล้ว รอการอนุมัติ`,
-          type: 'kpi_needs_approval',
-          priority: 'high',
-          userId: approverId,
-          relatedId: kpi.id,
-          relatedType: 'kpi_bonus',
-          actionUrl: `/kpi-approver`,
-          actionLabel: 'อนุมัติ KPI'
-        });
+  notifyApproverPending(approverIds: string[], pendingCount: number): void {
+    approverIds.forEach(approverId => {
+      notificationService.createNotification({
+        title: 'มีงานรอการอนุมัติ',
+        message: `คุณมี KPI รอการอนุมัติจำนวน ${pendingCount} รายการ`,
+        type: 'kpi_needs_approval',
+        priority: pendingCount > 5 ? 'high' : 'medium',
+        userId: approverId,
+        actionUrl: '/kpi-approver',
+        actionLabel: 'อนุมัติ KPI'
       });
-    } else {
-      // Notify employee of rejection
-      this.createNotification({
-        title: 'KPI ถูกส่งกลับแก้ไข',
-        message: `KPI ของคุณถูกส่งกลับจากผู้ตรวจสอบ กรุณาตรวจสอบและแก้ไข`,
-        type: 'kpi_rejected',
-        priority: 'high',
-        userId: kpi.employee_id,
-        relatedId: kpi.id,
-        relatedType: 'kpi_bonus',
-        actionUrl: `/employee/kpi-bonus`,
-        actionLabel: 'แก้ไข KPI'
-      });
-    }
+    });
   }
 
-  notifyKPIApproved(kpi: KPIBonus, isApproved: boolean, rejectedTo?: 'checker' | 'employee'): void {
-    if (isApproved) {
-      // Notify employee of approval
-      this.createNotification({
-        title: 'KPI ได้รับการอนุมัติแล้ว',
-        message: `KPI ของคุณได้รับการอนุมัติเรียบร้อยแล้ว`,
-        type: 'kpi_approved',
-        priority: 'low',
-        userId: kpi.employee_id,
-        relatedId: kpi.id,
-        relatedType: 'kpi_bonus',
-        actionUrl: `/employee/kpi-bonus`,
-        actionLabel: 'ดู KPI'
-      });
-    } else {
-      // Notify based on rejection target
-      if (rejectedTo === 'employee') {
-        this.createNotification({
-          title: 'KPI ถูกส่งกลับแก้ไข',
-          message: `KPI ของคุณถูกส่งกลับจากผู้อนุมัติ กรุณาตรวจสอบและแก้ไข`,
-          type: 'kpi_rejected',
-          priority: 'high',
-          userId: kpi.employee_id,
-          relatedId: kpi.id,
-          relatedType: 'kpi_bonus',
-          actionUrl: `/employee/kpi-bonus`,
-          actionLabel: 'แก้ไข KPI'
-        });
-      } else if (rejectedTo === 'checker') {
-        // Notify checker - would need checker ID in real implementation
-        console.log('Notifying checker of rejection');
-      }
-    }
-  }
-
-  // Get notification counts for dashboard
-  getNotificationCounts(userId: string): {
-    total: number;
-    unread: number;
-    byType: Record<NotificationType, number>;
-  } {
-    const userNotifications = this.getNotifications(userId);
-    const unreadNotifications = userNotifications.filter(n => !n.isRead);
+  // Batch notification for deadlines
+  checkAndNotifyDeadlines(): void {
+    // This would typically run as a scheduled job
+    console.log('Checking for upcoming deadlines...');
     
-    const byType: Record<NotificationType, number> = {
-      kpi_submitted: 0,
-      kpi_approved: 0,
-      kpi_rejected: 0,
-      kpi_needs_check: 0,
-      kpi_needs_approval: 0,
-      appraisal_due: 0,
-      appraisal_assigned: 0,
-      feedback_requested: 0,
-      appraisal_completed: 0,
-      deadline_approaching: 0
-    };
+    // Mock check for KPI deadlines
+    const upcomingDeadlines = [
+      { userId: 'EMP001', type: 'bonus' as const, daysLeft: 3 },
+      { userId: 'EMP002', type: 'merit' as const, daysLeft: 1 },
+    ];
 
-    unreadNotifications.forEach(n => {
-      byType[n.type]++;
+    upcomingDeadlines.forEach(deadline => {
+      this.notifyKPIDeadlineApproaching(deadline.userId, deadline.type, deadline.daysLeft);
     });
 
-    return {
-      total: userNotifications.length,
-      unread: unreadNotifications.length,
-      byType
-    };
+    // Mock check for evaluation deadlines
+    const evaluationDeadlines = [
+      { userId: 'EMP003', type: 'กลางปี', daysLeft: 2 },
+      { userId: 'EMP004', type: 'ปลายปี', daysLeft: 5 },
+    ];
+
+    evaluationDeadlines.forEach(deadline => {
+      this.notifyEvaluationDeadlineApproaching(deadline.userId, deadline.type, deadline.daysLeft);
+    });
   }
 }
 

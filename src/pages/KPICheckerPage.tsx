@@ -11,6 +11,7 @@ import { Eye, Send, MessageSquare, CheckCircle, XCircle, ArrowLeft } from 'lucid
 import { Link } from 'react-router-dom';
 import KPIStatusTracker from '@/components/kpi/KPIStatusTracker';
 import { KPIBonus, KPIMerit } from '@/types/kpi';
+import { kpiNotificationService } from '@/services/kpiNotificationService';
 
 const KPICheckerPage: React.FC = () => {
   const { toast } = useToast();
@@ -94,9 +95,12 @@ const KPICheckerPage: React.FC = () => {
       // Simulate API call to approve and forward to Approver
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Send notifications
+      kpiNotificationService.notifyKPIBonusChecked(selectedKPI, feedback);
+      
       toast({
         title: "ส่งต่อสำเร็จ",
-        description: `KPI ของ ${selectedKPI.employee_name} ถูกส่งต่อให้ผู้อนุมัติแล้ว`,
+        description: `KPI ของ ${selectedKPI.employee_name} ถูกส่งต่อให้ผู้อนุมัติแล้ว การแจ้งเตือนถูกส่งแล้ว`,
       });
       
       setSelectedKPI(null);
@@ -127,9 +131,12 @@ const KPICheckerPage: React.FC = () => {
       // Simulate API call to reject and send back to employee
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Send notifications
+      kpiNotificationService.notifyKPIBonusRejected(selectedKPI, feedback);
+      
       toast({
         title: "ส่งกลับแก้ไขสำเร็จ",
-        description: `KPI ของ ${selectedKPI.employee_name} ถูกส่งกลับให้แก้ไขแล้ว`,
+        description: `KPI ของ ${selectedKPI.employee_name} ถูกส่งกลับให้แก้ไขแล้ว การแจ้งเตือนถูกส่งแล้ว`,
       });
       
       setSelectedKPI(null);

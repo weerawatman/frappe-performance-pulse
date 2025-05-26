@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Target, FileText, Calendar, Bell, LogOut, TrendingUp, CheckCircle, Clock, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import NotificationCenter from "@/components/notifications/NotificationCenter";
+import TaskTrackingPanel from "@/components/notifications/TaskTrackingPanel";
 
 const EmployeeDashboard = () => {
   const { user, logout } = useAuth();
@@ -60,7 +62,7 @@ const EmployeeDashboard = () => {
               <div className="text-sm text-gray-600">
                 ยินดีต้อนรับ, <span className="font-semibold">{user?.name}</span>
               </div>
-              <Bell className="w-5 h-5 text-gray-600" />
+              <NotificationCenter userId={user?.id || 'EMP001'} />
               <Badge variant="secondary">Employee</Badge>
               <Button variant="outline" size="sm" onClick={logout} className="flex items-center gap-2">
                 <LogOut className="w-4 h-4" />
@@ -111,6 +113,9 @@ const EmployeeDashboard = () => {
             </Card>
           ))}
         </div>
+
+        {/* Task Tracking Panel */}
+        <TaskTrackingPanel userId={user?.id || 'EMP001'} userRole="employee" />
 
         {/* Employee Features */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">

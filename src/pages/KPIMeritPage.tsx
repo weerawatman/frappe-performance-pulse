@@ -13,6 +13,7 @@ import CultureTable from '@/components/merit/CultureTable';
 import KPIStatusTracker from '@/components/kpi/KPIStatusTracker';
 import { KPIMerit, DEFAULT_COMPETENCY_ITEMS, DEFAULT_CULTURE_ITEMS } from '@/types/merit';
 import { KPIBonus } from '@/types/kpi';
+import { kpiNotificationService } from '@/services/kpiNotificationService';
 
 const KPIMeritPage: React.FC = () => {
   const { toast } = useToast();
@@ -92,9 +93,19 @@ const KPIMeritPage: React.FC = () => {
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
       
+      // Send notifications
+      const updatedKPIMerit = {
+        ...kpiMerit,
+        status: 'Pending_Approval' as const,
+        workflow_step: 'Checker' as const,
+        submitted_date: new Date()
+      };
+      
+      kpiNotificationService.notifyKPIMeritSubmitted(updatedKPIMerit);
+      
       toast({
         title: "ส่งอนุมัติสำเร็จ",
-        description: "KPI Merit ได้ถูกส่งเพื่อรออนุมัติแล้ว",
+        description: "KPI Merit ได้ถูกส่งเพื่อรออนุมัติแล้ว การแจ้งเตือนถูกส่งให้ผู้ตรวจสอบแล้ว",
       });
     } catch (error) {
       toast({
