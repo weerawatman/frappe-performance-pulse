@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -29,7 +28,7 @@ interface EvaluationData {
 
 interface MeritEvaluationTableProps {
   period: 'mid' | 'end';
-  userRole: 'employee' | 'checker' | 'approver';
+  userRole: 'employee' | 'checker' | 'approver' | 'admin';
 }
 
 const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, userRole }) => {

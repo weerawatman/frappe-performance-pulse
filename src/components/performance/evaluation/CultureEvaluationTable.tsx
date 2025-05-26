@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Save, Send, Upload } from 'lucide-react';
@@ -10,70 +10,69 @@ import { useToast } from '@/hooks/use-toast';
 
 interface CultureItem {
   id: string;
-  name: string;
-  definition: string;
+  type: string;
+  item: string;
   weight: number;
-  guideline: string;
+  inputProcess: string;
+  output: string;
 }
 
-interface CultureEvaluationData {
+interface EvaluationData {
   evidence: string;
   selfScore: number;
   checkerFeedback: string;
   checkerScore: number | null;
   approverFeedback: string;
   approverScore: number | null;
+  feedback: string;
 }
 
 interface CultureEvaluationTableProps {
   period: 'mid' | 'end';
-  userRole: 'employee' | 'checker' | 'approver';
+  userRole: 'employee' | 'checker' | 'approver' | 'admin';
 }
 
 const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period, userRole }) => {
   const { toast } = useToast();
 
-  // Updated culture data with all 5 items
+  // Mock culture evaluation data
   const cultureItems: CultureItem[] = [
     {
-      id: '1',
-      name: 'สัญญา โปร่งใส (Spirit of Commitment, Integrity, & Ethic)',
-      definition: 'การปฏิบัติหน้าที่ด้วยความซื่อสัตย์และส่งมอบงานตามข้อตกลงหรือสัญญาที่ได้ตกลงกันไว้ ด้วยความโปร่งใส',
-      weight: 6.00,
-      guideline: '- ปฏิบัติให้ได้ตามกฏและระเบียบที่กำหนดไว้ :\n- รักษาคำพูด ตามที่ได้ตกลงไว้ :\n- ใช้ข้อมูลและข้อเท็จจริงในการทำงาน :'
+      id: 'C1',
+      type: 'Core Values',
+      item: 'ความซื่อสัตย์และโปร่งใส',
+      weight: 25,
+      inputProcess: 'แสดงความซื่อสัตย์ในการทำงาน มีความโปร่งใสในการสื่อสาร',
+      output: 'ได้รับความไว้วางใจจากเพื่อนร่วมงานและผู้บังคับบัญชา'
     },
     {
-      id: '2',
-      name: 'ใส่ใจเรียนรู้ (Mastery of Learning & Applying Technology)',
-      definition: 'การตั้งใจเรียนรู้สิ่งใหม่ๆ รวมถึงเทคโนโลยี และนำมาใช้ปรับปรุง พัฒนา การทำงาน บริการ หรือผลิตภัณฑ์ ให้ดีขึ้นอย่างต่อเนื่อง',
-      weight: 6.00,
-      guideline: '- กล้าเรียนรู้สิ่งใหม่ๆ ทั้งวิธีการ เครื่องมือ และเทคโนโลยี :\n- กล้าตัดสินใจ กล้าลงทุน กล้าเสี่ยง บนพื้นฐานต้นทุนและความเป็นไปได้ทางธุรกิจ :\n- กล้านำสิ่งที่เรียนรู้มาลงมือทำจริง กล้านำให้เกิดการเปลี่ยนแปลง และเกิดสิ่งใหม่ๆ :'
+      id: 'C2', 
+      type: 'Collaboration',
+      item: 'การทำงานเป็นทีม',
+      weight: 25,
+      inputProcess: 'ร่วมมือกับเพื่อนร่วมงาน แบ่งปันความรู้และประสบการณ์',
+      output: 'ทีมงานมีประสิทธิภาพและบรรยากาศการทำงานที่ดี'
     },
     {
-      id: '3',
-      name: 'สู่การเปลี่ยนแปลง (Agility)',
-      definition: 'การเปิดรับสิ่งใหม่ วางแผนปรับตัว เตรียมความพร้อมสำหรับการเปลี่ยนแปลงอย่างรวดเร็ว',
-      weight: 6.00,
-      guideline: '- เปลี่ยนแปลงให้ทันต่อเหตุการณ์ที่เปลี่ยนไป และปรับตัวได้รวดเร็ว :\n- ตื่นรู้ และคาดการณ์เพื่อตอบสนองต่อการเปลี่ยนแปลง :\n- ตัดสินใจและลงมือทำด้วยความรวดเร็ว ทันต่อเหตุการณ์ :'
+      id: 'C3',
+      type: 'Innovation',
+      item: 'ความคิดสร้างสรรค์และนวัตกรรม',
+      weight: 25,
+      inputProcess: 'เสนอแนวคิดใหม่ๆ และหาวิธีการทำงานที่ดีขึ้น',
+      output: 'มีการปรับปรุงกระบวนการทำงานหรือสร้างสรรค์สิ่งใหม่'
     },
     {
-      id: '4',
-      name: 'แสดงการยอมรับ (Respect Others & Value Diversity)',
-      definition: 'การยอมรับความแตกต่าง และเปิดใจรับฟังความคิดเห็นของทุกคนในทีมเพื่อหาแนวทางที่ดีที่สุดในการแก้ไขปัญหา',
-      weight: 6.00,
-      guideline: '- ยอมรับความคิดและความเห็นต่าง :\n- ร่วมหาแนวทางและยอมรับในข้อสรุปที่ดีที่สุด :\n- เปิดรับฟังความเห็นผู้อื่นก่อน'
-    },
-    {
-      id: '5',
-      name: 'สนับสนุนลูกค้า (Think Customers & Think Value)',
-      definition: 'การทำความเข้าใจความคาดหวังของลูกค้า (ทั้งภายในและภายนอก) อย่างถ่องแท้ และใส่ใจในคุณค่าของงานและบริการที่ส่งมอบให้ลูกค้า',
-      weight: 6.00,
-      guideline: '- รับฟังข้อเสนอแนะจากลูกค้า และความต้องการของลูกค้า :\n- Customer Centric คิดในมุมที่เราเป็นลูกค้า และมีทางออกให้ลูกค้าเสมอ :\n- ส่งงานที่มีคุณภาพ และตามความต้องการของลูกค้า :'
+      id: 'C4',
+      type: 'Customer Focus',
+      item: 'การมุ่งเน้นลูกค้า',
+      weight: 25,
+      inputProcess: 'ใส่ใจและตอบสนองความต้องการของลูกค้า',
+      output: 'ลูกค้ามีความพึงพอใจและกลับมาใช้บริการอีก'
     }
   ];
 
-  const [evaluations, setEvaluations] = useState<{[key: string]: CultureEvaluationData}>(() => {
-    const initial: {[key: string]: CultureEvaluationData} = {};
+  const [evaluations, setEvaluations] = useState<{[key: string]: EvaluationData}>(() => {
+    const initial: {[key: string]: EvaluationData} = {};
     cultureItems.forEach(item => {
       initial[item.id] = {
         evidence: '',
@@ -81,13 +80,14 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
         checkerFeedback: '',
         checkerScore: null,
         approverFeedback: '',
-        approverScore: null
+        approverScore: null,
+        feedback: ''
       };
     });
     return initial;
   });
 
-  const updateEvaluation = (id: string, field: keyof CultureEvaluationData, value: any) => {
+  const updateEvaluation = (id: string, field: keyof EvaluationData, value: any) => {
     setEvaluations(prev => ({
       ...prev,
       [id]: {
@@ -103,7 +103,6 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
 
     cultureItems.forEach(item => {
       const evaluation = evaluations[item.id];
-      // Use approver score if available, otherwise checker score, otherwise self score
       const finalScore = evaluation.approverScore || evaluation.checkerScore || evaluation.selfScore;
       const weightedScore = (finalScore / 5) * item.weight;
       totalWeightedScore += weightedScore;
@@ -116,10 +115,11 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
     };
   };
 
-  const canEdit = (field: 'evidence' | 'selfScore' | 'checkerFeedback' | 'checkerScore' | 'approverFeedback' | 'approverScore') => {
+  const canEdit = (field: 'evidence' | 'selfScore' | 'checkerFeedback' | 'checkerScore' | 'approverFeedback' | 'approverScore' | 'feedback') => {
     switch (field) {
       case 'evidence':
       case 'selfScore':
+      case 'feedback':
         return userRole === 'employee';
       case 'checkerFeedback':
       case 'checkerScore':
@@ -135,14 +135,14 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
   const handleSave = () => {
     toast({
       title: 'บันทึกสำเร็จ',
-      description: 'บันทึกข้อมูลการประเมิน Culture เรียบร้อยแล้ว'
+      description: 'บันทึกข้อมูลการประเมินวัฒนธรรมเรียบร้อยแล้ว'
     });
   };
 
   const handleSubmit = () => {
     toast({
       title: 'ส่งการประเมินสำเร็จ',
-      description: 'ส่งการประเมิน Culture เพื่อดำเนินการในขั้นตอนถัดไป'
+      description: 'ส่งการประเมินวัฒนธรรมเพื่อดำเนินการในขั้นตอนถัดไป'
     });
   };
 
@@ -154,74 +154,70 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>การประเมิน Culture ครั้งที่ {period === 'mid' ? '1' : '2'}</span>
+            <span>การประเมินวัฒนธรรมองค์กร ครั้งที่ {period === 'mid' ? '1' : '2'}</span>
             <div className="text-right">
               <div className="text-2xl font-bold text-purple-600">
                 {percentage.toFixed(2)}%
               </div>
-              <div className="text-sm text-gray-500">คะแนนรวม Culture</div>
+              <div className="text-sm text-gray-500">คะแนนรวมวัฒนธรรม</div>
             </div>
           </CardTitle>
         </CardHeader>
       </Card>
 
       {/* Culture Items */}
-      {cultureItems.map((item, index) => {
+      {cultureItems.map((item) => {
         const evaluation = evaluations[item.id];
         return (
           <Card key={item.id} className="border border-gray-300">
             <CardContent className="p-6">
-              {/* Header Table */}
+              {/* Header */}
               <div className="grid grid-cols-12 gap-0 mb-6 border border-gray-300">
-                <div className="col-span-2 border-r border-gray-300 p-3 bg-gray-50">
-                  <div className="font-medium text-sm">Culture</div>
-                  <div className="text-sm mt-2 font-medium">{item.name}</div>
+                <div className="col-span-3 border-r border-gray-300 p-3 bg-purple-50">
+                  <div className="font-medium text-sm">ประเภทวัฒนธรรม</div>
+                  <div className="text-sm mt-2">{item.type}</div>
                 </div>
-                <div className="col-span-5 border-r border-gray-300 p-3 bg-gray-50">
-                  <div className="font-medium text-sm">นิยาม</div>
-                  <div className="text-sm mt-2">{item.definition}</div>
+                <div className="col-span-7 border-r border-gray-300 p-3 bg-purple-50">
+                  <div className="font-medium text-sm">หัวข้อการประเมิน</div>
+                  <div className="text-sm mt-2">
+                    <div className="font-medium text-purple-600 mb-1">{item.id}</div>
+                    {item.item}
+                  </div>
                 </div>
-                <div className="col-span-1 border-r border-gray-300 p-3 bg-gray-50 text-center">
-                  <div className="font-medium text-sm">Weight%</div>
-                  <div className="font-medium text-sm">(น้ำหนัก)</div>
+                <div className="col-span-2 p-3 bg-purple-50 text-center">
+                  <div className="font-medium text-sm">น้ำหนัก%</div>
                   <div className="mt-2">
                     <Badge variant="outline">{item.weight}%</Badge>
                   </div>
                 </div>
-                <div className="col-span-2 border-r border-gray-300 p-3 bg-blue-50">
-                  <div className="font-medium text-sm text-blue-600">
-                    พฤติกรรมที่คาดหวัง (Key Behaviour) : Guideline
-                  </div>
-                  <div className="text-xs mt-2 leading-relaxed">
-                    {item.guideline.split('\n').map((line, i) => (
-                      <div key={i} className="mb-1">{line}</div>
-                    ))}
-                  </div>
+              </div>
+
+              {/* Input & Output */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="border border-gray-300 p-3">
+                  <div className="font-medium text-sm mb-2 text-purple-600">พฤติกรรมที่คาดหวัง</div>
+                  <div className="text-xs leading-relaxed">{item.inputProcess}</div>
                 </div>
-                <div className="col-span-2 p-3 bg-blue-50">
-                  <div className="font-medium text-sm text-blue-600">
-                    พฤติกรรมที่คาดหวัง (Key Behaviour) : 
-                  </div>
-                  <div className="text-xs text-gray-600 mt-1">
-                    พนักงานกำหนดรายละเอียดพฤติกรรมที่ต้องการวัดผล
-                  </div>
+                <div className="border border-gray-300 p-3">
+                  <div className="font-medium text-sm mb-2 text-purple-600">ผลลัพธ์ที่คาดหวัง</div>
+                  <div className="text-xs leading-relaxed">{item.output}</div>
                 </div>
               </div>
 
-              {/* Evidence Section with Self Assessment in same row */}
+              {/* Evidence and Self Assessment */}
               <div className="border border-gray-300 p-4 mb-4">
-                <div className="font-medium text-sm mb-2">หลักฐานการดำเนินการ/การแสดงออกจริง</div>
+                <div className="font-medium text-sm mb-2">หลักฐานการแสดงออกตามวัฒนธรรม</div>
                 <div className="flex gap-4">
                   <div className="flex-1">
                     <Textarea
                       value={evaluation.evidence}
                       onChange={(e) => updateEvaluation(item.id, 'evidence', e.target.value)}
-                      placeholder="กรอกหลักฐานการดำเนินการ..."
+                      placeholder="กรอกหลักฐานการแสดงออกตามวัฒนธรรม..."
                       rows={4}
                       className="text-sm"
                       disabled={!canEdit('evidence')}
                     />
-                    <div className="mt-2">
+                    <div className="mt-2 flex gap-2">
                       <Button variant="outline" size="sm" className="text-xs">
                         <Upload className="w-3 h-3 mr-1" />
                         เลือกไฟล์
@@ -229,28 +225,32 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
                     </div>
                   </div>
                   <div className="w-32 flex flex-col justify-center">
-                    <div className="font-medium text-sm mb-2">% ความสำเร็จ (1-5) *</div>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="5"
-                      value={evaluation.selfScore}
-                      onChange={(e) => updateEvaluation(item.id, 'selfScore', Number(e.target.value))}
-                      className="text-center w-16"
+                    <div className="font-medium text-sm mb-2">คะแนนประเมินตนเอง (1-5)</div>
+                    <Select
+                      value={evaluation.selfScore.toString()}
+                      onValueChange={(value) => updateEvaluation(item.id, 'selfScore', Number(value))}
                       disabled={!canEdit('selfScore')}
-                    />
-                    <div className="text-xs text-gray-500 mt-1">
-                      การคำนวณ: {evaluation.selfScore}% × {item.weight}% ÷ 5 = {((evaluation.selfScore / 5) * item.weight).toFixed(2)} คะแนน
-                    </div>
+                    >
+                      <SelectTrigger className="w-16">
+                        <SelectValue placeholder="-" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">-</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="2">2</SelectItem>
+                        <SelectItem value="3">3</SelectItem>
+                        <SelectItem value="4">4</SelectItem>
+                        <SelectItem value="5">5</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
 
-              {/* Checker and Approver Feedback in same row */}
+              {/* Checker and Approver Feedback */}
               <div className="grid grid-cols-2 gap-4">
-                {/* Checker Feedback */}
                 <div className="border border-gray-300 p-4">
-                  <div className="font-medium text-sm mb-2">การ Feedback โดย Checker</div>
+                  <div className="font-medium text-sm mb-2">Feedback โดย Checker</div>
                   <Textarea
                     value={evaluation.checkerFeedback}
                     onChange={(e) => updateEvaluation(item.id, 'checkerFeedback', e.target.value)}
@@ -260,28 +260,29 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
                     disabled={!canEdit('checkerFeedback')}
                   />
                   <div className="flex items-center justify-between">
-                    <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        min="0"
-                        max="5"
-                        value={evaluation.checkerScore || ''}
-                        onChange={(e) => updateEvaluation(item.id, 'checkerScore', Number(e.target.value))}
-                        className="w-16 text-center"
-                        disabled={!canEdit('checkerScore')}
-                      />
-                      <span className="text-sm">%</span>
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    การคำนวณ: {evaluation.checkerScore || 0}% × {item.weight}% ÷ 5 = {(((evaluation.checkerScore || 0) / 5) * item.weight).toFixed(2)} คะแนน
+                    <div className="font-medium text-sm">คะแนน (1-5)</div>
+                    <Select
+                      value={evaluation.checkerScore?.toString() || '0'}
+                      onValueChange={(value) => updateEvaluation(item.id, 'checkerScore', Number(value))}
+                      disabled={!canEdit('checkerScore')}
+                    >
+                      <SelectTrigger className="w-16">
+                        <SelectValue placeholder="-" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">-</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="2">2</SelectItem>
+                        <SelectItem value="3">3</SelectItem>
+                        <SelectItem value="4">4</SelectItem>
+                        <SelectItem value="5">5</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
-                {/* Approver Feedback */}
                 <div className="border border-gray-300 p-4">
-                  <div className="font-medium text-sm mb-2">การ Feedback โดย Approver</div>
+                  <div className="font-medium text-sm mb-2">Feedback โดย Approver</div>
                   <Textarea
                     value={evaluation.approverFeedback}
                     onChange={(e) => updateEvaluation(item.id, 'approverFeedback', e.target.value)}
@@ -291,22 +292,24 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
                     disabled={!canEdit('approverFeedback')}
                   />
                   <div className="flex items-center justify-between">
-                    <div className="font-medium text-sm">% ความสำเร็จ (1-5) *</div>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        min="0"
-                        max="5"
-                        value={evaluation.approverScore || ''}
-                        onChange={(e) => updateEvaluation(item.id, 'approverScore', Number(e.target.value))}
-                        className="w-16 text-center"
-                        disabled={!canEdit('approverScore')}
-                      />
-                      <span className="text-sm">%</span>
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    การคำนวณ: {evaluation.approverScore || 0}% × {item.weight}% ÷ 5 = {(((evaluation.approverScore || 0) / 5) * item.weight).toFixed(2)} คะแนน
+                    <div className="font-medium text-sm">คะแนน (1-5)</div>
+                    <Select
+                      value={evaluation.approverScore?.toString() || '0'}
+                      onValueChange={(value) => updateEvaluation(item.id, 'approverScore', Number(value))}
+                      disabled={!canEdit('approverScore')}
+                    >
+                      <SelectTrigger className="w-16">
+                        <SelectValue placeholder="-" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">-</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="2">2</SelectItem>
+                        <SelectItem value="3">3</SelectItem>
+                        <SelectItem value="4">4</SelectItem>
+                        <SelectItem value="5">5</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
@@ -315,12 +318,12 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
         );
       })}
 
-      {/* Summary Card */}
+      {/* Summary */}
       <Card className="bg-purple-50">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-semibold text-purple-900">รวมคะแนน Culture</h4>
+              <h4 className="font-semibold text-purple-900">รวมคะแนนวัฒนธรรม</h4>
               <p className="text-sm text-purple-700">
                 สูตรการคำนวณ: Σ(คะแนน ÷ 5) × น้ำหนัก%
               </p>
@@ -329,7 +332,9 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
               <div className="text-2xl font-bold text-purple-600">
                 {percentage.toFixed(2)}%
               </div>
-              <div className="text-sm text-gray-500">คะแนนรวม Culture</div>
+              <div className="text-sm text-purple-500">
+                ({score.toFixed(2)} / {cultureItems.reduce((sum, item) => sum + item.weight, 0)})
+              </div>
             </div>
           </div>
         </CardContent>
