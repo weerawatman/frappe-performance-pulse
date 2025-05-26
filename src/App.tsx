@@ -8,6 +8,8 @@ import EmployeeDashboard from "./pages/EmployeeDashboard";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import KPIBonusPage from "./pages/KPIBonusPage";
 import KPIMeritPage from "./pages/KPIMeritPage";
+import KPICheckerPage from "./pages/KPICheckerPage";
+import KPIApproverPage from "./pages/KPIApproverPage";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PerformanceManagement from './pages/PerformanceManagement';
 import ReportsPage from './pages/ReportsPage';
@@ -56,6 +58,16 @@ function App() {
               <Route path="/kpi-bonus" element={
                 <ProtectedRoute requireManagerOrAdmin={true}>
                   <KPIBonusPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/kpi-checker" element={
+                <ProtectedRoute requireManagerOrAdmin={true}>
+                  <KPICheckerPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/kpi-approver" element={
+                <ProtectedRoute requireManagerOrAdmin={true}>
+                  <KPIApproverPage />
                 </ProtectedRoute>
               } />
               <Route path="/performance" element={

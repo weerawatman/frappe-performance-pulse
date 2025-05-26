@@ -34,15 +34,55 @@ export interface KPIBonus {
   history: KPIBonusHistory[];
   created_at: Date;
   modified_at: Date;
+  // New fields for approval workflow
+  checker_id?: string;
+  checker_feedback?: string;
+  checker_approved_date?: Date;
+  approver_id?: string;
+  approver_feedback?: string;
+  rejection_reason?: string;
+  rejected_to?: 'employee' | 'checker';
 }
 
 export interface KPIBonusHistory {
   id: string;
-  action: 'Created' | 'Submitted' | 'Approved' | 'Rejected' | 'Modified';
+  action: 'Created' | 'Submitted' | 'Approved' | 'Rejected' | 'Modified' | 'Forwarded';
   actor_name: string;
   actor_role: string;
   comments?: string;
   timestamp: Date;
+  target_role?: string; // For tracking where it was sent
+}
+
+// Create KPIMerit interface extending similar structure
+export interface KPIMerit {
+  id: string;
+  employee_id: string;
+  employee_name: string;
+  department: string;
+  kpi_achievement_score: number;
+  kpi_achievement_weight: number;
+  competency_items: any[]; // Import from merit types
+  competency_weight: number;
+  culture_items: any[]; // Import from merit types
+  culture_weight: number;
+  total_score: number;
+  status: 'Draft' | 'Pending_Approval' | 'Approved' | 'Rejected';
+  workflow_step: 'Self' | 'Checker' | 'Approver';
+  submitted_date?: Date;
+  approved_date?: Date;
+  comments?: string;
+  history: KPIBonusHistory[]; // Reuse same history interface
+  created_at: Date;
+  modified_at: Date;
+  // Approval workflow fields
+  checker_id?: string;
+  checker_feedback?: string;
+  checker_approved_date?: Date;
+  approver_id?: string;
+  approver_feedback?: string;
+  rejection_reason?: string;
+  rejected_to?: 'employee' | 'checker';
 }
 
 export const BALANCE_SCORECARD_CATEGORIES: BalanceScoreCardCategory[] = [
