@@ -1,4 +1,5 @@
-import { QueryClient } from "@tanstack/react-query";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster"
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -9,9 +10,11 @@ import WorkflowsPage from './pages/WorkflowsPage';
 import RoleManagementPage from './pages/RoleManagementPage';
 import IntegrationsPage from './pages/IntegrationsPage';
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <QueryClient>
+    <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-background">
         <Toaster />
         <BrowserRouter>
@@ -26,7 +29,7 @@ function App() {
           </Routes>
         </BrowserRouter>
       </div>
-    </QueryClient>
+    </QueryClientProvider>
   );
 }
 
