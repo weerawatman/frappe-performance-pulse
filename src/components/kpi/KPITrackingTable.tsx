@@ -7,6 +7,7 @@ import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const KPITrackingTable = () => {
+  // Simulate different statuses for demonstration
   const kpiData = [
     {
       type: 'KPI Bonus',
@@ -16,7 +17,9 @@ const KPITrackingTable = () => {
       link: '/employee/kpi-bonus',
       buttonColor: 'bg-green-600 hover:bg-green-700',
       buttonText: 'เริ่มกำหนด KPI Bonus',
-      available: true
+      available: true,
+      // Status can be: 'not_started', 'evaluation_period', 'draft', 'checked', 'approved'
+      status: 'not_started'
     },
     {
       type: 'KPI Merit',
@@ -26,32 +29,61 @@ const KPITrackingTable = () => {
       link: '/employee/kpi-merit',
       buttonColor: 'bg-green-600 hover:bg-green-700',
       buttonText: 'เริ่มกำหนด KPI Merit',
-      available: true
+      available: true,
+      status: 'not_started'
     }
   ];
 
+  const getEvaluationStatus = (status: string, evaluationRound: number) => {
+    switch (status) {
+      case 'not_started':
+        return (
+          <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">
+            Coming Soon
+          </Badge>
+        );
+      case 'evaluation_period':
+        if (evaluationRound === 1) {
+          return (
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 h-auto">
+              ประเมินครั้งที่ 1
+            </Button>
+          );
+        }
+        return (
+          <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">
+            Coming Soon
+          </Badge>
+        );
+      case 'draft':
+        return (
+          <Badge className="bg-gray-100 text-gray-700 border-gray-300">
+            ร่าง
+          </Badge>
+        );
+      case 'checked':
+        return (
+          <Badge className="bg-blue-100 text-blue-700 border-blue-300">
+            Checked
+          </Badge>
+        );
+      case 'approved':
+        return (
+          <Badge className="bg-green-100 text-green-700 border-green-300">
+            Approved
+          </Badge>
+        );
+      default:
+        return (
+          <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">
+            Coming Soon
+          </Badge>
+        );
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Status Flow Information */}
-      <Card className="bg-yellow-50 border-yellow-200">
-        <CardContent className="pt-6">
-          <div className="space-y-2">
-            <p className="text-sm text-gray-700">
-              1) ถ้ายังไม่เริ่มกำหนดให้แสดงตามรูป
-            </p>
-            <p className="text-sm text-gray-700">
-              2) หากมีการจัดทำแล้ว แต่ยังไม่ส่งอนุมัติให้แสดงสถานะ "ร่าง"
-            </p>
-            <p className="text-sm text-gray-700">
-              3) หากส่งอนุมัติแล้ว หลังจาก Checker ตรวจสอบแล้ว ให้แสดงสถานะ "Checked" และส่งไปยัง Approver เพื่อพิจารณา
-            </p>
-            <p className="text-sm text-gray-700">
-              4) หา Approver อนุมัติแล้ว ให้แสดงสถานะ "Approved" และไม่สามารถกดต่อได้อีก
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* KPI Tracking Table */}
       <Card className="shadow-lg border-0">
         <CardHeader>
@@ -89,14 +121,10 @@ const KPITrackingTable = () => {
                       )}
                     </td>
                     <td className="border border-gray-300 px-4 py-4 text-center">
-                      <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">
-                        {item.evaluation1}
-                      </Badge>
+                      {getEvaluationStatus(item.status, 1)}
                     </td>
                     <td className="border border-gray-300 px-4 py-4 text-center">
-                      <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">
-                        {item.evaluation2}
-                      </Badge>
+                      {getEvaluationStatus(item.status, 2)}
                     </td>
                   </tr>
                 ))}
