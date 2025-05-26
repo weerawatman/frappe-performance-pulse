@@ -33,6 +33,7 @@ const Navigation: React.FC = () => {
   const navigationItems = [
     { path: '/', label: 'แดชบอร์ด', icon: Home, roles: ['admin', 'executive', 'approver', 'checker'] },
     { path: '/kpi', label: 'จัดการ KPI', icon: Target, roles: ['admin', 'approver', 'checker'] },
+    { path: '/kpi-alignment', label: 'KPI Alignment', icon: Target, roles: ['admin'] },
     { path: '/manager/evaluation', label: 'ตรวจสอบการประเมิน', icon: UserCheck, roles: ['checker'] },
     { path: '/admin/evaluation', label: 'อนุมัติการประเมิน', icon: UserCheck, roles: ['admin', 'approver'] },
     { path: '/appraisal-management', label: 'จัดการการประเมิน', icon: FileText, roles: ['admin', 'approver'] },

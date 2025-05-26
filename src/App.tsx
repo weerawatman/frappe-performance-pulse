@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -15,6 +14,7 @@ import KPIBonusPage from '@/pages/KPIBonusPage';
 import KPIMeritPage from '@/pages/KPIMeritPage';
 import KPICheckerPage from '@/pages/KPICheckerPage';
 import KPIApproverPage from '@/pages/KPIApproverPage';
+import KPIAlignmentPage from '@/pages/KPIAlignmentPage';
 
 function App() {
   return (
@@ -45,6 +45,11 @@ function App() {
           <Route path="/kpi" element={
             <ProtectedRoute>
               <MainLayout><KPIManagementPage /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/kpi-alignment" element={
+            <ProtectedRoute requireAdmin>
+              <MainLayout><KPIAlignmentPage /></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/employee/kpi-bonus" element={
