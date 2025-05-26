@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,15 +24,47 @@ const KPITrackingTable = () => {
 
   useEffect(() => {
     console.log('KPITrackingTable mounted, fetching initial status');
-    fetchKPIStatus();
+    
+    // Clear any corrupted localStorage data and start fresh
+    const savedStatus = localStorage.getItem('kpiStatus');
+    if (savedStatus) {
+      try {
+        const parsedStatus = JSON.parse(savedStatus);
+        console.log('Found existing localStorage:', parsedStatus);
+        
+        // Validate that the status values are correct
+        const validStatuses = ['not_started', 'draft', 'pending_checker', 'pending_approver', 'completed'];
+        if (validStatuses.includes(parsedStatus.bonus) && validStatuses.includes(parsedStatus.merit)) {
+          console.log('Using valid localStorage data');
+          setKpiStatus(parsedStatus);
+        } else {
+          console.log('Invalid localStorage data, resetting to default');
+          localStorage.removeItem('kpiStatus');
+          setKpiStatus({ bonus: 'not_started', merit: 'not_started' });
+        }
+      } catch (error) {
+        console.log('Corrupted localStorage data, clearing...');
+        localStorage.removeItem('kpiStatus');
+        setKpiStatus({ bonus: 'not_started', merit: 'not_started' });
+      }
+    } else {
+      console.log('No localStorage data, using default values');
+      setKpiStatus({ bonus: 'not_started', merit: 'not_started' });
+    }
+    
+    setLoading(false);
     
     // Add event listener for storage changes
     const handleStorageChange = (e: StorageEvent) => {
       console.log('Storage changed event:', e.key, e.newValue);
       if (e.key === 'kpiStatus' && e.newValue) {
-        const newStatus = JSON.parse(e.newValue);
-        console.log('Updating status from storage event:', newStatus);
-        setKpiStatus(newStatus);
+        try {
+          const newStatus = JSON.parse(e.newValue);
+          console.log('Updating status from storage event:', newStatus);
+          setKpiStatus(newStatus);
+        } catch (error) {
+          console.error('Error parsing storage data:', error);
+        }
       }
     };
     
@@ -40,15 +73,33 @@ const KPITrackingTable = () => {
     // Listen for custom events when status changes within the same window
     const handleKPIStatusUpdate = (event: CustomEvent) => {
       console.log('KPI status update event received:', event.detail);
-      fetchKPIStatus();
+      const savedStatus = localStorage.getItem('kpiStatus');
+      if (savedStatus) {
+        try {
+          const parsedStatus = JSON.parse(savedStatus);
+          console.log('Updating from custom event with localStorage:', parsedStatus);
+          setKpiStatus(parsedStatus);
+        } catch (error) {
+          console.error('Error parsing localStorage in custom event:', error);
+        }
+      }
     };
     
     window.addEventListener('kpiStatusUpdate', handleKPIStatusUpdate as EventListener);
     
     // Add focus event to refresh when user comes back to the page
     const handleFocus = () => {
-      console.log('Window focused, refreshing KPI status');
-      fetchKPIStatus();
+      console.log('Window focused, checking localStorage');
+      const savedStatus = localStorage.getItem('kpiStatus');
+      if (savedStatus) {
+        try {
+          const parsedStatus = JSON.parse(savedStatus);
+          console.log('Refreshing from focus with localStorage:', parsedStatus);
+          setKpiStatus(parsedStatus);
+        } catch (error) {
+          console.error('Error parsing localStorage on focus:', error);
+        }
+      }
     };
     
     window.addEventListener('focus', handleFocus);
@@ -59,43 +110,6 @@ const KPITrackingTable = () => {
       window.removeEventListener('focus', handleFocus);
     };
   }, []);
-
-  const fetchKPIStatus = async () => {
-    try {
-      console.log('Fetching KPI status...');
-      setLoading(true);
-      
-      // Check localStorage first - this is our PRIMARY source
-      const savedStatus = localStorage.getItem('kpiStatus');
-      if (savedStatus) {
-        const parsedStatus = JSON.parse(savedStatus);
-        console.log('Found KPI status in localStorage (PRIMARY):', parsedStatus);
-        setKpiStatus(parsedStatus);
-        setLoading(false);
-        
-        // Don't fetch from API if we have localStorage data - it takes priority
-        console.log('Using localStorage data, skipping API fetch');
-        return;
-      }
-      
-      // Only fetch from API if NO localStorage data exists
-      console.log('No localStorage data found, fetching from API as fallback');
-      try {
-        const status = await getEmployeeKPIStatus(currentEmployeeId);
-        console.log('Fetched KPI status from API (FALLBACK):', status);
-        setKpiStatus(status);
-      } catch (apiError) {
-        console.log('API fetch failed, using default values');
-        setKpiStatus({ bonus: 'not_started', merit: 'not_started' });
-      }
-      
-    } catch (error) {
-      console.error('Error fetching KPI status:', error);
-      setKpiStatus({ bonus: 'not_started', merit: 'not_started' });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Corporate KPIs - แสดงเฉพาะหัวข้อและเป้าหมาย
   const corporateKPIs = [
