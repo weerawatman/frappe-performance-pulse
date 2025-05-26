@@ -80,8 +80,8 @@ export interface ReportFilters {
   cycles?: string[];
   employees?: string[];
   dateRange?: {
-    startDate: Date;
-    endDate: Date;
+    startDate?: Date;
+    endDate?: Date;
   };
 }
 
