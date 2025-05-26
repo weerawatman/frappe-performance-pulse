@@ -9,6 +9,8 @@ interface ProtectedRouteProps {
   requireManager?: boolean;
   requireManagerOrAdmin?: boolean;
   requireEmployee?: boolean;
+  requireChecker?: boolean;
+  requireApprover?: boolean;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
@@ -16,7 +18,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requireAdmin = false,
   requireManager = false,
   requireManagerOrAdmin = false,
-  requireEmployee = false
+  requireEmployee = false,
+  requireChecker = false,
+  requireApprover = false
 }) => {
   const { isAuthenticated, user, loading } = useAuth();
 
@@ -37,7 +41,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Check for admin-only access
   if (requireAdmin && user?.role !== 'admin') {
-    if (user?.role === 'executive' || user?.role === 'approver') {
+    if (user?.role === 'checker' || user?.role === 'approver') {
       return <Navigate to="/" replace />;
     } else if (user?.role === 'employee') {
       return <Navigate to="/employee-dashboard" replace />;
@@ -45,8 +49,32 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/" replace />;
   }
 
-  // Check for manager-only access (using executive/approver roles)
-  if (requireManager && user?.role !== 'executive' && user?.role !== 'approver') {
+  // Check for checker-only access
+  if (requireChecker && user?.role !== 'checker') {
+    if (user?.role === 'admin') {
+      return <Navigate to="/" replace />;
+    } else if (user?.role === 'employee') {
+      return <Navigate to="/employee-dashboard" replace />;
+    } else if (user?.role === 'approver') {
+      return <Navigate to="/employee-dashboard" replace />;
+    }
+    return <Navigate to="/" replace />;
+  }
+
+  // Check for approver-only access
+  if (requireApprover && user?.role !== 'approver') {
+    if (user?.role === 'admin') {
+      return <Navigate to="/" replace />;
+    } else if (user?.role === 'employee') {
+      return <Navigate to="/employee-dashboard" replace />;
+    } else if (user?.role === 'checker') {
+      return <Navigate to="/employee-dashboard" replace />;
+    }
+    return <Navigate to="/" replace />;
+  }
+
+  // Check for manager-only access (using checker/approver roles)
+  if (requireManager && user?.role !== 'checker' && user?.role !== 'approver') {
     if (user?.role === 'admin') {
       return <Navigate to="/" replace />;
     } else if (user?.role === 'employee') {
@@ -57,14 +85,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Check for employee-only access
   if (requireEmployee && user?.role !== 'employee') {
-    if (user?.role === 'admin' || user?.role === 'executive' || user?.role === 'approver') {
+    if (user?.role === 'admin' || user?.role === 'checker' || user?.role === 'approver') {
       return <Navigate to="/" replace />;
     }
     return <Navigate to="/employee-dashboard" replace />;
   }
 
-  // Check for manager or admin access (using executive/approver or admin roles)
-  if (requireManagerOrAdmin && user?.role !== 'executive' && user?.role !== 'approver' && user?.role !== 'admin') {
+  // Check for manager or admin access (using checker/approver or admin roles)
+  if (requireManagerOrAdmin && user?.role !== 'checker' && user?.role !== 'approver' && user?.role !== 'admin') {
     return <Navigate to="/employee-dashboard" replace />;
   }
 

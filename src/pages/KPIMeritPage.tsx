@@ -9,11 +9,86 @@ import { Link } from 'react-router-dom';
 import KPIMeritStructure from '@/components/merit/KPIMeritStructure';
 import CompetencyTable from '@/components/merit/CompetencyTable';
 import CultureTable from '@/components/merit/CultureTable';
+import { KPIMerit } from '@/types/merit';
 
 const KPIMeritPage: React.FC = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState('structure');
+
+  // Mock KPI Merit data
+  const mockKPIMerit: KPIMerit = {
+    id: '1',
+    employee_id: 'EMP001',
+    employee_name: 'สมชาย ใจดี',
+    department: 'การขาย',
+    kpi_achievement_score: 85,
+    kpi_achievement_weight: 40,
+    competency_items: [],
+    competency_weight: 30,
+    culture_items: [],
+    culture_weight: 30,
+    total_score: 0,
+    status: 'Draft',
+    workflow_step: 'Self',
+    history: [],
+    created_at: new Date(),
+    modified_at: new Date()
+  };
+
+  const mockCompetencyItems = [
+    {
+      id: '1',
+      name: 'ความเป็นผู้นำ',
+      description: 'ความสามารถในการนำทีม',
+      weight: 40,
+      self_score: 0,
+      supervisor_score: 0
+    },
+    {
+      id: '2',
+      name: 'การสื่อสาร',
+      description: 'ความสามารถในการสื่อสาร',
+      weight: 35,
+      self_score: 0,
+      supervisor_score: 0
+    },
+    {
+      id: '3',
+      name: 'การแก้ปัญหา',
+      description: 'ความสามารถในการแก้ไขปัญหา',
+      weight: 25,
+      self_score: 0,
+      supervisor_score: 0
+    }
+  ];
+
+  const mockCultureItems = [
+    {
+      id: '1',
+      name: 'ความซื่อสัตย์',
+      description: 'การปฏิบัติงานด้วยความซื่อสัตย์',
+      weight: 30,
+      self_score: 0,
+      supervisor_score: 0
+    },
+    {
+      id: '2',
+      name: 'การทำงานเป็นทีม',
+      description: 'ความสามารถในการทำงานร่วมกับผู้อื่น',
+      weight: 35,
+      self_score: 0,
+      supervisor_score: 0
+    },
+    {
+      id: '3',
+      name: 'การมุ่งเน้นลูกค้า',
+      description: 'การให้ความสำคัญกับลูกค้า',
+      weight: 35,
+      self_score: 0,
+      supervisor_score: 0
+    }
+  ];
 
   const handleSaveDraft = async () => {
     setIsSubmitting(true);
@@ -129,15 +204,15 @@ const KPIMeritPage: React.FC = () => {
           </TabsList>
 
           <TabsContent value="structure">
-            <KPIMeritStructure />
+            <KPIMeritStructure kpiMerit={mockKPIMerit} />
           </TabsContent>
 
           <TabsContent value="competency">
-            <CompetencyTable />
+            <CompetencyTable competencyItems={mockCompetencyItems} />
           </TabsContent>
 
           <TabsContent value="culture">
-            <CultureTable />
+            <CultureTable cultureItems={mockCultureItems} />
           </TabsContent>
         </Tabs>
       </div>

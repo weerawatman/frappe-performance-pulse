@@ -9,9 +9,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import NotificationCenter from "@/components/notifications/NotificationCenter";
 import TaskTrackingPanel from "@/components/notifications/TaskTrackingPanel";
 import KPITrackingTable from "@/components/kpi/KPITrackingTable";
+import KPIApprovalTable from "@/components/kpi/KPIApprovalTable";
 
 const EmployeeDashboard = () => {
   const { user, logout } = useAuth();
+  const isChecker = user?.role === 'checker';
+  const isApprover = user?.role === 'approver';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100">
@@ -24,7 +27,9 @@ const EmployeeDashboard = () => {
                 <Target className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Employee Dashboard</h1>
+                <h1 className="text-xl font-bold text-gray-900">
+                  {isChecker ? 'Checker Dashboard' : isApprover ? 'Approver Dashboard' : 'Employee Dashboard'}
+                </h1>
                 <p className="text-sm text-gray-600">จัดการงานและติดตามผลงานของคุณ</p>
               </div>
             </div>
@@ -33,7 +38,9 @@ const EmployeeDashboard = () => {
                 ยินดีต้อนรับ, <span className="font-semibold">{user?.name}</span>
               </div>
               <NotificationCenter userId={user?.id || 'EMP001'} />
-              <Badge variant="secondary">Employee</Badge>
+              <Badge variant="secondary">
+                {isChecker ? 'Checker' : isApprover ? 'Approver' : 'Employee'}
+              </Badge>
               <Button variant="outline" size="sm" onClick={logout} className="flex items-center gap-2">
                 <LogOut className="w-4 h-4" />
                 ออกจากระบบ
@@ -51,16 +58,28 @@ const EmployeeDashboard = () => {
             ยินดีต้อนรับ, {user?.name}
           </h2>
           <p className="text-lg text-gray-600 mb-6">
-            จัดการงานและติดตามผลงานของคุณในแผนก {user?.department}
+            {isChecker ? 'ตรวจสอบและอนุมัติ KPI ของพนักงาน' : 
+             isApprover ? 'อนุมัติ KPI ที่ผ่านการตรวจสอบแล้ว' : 
+             `จัดการงานและติดตามผลงานของคุณในแผนก ${user?.department}`}
           </p>
         </div>
 
         {/* KPI Tracking Table */}
         <KPITrackingTable />
 
+        {/* KPI Approval Table (for Checker and Approver only) */}
+        {(isChecker || isApprover) && (
+          <div className="mt-12">
+            <KPIApprovalTable userRole={isChecker ? 'checker' : 'approver'} />
+          </div>
+        )}
+
         {/* Task Tracking Panel */}
         <div className="mt-12">
-          <TaskTrackingPanel userId={user?.id || 'EMP001'} userRole="employee" />
+          <TaskTrackingPanel 
+            userId={user?.id || 'EMP001'} 
+            userRole={isChecker ? 'checker' : isApprover ? 'approver' : 'employee'} 
+          />
         </div>
       </main>
 
@@ -68,7 +87,9 @@ const EmployeeDashboard = () => {
       <footer className="bg-white border-t">
         <div className="container mx-auto px-4 py-6">
           <div className="text-center text-gray-600">
-            <p>&copy; 2024 HR Management System - Employee Dashboard</p>
+            <p>&copy; 2025 HR Management System - 
+              {isChecker ? ' Checker Dashboard' : isApprover ? ' Approver Dashboard' : ' Employee Dashboard'}
+            </p>
           </div>
         </div>
       </footer>
