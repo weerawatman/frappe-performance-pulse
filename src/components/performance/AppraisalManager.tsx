@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,7 +33,7 @@ const AppraisalManager: React.FC = () => {
   const [appraisals, setAppraisals] = useState<Appraisal[]>([]);
   const [selectedAppraisal, setSelectedAppraisal] = useState<Appraisal | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [viewMode, setViewMode<'list' | 'form' | 'view'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'form' | 'view'>('list');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [departmentFilter, setDepartmentFilter] = useState('all');
@@ -122,8 +123,7 @@ const AppraisalManager: React.FC = () => {
       submitted_by_employee: false,
       reviewed_by_manager: false,
       created_at: new Date(),
-      modified_at: new Date(),
-      created_by: 'system'
+      modified_at: new Date()
     },
     {
       id: '2',
@@ -199,8 +199,7 @@ const AppraisalManager: React.FC = () => {
       submitted_by_employee: true,
       reviewed_by_manager: true,
       created_at: new Date(),
-      modified_at: new Date(),
-      created_by: 'system'
+      modified_at: new Date()
     }
   ];
 
@@ -597,7 +596,6 @@ const AppraisalView: React.FC<AppraisalViewProps> = ({ appraisal }) => {
             <div>
               <Label className="text-sm text-gray-600">สถานะ</Label>
               <div className="mt-1">
-                {/* Reuse getStatusBadge function */}
                 <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
                   {appraisal.status}
                 </Badge>
