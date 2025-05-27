@@ -169,16 +169,16 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
               </div>
               <div className="text-center p-4 border rounded-lg bg-yellow-50">
                 <div className="font-semibold text-yellow-700">2 : (80%)</div>
-                <div className="text-xs text-gray-600 mt-1">( >70% - 80% )</div>
+                <div className="text-xs text-gray-600 mt-1">( {'>'}70% - 80% )</div>
               </div>
               <div className="text-center p-4 border rounded-lg bg-blue-50">
                 <div className="font-semibold text-blue-700">3 : (90%)</div>
-                <div className="text-xs text-gray-600 mt-1">( > 80% - 90% )</div>
+                <div className="text-xs text-gray-600 mt-1">( {'>'} 80% - 90% )</div>
               </div>
               <div className="text-center p-4 border rounded-lg bg-green-50">
                 <div className="font-semibold text-green-700">Meet Expect</div>
                 <div className="text-sm text-green-600 mt-1">4 : (100%)</div>
-                <div className="text-xs text-gray-600 mt-1">( > 90% - 100% )</div>
+                <div className="text-xs text-gray-600 mt-1">( {'>'} 90% - 100% )</div>
               </div>
             </div>
           </div>
