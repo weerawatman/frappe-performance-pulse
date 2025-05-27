@@ -87,7 +87,7 @@ const PerformanceEvaluationPage: React.FC<PerformanceEvaluationPageProps> = ({ u
 
         {/* Evaluation Tabs */}
         <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="kpi-bonus" className="flex items-center gap-2">
               <Target className="w-5 h-4" />
               KPI Bonus
