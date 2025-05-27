@@ -49,6 +49,13 @@ const mockUsers: User[] = [
     email: 'admin@company.com',
     role: 'admin',
     department: 'IT'
+  },
+  {
+    id: 'EMP004',
+    name: 'สมหญิง เรียบร้อย',
+    email: 'somying@company.com',
+    role: 'employee',
+    department: 'การเงิน'
   }
 ];
 
@@ -90,15 +97,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem('kpiStatus');
       localStorage.removeItem('overdueTasks');
       
-      // Set default KPI status for all users
-      const defaultKPIStatus = {
-        bonus: 'not_started',
-        merit: 'not_started'
-      };
-      localStorage.setItem('kpiStatus', JSON.stringify(defaultKPIStatus));
+      // Set appropriate KPI status based on user
+      let kpiStatus;
+      if (foundUser.name === 'สมหญิง เรียบร้อย') {
+        // For สมหญิง เรียบร้อย - both KPIs completed, ready for evaluation
+        kpiStatus = {
+          bonus: 'completed',
+          merit: 'completed'
+        };
+      } else {
+        // Default status for other users
+        kpiStatus = {
+          bonus: 'not_started',
+          merit: 'not_started'
+        };
+      }
       
-      // Set overdue tasks for employee
-      if (foundUser.role === 'employee') {
+      localStorage.setItem('kpiStatus', JSON.stringify(kpiStatus));
+      
+      // Set overdue tasks for employee (except สมหญิง who has completed KPIs)
+      if (foundUser.role === 'employee' && foundUser.name !== 'สมหญิง เรียบร้อย') {
         const overdueTasks = [
           { id: 'kpi-bonus', title: 'กำหนด KPI Bonus', type: 'kpi' },
           { id: 'kpi-merit', title: 'กำหนด KPI Merit', type: 'kpi' }
@@ -110,7 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('currentUser', JSON.stringify(foundUser));
       
       console.log('User logged in:', foundUser.name);
-      console.log('KPI status reset to:', defaultKPIStatus);
+      console.log('KPI status set to:', kpiStatus);
       
       return { success: true, user: foundUser };
     } catch (error) {
