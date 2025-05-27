@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Save, Send, AlertTriangle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import KPIForm from '@/components/kpi/KPIForm';
 import { KPIItem } from '@/types/kpi';
 
@@ -17,21 +17,39 @@ const KPIBonusPage: React.FC = () => {
   const { user } = useAuth();
   const [kpiItems, setKpiItems] = useState<KPIItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [employeeId, setEmployeeId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Try to load existing draft from localStorage
-    const savedKPI = localStorage.getItem('kpi_bonus_draft');
-    if (savedKPI) {
-      try {
-        const parsed = JSON.parse(savedKPI);
-        if (parsed.kpiItems) {
-          setKpiItems(parsed.kpiItems);
-        }
-      } catch (error) {
-        console.error('Error loading saved KPI:', error);
+    const initializeData = async () => {
+      if (!user?.name) return;
+
+      // Get employee ID from database
+      const { data: employee } = await supabase
+        .from('employees')
+        .select('id')
+        .eq('employee_name', user.name)
+        .single();
+
+      if (employee) {
+        setEmployeeId(employee.id);
       }
-    }
-  }, []);
+
+      // Try to load existing draft from localStorage first
+      const savedKPI = localStorage.getItem('kpi_bonus_draft');
+      if (savedKPI) {
+        try {
+          const parsed = JSON.parse(savedKPI);
+          if (parsed.kpiItems) {
+            setKpiItems(parsed.kpiItems);
+          }
+        } catch (error) {
+          console.error('Error loading saved KPI:', error);
+        }
+      }
+    };
+
+    initializeData();
+  }, [user]);
 
   const totalWeight = kpiItems.reduce((sum, item) => sum + item.weight, 0);
   const isWeightValid = totalWeight === 100;
@@ -42,21 +60,72 @@ const KPIBonusPage: React.FC = () => {
     localStorage.setItem('kpi_bonus_draft', JSON.stringify({ kpiItems: items }));
   };
 
-  const handleSaveDraft = () => {
-    localStorage.setItem('kpi_bonus_draft', JSON.stringify({ kpiItems }));
-    
-    // Update KPI status to draft
-    const kpiStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
-    kpiStatus.bonus = 'draft';
-    localStorage.setItem('kpiStatus', JSON.stringify(kpiStatus));
-    
-    // Dispatch event to notify other components
-    window.dispatchEvent(new Event('kpiStatusUpdate'));
-    
-    toast({
-      title: "บันทึกร่างสำเร็จ",
-      description: "ข้อมูล KPI Bonus ถูกบันทึกเป็นร่างแล้ว",
-    });
+  const handleSaveDraft = async () => {
+    if (!employeeId) {
+      toast({
+        title: "ไม่พบข้อมูลพนักงาน",
+        description: "กรุณาลองใหม่อีกครั้ง",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Save to database as draft
+      const { data: existingKPI } = await supabase
+        .from('kpi_bonus')
+        .select('id')
+        .eq('employee_id', employeeId)
+        .single();
+
+      if (existingKPI) {
+        // Update existing record
+        const { error } = await supabase
+          .from('kpi_bonus')
+          .update({
+            status: 'draft',
+            total_weight: totalWeight,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingKPI.id);
+
+        if (error) throw error;
+      } else {
+        // Create new record
+        const { error } = await supabase
+          .from('kpi_bonus')
+          .insert([{
+            employee_id: employeeId,
+            status: 'draft',
+            total_weight: totalWeight
+          }]);
+
+        if (error) throw error;
+      }
+
+      // Keep localStorage for consistency
+      localStorage.setItem('kpi_bonus_draft', JSON.stringify({ kpiItems }));
+      
+      // Update KPI status
+      const kpiStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
+      kpiStatus.bonus = 'draft';
+      localStorage.setItem('kpiStatus', JSON.stringify(kpiStatus));
+      
+      // Dispatch event to notify other components
+      window.dispatchEvent(new Event('kpiStatusUpdate'));
+      
+      toast({
+        title: "บันทึกร่างสำเร็จ",
+        description: "ข้อมูล KPI Bonus ถูกบันทึกเป็นร่างแล้ว",
+      });
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถบันทึกร่างได้",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSubmitForApproval = async () => {
@@ -78,10 +147,53 @@ const KPIBonusPage: React.FC = () => {
       return;
     }
 
+    if (!employeeId) {
+      toast({
+        title: "ไม่พบข้อมูลพนักงาน",
+        description: "กรุณาลองใหม่อีกครั้ง",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      // Save to localStorage
+      // Check if KPI record exists
+      const { data: existingKPI } = await supabase
+        .from('kpi_bonus')
+        .select('id')
+        .eq('employee_id', employeeId)
+        .single();
+
+      if (existingKPI) {
+        // Update existing record to pending_checker
+        const { error } = await supabase
+          .from('kpi_bonus')
+          .update({
+            status: 'pending_checker',
+            total_weight: totalWeight,
+            submitted_date: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingKPI.id);
+
+        if (error) throw error;
+      } else {
+        // Create new record with pending_checker status
+        const { error } = await supabase
+          .from('kpi_bonus')
+          .insert([{
+            employee_id: employeeId,
+            status: 'pending_checker',
+            total_weight: totalWeight,
+            submitted_date: new Date().toISOString()
+          }]);
+
+        if (error) throw error;
+      }
+
+      // Save submitted data to localStorage for reference
       localStorage.setItem('kpi_bonus_submitted', JSON.stringify({ 
         kpiItems,
         submittedDate: new Date().toISOString(),
