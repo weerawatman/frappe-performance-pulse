@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Target, Building } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { mockCorporateKPIData } from '@/data/mockCorporateKPI';
 
 interface KPIStatus {
   bonus: string;
@@ -89,19 +90,31 @@ const KPITrackingTable = () => {
     };
   }, []);
 
-  // Corporate KPIs - แสดงเฉพาะหัวข้อและเป้าหมาย
-  const corporateKPIs = [
+  // Select 3 Corporate KPIs from different Balance Score Card categories
+  const selectedCorporateKPIs = [
+    // Financial Perspective
     {
       id: '1',
       name: 'เพิ่มรายได้องค์กร',
       target: '15% YoY',
-      weight: 40
+      weight: 40,
+      category: 'Financial Perspective'
     },
+    // Customer Excellence  
     {
-      id: '2', 
+      id: '4',
       name: 'ลดต้นทุนการดำเนินงาน',
       target: '10%',
-      weight: 30
+      weight: 30,
+      category: 'Internal Process'
+    },
+    // People & Culture
+    {
+      id: '16',
+      name: 'ประสิทธิภาพของบุคลากร',
+      target: '0.33 MB Net Profit/Employee',
+      weight: 30,
+      category: 'Learning & Growth'
     }
   ];
 
@@ -203,8 +216,8 @@ const KPITrackingTable = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {corporateKPIs.map((kpi) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {selectedCorporateKPIs.map((kpi) => (
               <div key={kpi.id} className="border rounded-lg p-4 bg-blue-50">
                 <div className="mb-2">
                   <h4 className="font-semibold text-gray-900">{kpi.name}</h4>
