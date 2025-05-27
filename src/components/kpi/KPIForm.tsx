@@ -77,9 +77,10 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
         <CardHeader>
           <CardTitle>เพิ่ม KPI ใหม่</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+        <CardContent className="space-y-6">
+          {/* Row 1: หมวดหมู่ KPI and ชื่อ KPI */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
               <Label htmlFor="category">หมวดหมู่ KPI</Label>
               <Select 
                 value={currentKPI.category_id} 
@@ -98,7 +99,41 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
               </Select>
             </div>
             
-            <div>
+            <div className="space-y-2">
+              <Label htmlFor="name">ชื่อ KPI</Label>
+              <Input
+                id="name"
+                value={currentKPI.name || ''}
+                onChange={(e) => setCurrentKPI({...currentKPI, name: e.target.value})}
+                placeholder="เช่น อัตราการเติบโตของรายได้"
+              />
+            </div>
+          </div>
+
+          {/* Row 2: รายละเอียด KPI */}
+          <div className="space-y-2">
+            <Label htmlFor="description">รายละเอียด KPI</Label>
+            <Input
+              id="description"
+              value={currentKPI.description || ''}
+              onChange={(e) => setCurrentKPI({...currentKPI, description: e.target.value})}
+              placeholder="อธิบายรายละเอียดของ KPI นี้"
+            />
+          </div>
+
+          {/* Row 3: วิธีการวัดผล and น้ำหนัก */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="measurement">วิธีการวัดผล</Label>
+              <Input
+                id="measurement"
+                value={currentKPI.measurement_method || ''}
+                onChange={(e) => setCurrentKPI({...currentKPI, measurement_method: e.target.value})}
+                placeholder="เช่น เปรียบเทียบรายได้ Q4 กับ Q4 ปีที่แล้ว"
+              />
+            </div>
+            
+            <div className="space-y-2">
               <Label htmlFor="weight">น้ำหนัก (%)</Label>
               <Input
                 id="weight"
@@ -112,46 +147,39 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="name">ชื่อ KPI</Label>
+          {/* Row 4: เป้าหมาย */}
+          <div className="space-y-2">
+            <Label htmlFor="target">เป้าหมาย</Label>
             <Input
-              id="name"
-              value={currentKPI.name || ''}
-              onChange={(e) => setCurrentKPI({...currentKPI, name: e.target.value})}
-              placeholder="เช่น อัตราการเติบโตของรายได้"
+              id="target"
+              value={currentKPI.target || ''}
+              onChange={(e) => setCurrentKPI({...currentKPI, target: e.target.value})}
+              placeholder="เช่น เพิ่มขึ้น 15% จากปีที่แล้ว"
             />
           </div>
 
-          <div>
-            <Label htmlFor="description">รายละเอียด KPI</Label>
-            <Textarea
-              id="description"
-              value={currentKPI.description || ''}
-              onChange={(e) => setCurrentKPI({...currentKPI, description: e.target.value})}
-              placeholder="อธิบายรายละเอียดของ KPI นี้"
-              rows={3}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="target">เป้าหมาย</Label>
-              <Input
-                id="target"
-                value={currentKPI.target || ''}
-                onChange={(e) => setCurrentKPI({...currentKPI, target: e.target.value})}
-                placeholder="เช่น เพิ่มขึ้น 15% จากปีที่แล้ว"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="measurement">วิธีการวัดผล</Label>
-              <Input
-                id="measurement"
-                value={currentKPI.measurement_method || ''}
-                onChange={(e) => setCurrentKPI({...currentKPI, measurement_method: e.target.value})}
-                placeholder="เช่น เปรียบเทียบรายได้ Q4 กับ Q4 ปีที่แล้ว"
-              />
+          {/* Performance Scale Section */}
+          <div className="space-y-4">
+            <Label className="text-base font-semibold">เป้าหมาย</Label>
+            <div className="grid grid-cols-4 gap-4">
+              <div className="text-center p-4 border rounded-lg bg-red-50">
+                <div className="font-semibold text-red-700">Need Improve</div>
+                <div className="text-sm text-red-600 mt-1">1 : (70%)</div>
+                <div className="text-xs text-gray-600 mt-1">( ≤ 70% )</div>
+              </div>
+              <div className="text-center p-4 border rounded-lg bg-yellow-50">
+                <div className="font-semibold text-yellow-700">2 : (80%)</div>
+                <div className="text-xs text-gray-600 mt-1">( >70% - 80% )</div>
+              </div>
+              <div className="text-center p-4 border rounded-lg bg-blue-50">
+                <div className="font-semibold text-blue-700">3 : (90%)</div>
+                <div className="text-xs text-gray-600 mt-1">( > 80% - 90% )</div>
+              </div>
+              <div className="text-center p-4 border rounded-lg bg-green-50">
+                <div className="font-semibold text-green-700">Meet Expect</div>
+                <div className="text-sm text-green-600 mt-1">4 : (100%)</div>
+                <div className="text-xs text-gray-600 mt-1">( > 90% - 100% )</div>
+              </div>
             </div>
           </div>
 
