@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Users, FileText } from 'lucide-react';
 import MeritEvaluationTable from './MeritEvaluationTable';
 import CultureEvaluationTable from './CultureEvaluationTable';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface KPIMeritEvaluationProps {
   period: 'mid' | 'end';
@@ -16,7 +17,18 @@ const KPIMeritEvaluation: React.FC<KPIMeritEvaluationProps> = ({
   period, 
   userRole = 'employee' 
 }) => {
-  const [kpiBonusScore] = useState(75); // Mock KPI Bonus score
+  const { user } = useAuth();
+  
+  // Calculate KPI Bonus score with maximum 40% limit for สมหญิง เรียบร้อย
+  const getKPIBonusScore = () => {
+    if (user?.name === 'สมหญิง เรียบร้อย') {
+      // For สมหญิง เรียบร้อย, limit to maximum 40%
+      return Math.min(75, 40);
+    }
+    return 75; // Default score for other users
+  };
+
+  const [kpiBonusScore] = useState(getKPIBonusScore());
 
   const getBadgeVariant = (role: string): "default" | "secondary" | "outline" => {
     switch (role) {
