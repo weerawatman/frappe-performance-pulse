@@ -144,7 +144,7 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
                 value={currentKPI.description || ''}
                 onChange={(e) => setCurrentKPI({...currentKPI, description: e.target.value})}
                 placeholder="อธิบายรายละเอียดของ KPI นี้"
-                className="min-h-[80px]"
+                className="h-16 resize-none"
               />
             </div>
             
@@ -155,7 +155,7 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
                 value={currentKPI.measurement_method || ''}
                 onChange={(e) => setCurrentKPI({...currentKPI, measurement_method: e.target.value})}
                 placeholder="เช่น เปรียบเทียบรายได้ Q4 กับ Q4 ปีที่แล้ว"
-                className="min-h-[80px]"
+                className="h-16 resize-none"
               />
             </div>
           </div>
@@ -174,7 +174,7 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
                   value={currentKPI.scale_1_description || ''}
                   onChange={(e) => setCurrentKPI({...currentKPI, scale_1_description: e.target.value})}
                   placeholder="อธิบายเกณฑ์การประเมิน..."
-                  className="min-h-[60px] text-xs"
+                  className="h-20 text-xs resize-none"
                 />
               </div>
 
@@ -187,7 +187,7 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
                   value={currentKPI.scale_2_description || ''}
                   onChange={(e) => setCurrentKPI({...currentKPI, scale_2_description: e.target.value})}
                   placeholder="อธิบายเกณฑ์การประเมิน..."
-                  className="min-h-[60px] text-xs"
+                  className="h-20 text-xs resize-none"
                 />
               </div>
 
@@ -200,7 +200,7 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
                   value={currentKPI.scale_3_description || ''}
                   onChange={(e) => setCurrentKPI({...currentKPI, scale_3_description: e.target.value})}
                   placeholder="อธิบายเกณฑ์การประเมิน..."
-                  className="min-h-[60px] text-xs"
+                  className="h-20 text-xs resize-none"
                 />
               </div>
 
@@ -214,7 +214,7 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
                   value={currentKPI.scale_4_description || ''}
                   onChange={(e) => setCurrentKPI({...currentKPI, scale_4_description: e.target.value})}
                   placeholder="อธิบายเกณฑ์การประเมิน..."
-                  className="min-h-[60px] text-xs"
+                  className="h-20 text-xs resize-none"
                 />
               </div>
             </div>
