@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Eye, CheckCircle, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getKPIBonusByStatus, getKPIMeritByStatus, type KPIBonusWithEmployee, type KPIMeritWithEmployee } from '@/services/kpiService';
+import { supabase } from '@/integrations/supabase/client';
 
 interface KPIApprovalTableProps {
   userRole: 'checker' | 'approver';
@@ -34,46 +34,75 @@ const KPIApprovalTable: React.FC<KPIApprovalTableProps> = ({ userRole }) => {
     try {
       setLoading(true);
       const status = userRole === 'checker' ? 'pending_checker' : 'pending_approver';
+      console.log('Fetching KPIs with status:', status);
       
-      const [bonusData, meritData] = await Promise.all([
-        getKPIBonusByStatus(status),
-        getKPIMeritByStatus(status)
-      ]);
-
       const kpis: PendingKPI[] = [];
 
-      // Process KPI Bonus data
-      bonusData.forEach((bonus: KPIBonusWithEmployee) => {
-        if (bonus.employee) {
+      // Fetch KPI Bonus data with employee information
+      const { data: bonusData, error: bonusError } = await supabase
+        .from('kpi_bonus')
+        .select(`
+          *,
+          employees!inner (
+            employee_name,
+            employee_id,
+            department
+          )
+        `)
+        .eq('status', status)
+        .order('submitted_date', { ascending: false });
+
+      if (bonusError) {
+        console.error('Error fetching KPI bonus:', bonusError);
+      } else if (bonusData) {
+        console.log('Found KPI Bonus records:', bonusData);
+        bonusData.forEach((bonus: any) => {
           kpis.push({
             id: bonus.id,
-            employee_name: bonus.employee.employee_name,
-            employee_id: bonus.employee.employee_id,
-            department: bonus.employee.department,
+            employee_name: bonus.employees.employee_name,
+            employee_id: bonus.employees.employee_id,
+            department: bonus.employees.department,
             kpi_type: 'KPI Bonus',
             submitted_date: new Date(bonus.submitted_date || bonus.created_at),
             checked_date: bonus.checked_date ? new Date(bonus.checked_date) : undefined,
             status: bonus.status || 'pending_checker'
           });
-        }
-      });
+        });
+      }
 
-      // Process KPI Merit data
-      meritData.forEach((merit: KPIMeritWithEmployee) => {
-        if (merit.employee) {
+      // Fetch KPI Merit data with employee information
+      const { data: meritData, error: meritError } = await supabase
+        .from('kpi_merit')
+        .select(`
+          *,
+          employees!inner (
+            employee_name,
+            employee_id,
+            department
+          )
+        `)
+        .eq('status', status)
+        .order('submitted_date', { ascending: false });
+
+      if (meritError) {
+        console.error('Error fetching KPI merit:', meritError);
+      } else if (meritData) {
+        console.log('Found KPI Merit records:', meritData);
+        meritData.forEach((merit: any) => {
           kpis.push({
             id: merit.id,
-            employee_name: merit.employee.employee_name,
-            employee_id: merit.employee.employee_id,
-            department: merit.employee.department,
+            employee_name: merit.employees.employee_name,
+            employee_id: merit.employees.employee_id,
+            department: merit.employees.department,
             kpi_type: 'KPI Merit',
             submitted_date: new Date(merit.submitted_date || merit.created_at),
             checked_date: merit.checked_date ? new Date(merit.checked_date) : undefined,
             status: merit.status || 'pending_checker'
           });
-        }
-      });
+        });
+      }
 
+      console.log('Total pending KPIs found:', kpis.length);
       setPendingKPIs(kpis);
     } catch (error) {
       console.error('Error fetching pending KPIs:', error);
@@ -82,8 +111,12 @@ const KPIApprovalTable: React.FC<KPIApprovalTableProps> = ({ userRole }) => {
     }
   };
 
-  const getActionLink = (kpiType: string) => {
-    return userRole === 'checker' ? '/manager/kpi-checker' : '/manager/kpi-approver';
+  const getActionLink = (kpiType: string, kpiId: string) => {
+    if (userRole === 'checker') {
+      return `/manager/kpi-checker?kpi=${kpiId}&type=${kpiType.toLowerCase().replace(' ', '_')}`;
+    } else {
+      return `/manager/kpi-approver?kpi=${kpiId}&type=${kpiType.toLowerCase().replace(' ', '_')}`;
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -168,7 +201,7 @@ const KPIApprovalTable: React.FC<KPIApprovalTableProps> = ({ userRole }) => {
                       {getStatusBadge(kpi.status)}
                     </td>
                     <td className="border border-gray-300 px-4 py-3 text-center">
-                      <Link to={getActionLink(kpi.kpi_type)}>
+                      <Link to={getActionLink(kpi.kpi_type, kpi.id)}>
                         <Button size="sm" variant="outline">
                           <Eye className="w-4 h-4 mr-2" />
                           {userRole === 'checker' ? 'ตรวจสอบ' : 'อนุมัติ'}

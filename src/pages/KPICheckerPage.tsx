@@ -8,20 +8,14 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, CheckCircle, XCircle, ArrowLeft, MessageSquare } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  getKPIBonusByStatus, 
-  getKPIMeritByStatus, 
-  updateKPIBonusStatus,
-  updateKPIMeritStatus,
-  addKPIHistory,
-  type KPIBonusWithEmployee,
-  type KPIMeritWithEmployee
-} from '@/services/kpiService';
+import { supabase } from '@/integrations/supabase/client';
+import { addKPIHistory } from '@/services/kpiService';
 
 interface PendingKPI {
   id: string;
   employee_id: string;
   employee_name: string;
+  employee_id_code: string;
   department: string;
   kpi_type: 'KPI Bonus' | 'KPI Merit';
   submitted_date: Date;
@@ -44,41 +38,77 @@ const KPICheckerPage: React.FC = () => {
   const fetchPendingKPIs = async () => {
     try {
       setLoading(true);
-      const [bonusData, meritData] = await Promise.all([
-        getKPIBonusByStatus('pending_checker'),
-        getKPIMeritByStatus('pending_checker')
-      ]);
-
+      console.log('Fetching pending KPIs for checker...');
+      
       const kpis: PendingKPI[] = [];
 
-      bonusData.forEach((bonus: KPIBonusWithEmployee) => {
-        if (bonus.employee) {
+      // Fetch KPI Bonus data with employee information
+      const { data: bonusData, error: bonusError } = await supabase
+        .from('kpi_bonus')
+        .select(`
+          *,
+          employees!inner (
+            id,
+            employee_name,
+            employee_id,
+            department
+          )
+        `)
+        .eq('status', 'pending_checker')
+        .order('submitted_date', { ascending: false });
+
+      if (bonusError) {
+        console.error('Error fetching KPI bonus:', bonusError);
+      } else if (bonusData) {
+        console.log('Found KPI Bonus records for checker:', bonusData);
+        bonusData.forEach((bonus: any) => {
           kpis.push({
             id: bonus.id,
-            employee_id: bonus.employee.id,
-            employee_name: bonus.employee.employee_name,
-            department: bonus.employee.department,
+            employee_id: bonus.employees.id,
+            employee_name: bonus.employees.employee_name,
+            employee_id_code: bonus.employees.employee_id,
+            department: bonus.employees.department,
             kpi_type: 'KPI Bonus',
             submitted_date: new Date(bonus.submitted_date || bonus.created_at),
             status: bonus.status || 'pending_checker'
           });
-        }
-      });
+        });
+      }
 
-      meritData.forEach((merit: KPIMeritWithEmployee) => {
-        if (merit.employee) {
+      // Fetch KPI Merit data with employee information  
+      const { data: meritData, error: meritError } = await supabase
+        .from('kpi_merit')
+        .select(`
+          *,
+          employees!inner (
+            id,
+            employee_name,
+            employee_id,
+            department
+          )
+        `)
+        .eq('status', 'pending_checker')
+        .order('submitted_date', { ascending: false });
+
+      if (meritError) {
+        console.error('Error fetching KPI merit:', meritError);
+      } else if (meritData) {
+        console.log('Found KPI Merit records for checker:', meritData);
+        meritData.forEach((merit: any) => {
           kpis.push({
             id: merit.id,
-            employee_id: merit.employee.id,
-            employee_name: merit.employee.employee_name,
-            department: merit.employee.department,
+            employee_id: merit.employees.id,
+            employee_name: merit.employees.employee_name,
+            employee_id_code: merit.employees.employee_id,
+            department: merit.employees.department,
             kpi_type: 'KPI Merit',
             submitted_date: new Date(merit.submitted_date || merit.created_at),
             status: merit.status || 'pending_checker'
           });
-        }
-      });
+        });
+      }
 
+      console.log('Total pending KPIs for checker:', kpis.length);
       setPendingKPIs(kpis);
     } catch (error) {
       console.error('Error fetching pending KPIs:', error);
@@ -97,11 +127,19 @@ const KPICheckerPage: React.FC = () => {
     
     setIsSubmitting(true);
     try {
-      if (selectedKPI.kpi_type === 'KPI Bonus') {
-        await updateKPIBonusStatus(selectedKPI.id, 'pending_approver', feedback);
-      } else {
-        await updateKPIMeritStatus(selectedKPI.id, 'pending_approver', feedback);
-      }
+      const tableName = selectedKPI.kpi_type === 'KPI Bonus' ? 'kpi_bonus' : 'kpi_merit';
+      
+      const { error: updateError } = await supabase
+        .from(tableName)
+        .update({
+          status: 'pending_approver',
+          checked_date: new Date().toISOString(),
+          checker_feedback: feedback,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', selectedKPI.id);
+
+      if (updateError) throw updateError;
 
       await addKPIHistory(
         selectedKPI.id,
@@ -124,6 +162,7 @@ const KPICheckerPage: React.FC = () => {
       
       navigate('/checker-dashboard');
     } catch (error) {
+      console.error('Error forwarding KPI:', error);
       toast({
         title: "เกิดข้อผิดพลาด",
         description: "ไม่สามารถส่งต่อได้",
@@ -146,11 +185,18 @@ const KPICheckerPage: React.FC = () => {
     
     setIsSubmitting(true);
     try {
-      if (selectedKPI.kpi_type === 'KPI Bonus') {
-        await updateKPIBonusStatus(selectedKPI.id, 'draft', feedback);
-      } else {
-        await updateKPIMeritStatus(selectedKPI.id, 'draft', feedback);
-      }
+      const tableName = selectedKPI.kpi_type === 'KPI Bonus' ? 'kpi_bonus' : 'kpi_merit';
+      
+      const { error: updateError } = await supabase
+        .from(tableName)
+        .update({
+          status: 'draft',
+          rejection_reason: feedback,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', selectedKPI.id);
+
+      if (updateError) throw updateError;
 
       await addKPIHistory(
         selectedKPI.id,
@@ -173,6 +219,7 @@ const KPICheckerPage: React.FC = () => {
       
       navigate('/checker-dashboard');
     } catch (error) {
+      console.error('Error rejecting KPI:', error);
       toast({
         title: "เกิดข้อผิดพลาด",
         description: "ไม่สามารถส่งกลับได้",
@@ -252,6 +299,13 @@ const KPICheckerPage: React.FC = () => {
                       </div>
                     </div>
                   ))}
+                  
+                  {pendingKPIs.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p>ไม่มี KPI ที่รอตรวจสอบ</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
