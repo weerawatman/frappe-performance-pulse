@@ -23,7 +23,11 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
     description: '',
     weight: 0,
     target: '',
-    measurement_method: ''
+    measurement_method: '',
+    scale_1_description: '',
+    scale_2_description: '',
+    scale_3_description: '',
+    scale_4_description: ''
   });
 
   const totalWeight = kpiItems.reduce((sum, item) => sum + item.weight, 0);
@@ -44,7 +48,11 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
       weight: currentKPI.weight,
       target: currentKPI.target || '',
       measurement_method: currentKPI.measurement_method || '',
-      created_at: new Date()
+      created_at: new Date(),
+      scale_1_description: currentKPI.scale_1_description || '',
+      scale_2_description: currentKPI.scale_2_description || '',
+      scale_3_description: currentKPI.scale_3_description || '',
+      scale_4_description: currentKPI.scale_4_description || ''
     };
 
     onKPIItemsChange([...kpiItems, newKPI]);
@@ -54,7 +62,11 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
       description: '',
       weight: 0,
       target: '',
-      measurement_method: ''
+      measurement_method: '',
+      scale_1_description: '',
+      scale_2_description: '',
+      scale_3_description: '',
+      scale_4_description: ''
     });
   };
 
@@ -78,9 +90,9 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
           <CardTitle>เพิ่ม KPI ใหม่</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Row 1: หมวดหมู่ KPI and ชื่อ KPI */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
+          {/* Row 1: หมวดหมู่ KPI, ชื่อ KPI, น้ำหนัก% */}
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-3">
               <Label htmlFor="category">หมวดหมู่ KPI</Label>
               <Select 
                 value={currentKPI.category_id} 
@@ -99,7 +111,7 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
               </Select>
             </div>
             
-            <div className="space-y-2">
+            <div className="col-span-7">
               <Label htmlFor="name">ชื่อ KPI</Label>
               <Input
                 id="name"
@@ -108,32 +120,8 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
                 placeholder="เช่น อัตราการเติบโตของรายได้"
               />
             </div>
-          </div>
 
-          {/* Row 2: รายละเอียด KPI */}
-          <div className="space-y-2">
-            <Label htmlFor="description">รายละเอียด KPI</Label>
-            <Input
-              id="description"
-              value={currentKPI.description || ''}
-              onChange={(e) => setCurrentKPI({...currentKPI, description: e.target.value})}
-              placeholder="อธิบายรายละเอียดของ KPI นี้"
-            />
-          </div>
-
-          {/* Row 3: วิธีการวัดผล and น้ำหนัก */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="measurement">วิธีการวัดผล</Label>
-              <Input
-                id="measurement"
-                value={currentKPI.measurement_method || ''}
-                onChange={(e) => setCurrentKPI({...currentKPI, measurement_method: e.target.value})}
-                placeholder="เช่น เปรียบเทียบรายได้ Q4 กับ Q4 ปีที่แล้ว"
-              />
-            </div>
-            
-            <div className="space-y-2">
+            <div className="col-span-2">
               <Label htmlFor="weight">น้ำหนัก (%)</Label>
               <Input
                 id="weight"
@@ -147,38 +135,87 @@ const KPIForm: React.FC<KPIFormProps> = ({ kpiItems, onKPIItemsChange }) => {
             </div>
           </div>
 
-          {/* Row 4: เป้าหมาย */}
-          <div className="space-y-2">
-            <Label htmlFor="target">เป้าหมาย</Label>
-            <Input
-              id="target"
-              value={currentKPI.target || ''}
-              onChange={(e) => setCurrentKPI({...currentKPI, target: e.target.value})}
-              placeholder="เช่น เพิ่มขึ้น 15% จากปีที่แล้ว"
-            />
+          {/* Row 2: รายละเอียด KPI และวิธีการวัดผล */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="description">รายละเอียด KPI</Label>
+              <Textarea
+                id="description"
+                value={currentKPI.description || ''}
+                onChange={(e) => setCurrentKPI({...currentKPI, description: e.target.value})}
+                placeholder="อธิบายรายละเอียดของ KPI นี้"
+                className="min-h-[80px]"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="measurement">วิธีการวัดผล</Label>
+              <Textarea
+                id="measurement"
+                value={currentKPI.measurement_method || ''}
+                onChange={(e) => setCurrentKPI({...currentKPI, measurement_method: e.target.value})}
+                placeholder="เช่น เปรียบเทียบรายได้ Q4 กับ Q4 ปีที่แล้ว"
+                className="min-h-[80px]"
+              />
+            </div>
           </div>
 
-          {/* Performance Scale Section */}
+          {/* Row 3: เป้าหมาย 4 Scale */}
           <div className="space-y-4">
             <Label className="text-base font-semibold">เป้าหมาย</Label>
             <div className="grid grid-cols-4 gap-4">
-              <div className="text-center p-4 border rounded-lg bg-red-50">
-                <div className="font-semibold text-red-700">Need Improve</div>
-                <div className="text-sm text-red-600 mt-1">1 : (70%)</div>
-                <div className="text-xs text-gray-600 mt-1">( ≤ 70% )</div>
+              <div className="space-y-2">
+                <div className="text-center p-4 border rounded-lg bg-red-50">
+                  <div className="font-semibold text-red-700">Need Improve</div>
+                  <div className="text-sm text-red-600 mt-1">1 : (70%)</div>
+                  <div className="text-xs text-gray-600 mt-1">( ≤ 70% )</div>
+                </div>
+                <Textarea
+                  value={currentKPI.scale_1_description || ''}
+                  onChange={(e) => setCurrentKPI({...currentKPI, scale_1_description: e.target.value})}
+                  placeholder="อธิบายเกณฑ์การประเมิน..."
+                  className="min-h-[60px] text-xs"
+                />
               </div>
-              <div className="text-center p-4 border rounded-lg bg-yellow-50">
-                <div className="font-semibold text-yellow-700">2 : (80%)</div>
-                <div className="text-xs text-gray-600 mt-1">( {'>'}70% - 80% )</div>
+
+              <div className="space-y-2">
+                <div className="text-center p-4 border rounded-lg bg-yellow-50">
+                  <div className="font-semibold text-yellow-700">2 : (80%)</div>
+                  <div className="text-xs text-gray-600 mt-1">( {'>'}70% - 80% )</div>
+                </div>
+                <Textarea
+                  value={currentKPI.scale_2_description || ''}
+                  onChange={(e) => setCurrentKPI({...currentKPI, scale_2_description: e.target.value})}
+                  placeholder="อธิบายเกณฑ์การประเมิน..."
+                  className="min-h-[60px] text-xs"
+                />
               </div>
-              <div className="text-center p-4 border rounded-lg bg-blue-50">
-                <div className="font-semibold text-blue-700">3 : (90%)</div>
-                <div className="text-xs text-gray-600 mt-1">( {'>'} 80% - 90% )</div>
+
+              <div className="space-y-2">
+                <div className="text-center p-4 border rounded-lg bg-blue-50">
+                  <div className="font-semibold text-blue-700">3 : (90%)</div>
+                  <div className="text-xs text-gray-600 mt-1">( {'>'} 80% - 90% )</div>
+                </div>
+                <Textarea
+                  value={currentKPI.scale_3_description || ''}
+                  onChange={(e) => setCurrentKPI({...currentKPI, scale_3_description: e.target.value})}
+                  placeholder="อธิบายเกณฑ์การประเมิน..."
+                  className="min-h-[60px] text-xs"
+                />
               </div>
-              <div className="text-center p-4 border rounded-lg bg-green-50">
-                <div className="font-semibold text-green-700">Meet Expect</div>
-                <div className="text-sm text-green-600 mt-1">4 : (100%)</div>
-                <div className="text-xs text-gray-600 mt-1">( {'>'} 90% - 100% )</div>
+
+              <div className="space-y-2">
+                <div className="text-center p-4 border rounded-lg bg-green-50">
+                  <div className="font-semibold text-green-700">Meet Expect</div>
+                  <div className="text-sm text-green-600 mt-1">4 : (100%)</div>
+                  <div className="text-xs text-gray-600 mt-1">( {'>'} 90% - 100% )</div>
+                </div>
+                <Textarea
+                  value={currentKPI.scale_4_description || ''}
+                  onChange={(e) => setCurrentKPI({...currentKPI, scale_4_description: e.target.value})}
+                  placeholder="อธิบายเกณฑ์การประเมิน..."
+                  className="min-h-[60px] text-xs"
+                />
               </div>
             </div>
           </div>

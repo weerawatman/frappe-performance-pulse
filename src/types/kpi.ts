@@ -1,4 +1,3 @@
-
 export interface BalanceScoreCardCategory {
   id: string;
   name: string;
@@ -17,6 +16,11 @@ export interface KPIItem {
   target: string;
   measurement_method: string;
   created_at: Date;
+  // New fields for 4-scale descriptions
+  scale_1_description?: string;
+  scale_2_description?: string;
+  scale_3_description?: string;
+  scale_4_description?: string;
 }
 
 export interface KPIBonus {
