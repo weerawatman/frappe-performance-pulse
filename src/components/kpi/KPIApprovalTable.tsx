@@ -28,6 +28,39 @@ const KPIApprovalTable: React.FC<KPIApprovalTableProps> = ({ userRole }) => {
 
   useEffect(() => {
     fetchPendingKPIs();
+    
+    // Set up real-time subscription for KPI updates
+    const channel = supabase
+      .channel('kpi-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'kpi_bonus'
+        },
+        () => {
+          console.log('KPI Bonus data changed, refreshing...');
+          fetchPendingKPIs();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'kpi_merit'
+        },
+        () => {
+          console.log('KPI Merit data changed, refreshing...');
+          fetchPendingKPIs();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [userRole]);
 
   const fetchPendingKPIs = async () => {
@@ -103,6 +136,7 @@ const KPIApprovalTable: React.FC<KPIApprovalTableProps> = ({ userRole }) => {
       }
 
       console.log('Total pending KPIs found:', kpis.length);
+      console.log('KPI data:', kpis);
       setPendingKPIs(kpis);
     } catch (error) {
       console.error('Error fetching pending KPIs:', error);
