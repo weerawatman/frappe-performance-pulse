@@ -22,75 +22,75 @@ const KPITrackingTable = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    console.log('KPITrackingTable mounted, fetching status from database');
+  const loadKPIStatus = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     
-    const loadKPIStatus = async () => {
-      if (!user) {
+    try {
+      console.log('Loading KPI status for user:', user.name);
+      
+      // Get employee data first
+      const { data: employee, error: empError } = await supabase
+        .from('employees')
+        .select('id')
+        .eq('employee_name', user.name)
+        .single();
+        
+      if (empError || !employee) {
+        console.log('Employee not found in database, using default status');
+        const defaultStatus = { bonus: 'not_started', merit: 'not_started' };
+        setKpiStatus(defaultStatus);
+        // Update localStorage to match database
+        localStorage.setItem('kpiStatus', JSON.stringify(defaultStatus));
         setLoading(false);
         return;
       }
       
-      try {
-        console.log('Loading KPI status for user:', user.name);
+      console.log('Found employee with ID:', employee.id);
+      
+      // Check KPI Bonus status - get the latest record
+      const { data: bonusData, error: bonusError } = await supabase
+        .from('kpi_bonus')
+        .select('status, updated_at')
+        .eq('employee_id', employee.id)
+        .order('updated_at', { ascending: false })
+        .limit(1);
         
-        // Get employee data first
-        const { data: employee, error: empError } = await supabase
-          .from('employees')
-          .select('id')
-          .eq('employee_name', user.name)
-          .single();
-          
-        if (empError || !employee) {
-          console.log('Employee not found in database, using default status');
-          const defaultStatus = { bonus: 'not_started', merit: 'not_started' };
-          setKpiStatus(defaultStatus);
-          // Update localStorage to match database
-          localStorage.setItem('kpiStatus', JSON.stringify(defaultStatus));
-          setLoading(false);
-          return;
-        }
+      // Check KPI Merit status - get the latest record  
+      const { data: meritData, error: meritError } = await supabase
+        .from('kpi_merit')
+        .select('status, updated_at')
+        .eq('employee_id', employee.id)
+        .order('updated_at', { ascending: false })
+        .limit(1);
         
-        console.log('Found employee with ID:', employee.id);
-        
-        // Check KPI Bonus status - get the latest record
-        const { data: bonusData, error: bonusError } = await supabase
-          .from('kpi_bonus')
-          .select('status, updated_at')
-          .eq('employee_id', employee.id)
-          .order('updated_at', { ascending: false })
-          .limit(1);
-          
-        // Check KPI Merit status - get the latest record  
-        const { data: meritData, error: meritError } = await supabase
-          .from('kpi_merit')
-          .select('status, updated_at')
-          .eq('employee_id', employee.id)
-          .order('updated_at', { ascending: false })
-          .limit(1);
-          
-        const newStatus = {
-          bonus: bonusData && bonusData.length > 0 ? bonusData[0].status : 'not_started',
-          merit: meritData && meritData.length > 0 ? meritData[0].status : 'not_started'
-        };
-        
-        console.log('Database KPI status for', user.name + ':', newStatus);
-        setKpiStatus(newStatus);
-        
-        // Update localStorage to match database state
-        localStorage.setItem('kpiStatus', JSON.stringify(newStatus));
-        
-      } catch (error) {
-        console.error('Error fetching KPI status:', error);
-        // Fallback to default status
-        const defaultStatus = { bonus: 'not_started', merit: 'not_started' };
-        setKpiStatus(defaultStatus);
-        localStorage.setItem('kpiStatus', JSON.stringify(defaultStatus));
-      } finally {
-        setLoading(false);
-      }
-    };
+      const newStatus = {
+        bonus: bonusData && bonusData.length > 0 ? bonusData[0].status : 'not_started',
+        merit: meritData && meritData.length > 0 ? meritData[0].status : 'not_started'
+      };
+      
+      console.log('Database KPI status for', user.name + ':', newStatus);
+      setKpiStatus(newStatus);
+      
+      // Update localStorage to match database state
+      localStorage.setItem('kpiStatus', JSON.stringify(newStatus));
+      
+    } catch (error) {
+      console.error('Error fetching KPI status:', error);
+      // Fallback to default status
+      const defaultStatus = { bonus: 'not_started', merit: 'not_started' };
+      setKpiStatus(defaultStatus);
+      localStorage.setItem('kpiStatus', JSON.stringify(defaultStatus));
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    console.log('KPITrackingTable mounted, fetching status from database');
+    
     loadKPIStatus();
     
     // Set up real-time subscription for KPI updates
@@ -133,13 +133,23 @@ const KPITrackingTable = () => {
       loadKPIStatus();
     };
     
+    // Additional listener for storage changes from other tabs/windows
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'kpiStatus' && e.newValue) {
+        console.log('Storage changed, reloading from database');
+        loadKPIStatus();
+      }
+    };
+    
     window.addEventListener('kpiStatusUpdate', handleKPIStatusUpdate as EventListener);
     window.addEventListener('focus', handleFocus);
+    window.addEventListener('storage', handleStorageChange);
     
     return () => {
       supabase.removeChannel(channel);
       window.removeEventListener('kpiStatusUpdate', handleKPIStatusUpdate as EventListener);
       window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, [user]);
 
@@ -302,25 +312,26 @@ const KPITrackingTable = () => {
                     </td>
                     <td className="border border-gray-300 px-4 py-4 text-center">
                       {item.available ? (
-                        item.status === 'pending_checker' || item.status === 'pending_approver' || item.status === 'completed' ? (
+                        item.status === 'completed' ? (
+                          <Badge className="bg-green-100 text-green-700">
+                            เสร็จสิ้นแล้ว
+                          </Badge>
+                        ) : item.status === 'pending_checker' || item.status === 'pending_approver' ? (
                           <div className="flex flex-col items-center gap-2">
                             <Badge 
                               className={
                                 item.status === 'pending_checker' ? 'bg-blue-100 text-blue-700' :
-                                item.status === 'pending_approver' ? 'bg-purple-100 text-purple-700' :
-                                'bg-green-100 text-green-700'
+                                'bg-purple-100 text-purple-700'
                               }
                             >
                               {item.buttonText}
                             </Badge>
-                            {item.status !== 'completed' && (
-                              <Link to={item.link}>
-                                <Button size="sm" variant="outline">
-                                  <ArrowRight className="w-4 h-4 mr-2" />
-                                  ดูรายละเอียด
-                                </Button>
-                              </Link>
-                            )}
+                            <Link to={item.link}>
+                              <Button size="sm" variant="outline">
+                                <ArrowRight className="w-4 h-4 mr-2" />
+                                ดูรายละเอียด
+                              </Button>
+                            </Link>
                           </div>
                         ) : (
                           <Link to={item.link}>
