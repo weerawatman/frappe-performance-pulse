@@ -96,10 +96,10 @@ const PerformanceEvaluationPage: React.FC<PerformanceEvaluationPageProps> = ({ u
               <Users className="w-4 h-4" />
               KPI Merit
             </TabsTrigger>
-            <TabsTrigger value="culture" className="flex items-center gap-2">
-              <Award className="w-4 h-4" />
-              Culture
-            </TabsTrigger>
+            {/*<TabsTrigger value="culture" className="flex items-center gap-2">*/}
+            {/*<Award className="w-4 h-4" />*/}
+            {/*Culture*/}
+            {/*</TabsTrigger>*/}
           </TabsList>
 
           <TabsContent value="kpi-bonus">
