@@ -23,13 +23,7 @@ const KPITrackingTable = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('KPITrackingTable mounted, fetching initial status');
-    
-    // Reset localStorage สำหรับการทดสอบใหม่
-    const resetLocalStorage = () => {
-      localStorage.removeItem('kpiStatus');
-      console.log('localStorage cleared for fresh testing');
-    };
+    console.log('KPITrackingTable mounted, fetching status from database');
     
     const loadKPIStatus = async () => {
       if (!user) {
@@ -37,12 +31,9 @@ const KPITrackingTable = () => {
         return;
       }
       
-      // Reset localStorage เมื่อเริ่มต้น (เฉพาะสมชาย ใจดี)
-      if (user.name === 'สมชาย ใจดี') {
-        resetLocalStorage();
-      }
-      
       try {
+        console.log('Loading KPI status for user:', user.name);
+        
         // Get employee data first
         const { data: employee, error: empError } = await supabase
           .from('employees')
@@ -54,27 +45,28 @@ const KPITrackingTable = () => {
           console.log('Employee not found in database, using default status');
           const defaultStatus = { bonus: 'not_started', merit: 'not_started' };
           setKpiStatus(defaultStatus);
+          // Update localStorage to match database
           localStorage.setItem('kpiStatus', JSON.stringify(defaultStatus));
           setLoading(false);
           return;
         }
         
-        console.log('Found employee:', employee);
+        console.log('Found employee with ID:', employee.id);
         
         // Check KPI Bonus status - get the latest record
         const { data: bonusData, error: bonusError } = await supabase
           .from('kpi_bonus')
-          .select('status')
+          .select('status, updated_at')
           .eq('employee_id', employee.id)
-          .order('created_at', { ascending: false })
+          .order('updated_at', { ascending: false })
           .limit(1);
           
-        // Check KPI Merit status - get the latest record
+        // Check KPI Merit status - get the latest record  
         const { data: meritData, error: meritError } = await supabase
           .from('kpi_merit')
-          .select('status')
+          .select('status, updated_at')
           .eq('employee_id', employee.id)
-          .order('created_at', { ascending: false })
+          .order('updated_at', { ascending: false })
           .limit(1);
           
         const newStatus = {
@@ -85,7 +77,7 @@ const KPITrackingTable = () => {
         console.log('Database KPI status for', user.name + ':', newStatus);
         setKpiStatus(newStatus);
         
-        // Update localStorage for consistency
+        // Update localStorage to match database state
         localStorage.setItem('kpiStatus', JSON.stringify(newStatus));
         
       } catch (error) {
@@ -101,9 +93,38 @@ const KPITrackingTable = () => {
 
     loadKPIStatus();
     
-    // Event listeners for real-time updates
+    // Set up real-time subscription for KPI updates
+    const channel = supabase
+      .channel('kpi-status-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'kpi_bonus'
+        },
+        () => {
+          console.log('KPI Bonus changed, reloading status');
+          loadKPIStatus();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'kpi_merit'
+        },
+        () => {
+          console.log('KPI Merit changed, reloading status');
+          loadKPIStatus();
+        }
+      )
+      .subscribe();
+    
+    // Event listeners for manual updates
     const handleKPIStatusUpdate = () => {
-      console.log('KPI status update event received, reloading from database');
+      console.log('Manual KPI status update event received');
       loadKPIStatus();
     };
     
@@ -116,6 +137,7 @@ const KPITrackingTable = () => {
     window.addEventListener('focus', handleFocus);
     
     return () => {
+      supabase.removeChannel(channel);
       window.removeEventListener('kpiStatusUpdate', handleKPIStatusUpdate as EventListener);
       window.removeEventListener('focus', handleFocus);
     };

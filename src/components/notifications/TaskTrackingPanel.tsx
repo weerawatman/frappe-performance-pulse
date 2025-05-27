@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Clock, CheckCircle, AlertTriangle, Calendar, Target, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TaskItem {
   id: string;
@@ -28,32 +29,85 @@ interface TaskTrackingPanelProps {
 const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole }) => {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<TaskItem[]>([]);
+  const [kpiStatus, setKpiStatus] = useState({ bonus: 'not_started', merit: 'not_started' });
 
   useEffect(() => {
-    const updateTasks = () => {
+    const loadKPIStatusFromDatabase = async () => {
+      if (!user?.name) return { bonus: 'not_started', merit: 'not_started' };
+
+      try {
+        console.log('TaskTrackingPanel - Loading KPI status from database for:', user.name);
+        
+        // Get employee data
+        const { data: employee, error: empError } = await supabase
+          .from('employees')
+          .select('id')
+          .eq('employee_name', user.name)
+          .single();
+          
+        if (empError || !employee) {
+          console.log('Employee not found, using default status');
+          return { bonus: 'not_started', merit: 'not_started' };
+        }
+        
+        // Get latest KPI statuses
+        const [bonusResult, meritResult] = await Promise.all([
+          supabase
+            .from('kpi_bonus')
+            .select('status, updated_at')
+            .eq('employee_id', employee.id)
+            .order('updated_at', { ascending: false })
+            .limit(1),
+          supabase
+            .from('kpi_merit')
+            .select('status, updated_at')
+            .eq('employee_id', employee.id)
+            .order('updated_at', { ascending: false })
+            .limit(1)
+        ]);
+        
+        const status = {
+          bonus: bonusResult.data && bonusResult.data.length > 0 ? bonusResult.data[0].status : 'not_started',
+          merit: meritResult.data && meritResult.data.length > 0 ? meritResult.data[0].status : 'not_started'
+        };
+        
+        console.log('TaskTrackingPanel - Database KPI status:', status);
+        
+        // Update localStorage to match database
+        localStorage.setItem('kpiStatus', JSON.stringify(status));
+        
+        return status;
+      } catch (error) {
+        console.error('Error loading KPI status from database:', error);
+        return { bonus: 'not_started', merit: 'not_started' };
+      }
+    };
+
+    const updateTasks = async () => {
+      const dbStatus = await loadKPIStatusFromDatabase();
+      setKpiStatus(dbStatus);
+      
       const mockTasks: TaskItem[] = [];
 
       if (userRole === 'employee' && user?.name === 'สมชาย ใจดี') {
-        // Get KPI status from localStorage
-        const kpiStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{"bonus": "not_started", "merit": "not_started"}');
-        console.log('TaskTrackingPanel - Current KPI status for สมชาย ใจดี:', kpiStatus);
+        console.log('TaskTrackingPanel - Generating tasks for สมชาย ใจดี with status:', dbStatus);
 
         // KPI Bonus task
-        if (kpiStatus.bonus === 'not_started' || kpiStatus.bonus === 'draft') {
+        if (dbStatus.bonus === 'not_started' || dbStatus.bonus === 'draft') {
           mockTasks.push({
             id: '1',
             title: 'กำหนด KPI Bonus',
-            description: kpiStatus.bonus === 'draft' ? 
+            description: dbStatus.bonus === 'draft' ? 
               'แก้ไขร่าง KPI Bonus ที่บันทึกไว้' : 
               'กำหนด KPI สำหรับการคำนวณโบนัสประจำปี',
             type: 'kpi_bonus',
             priority: 'high',
-            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
             status: 'pending',
             actionUrl: '/employee/kpi-bonus',
             isOverdue: false
           });
-        } else if (kpiStatus.bonus === 'pending_checker') {
+        } else if (dbStatus.bonus === 'pending_checker') {
           mockTasks.push({
             id: '1-pending',
             title: 'KPI Bonus รอตรวจสอบ',
@@ -65,7 +119,7 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
             actionUrl: '/employee/kpi-bonus',
             isOverdue: false
           });
-        } else if (kpiStatus.bonus === 'pending_approver') {
+        } else if (dbStatus.bonus === 'pending_approver') {
           mockTasks.push({
             id: '1-approving',
             title: 'KPI Bonus รออนุมัติ',
@@ -80,21 +134,21 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
         }
 
         // KPI Merit task
-        if (kpiStatus.merit === 'not_started' || kpiStatus.merit === 'draft') {
+        if (dbStatus.merit === 'not_started' || dbStatus.merit === 'draft') {
           mockTasks.push({
             id: '2',
             title: 'กำหนด KPI Merit',
-            description: kpiStatus.merit === 'draft' ? 
+            description: dbStatus.merit === 'draft' ? 
               'แก้ไขร่าง KPI Merit ที่บันทึกไว้' : 
               'กำหนด KPI สำหรับการประเมินสมรรถนะ',
             type: 'kpi_merit',
             priority: 'high',
-            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
             status: 'pending',
             actionUrl: '/employee/kpi-merit',
             isOverdue: false
           });
-        } else if (kpiStatus.merit === 'pending_checker') {
+        } else if (dbStatus.merit === 'pending_checker') {
           mockTasks.push({
             id: '2-pending',
             title: 'KPI Merit รอตรวจสอบ',
@@ -106,7 +160,7 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
             actionUrl: '/employee/kpi-merit',
             isOverdue: false
           });
-        } else if (kpiStatus.merit === 'pending_approver') {
+        } else if (dbStatus.merit === 'pending_approver') {
           mockTasks.push({
             id: '2-approving',
             title: 'KPI Merit รออนุมัติ',
@@ -121,7 +175,7 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
         }
 
         // Evaluation tasks (เมื่อ KPI เสร็จสิ้นแล้ว)
-        if (kpiStatus.bonus === 'completed') {
+        if (dbStatus.bonus === 'completed') {
           mockTasks.push({
             id: '3',
             title: 'ประเมินผลงาน KPI Bonus ครั้งที่ 1',
@@ -134,7 +188,7 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
           });
         }
 
-        if (kpiStatus.merit === 'completed') {
+        if (dbStatus.merit === 'completed') {
           mockTasks.push({
             id: '4',
             title: 'ประเมินผลงาน KPI Merit ครั้งที่ 1',
@@ -165,18 +219,46 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
 
     updateTasks();
 
-    // Listen for KPI status updates
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('task-panel-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'kpi_bonus'
+        },
+        () => {
+          console.log('TaskTrackingPanel - KPI Bonus updated, refreshing tasks');
+          updateTasks();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'kpi_merit'
+        },
+        () => {
+          console.log('TaskTrackingPanel - KPI Merit updated, refreshing tasks');
+          updateTasks();
+        }
+      )
+      .subscribe();
+
+    // Listen for manual updates
     const handleKPIStatusUpdate = () => {
-      console.log('TaskTrackingPanel - KPI status updated, refreshing tasks');
+      console.log('TaskTrackingPanel - Manual KPI status update received');
       updateTasks();
     };
 
     window.addEventListener('kpiStatusUpdate', handleKPIStatusUpdate);
-    window.addEventListener('storage', handleKPIStatusUpdate);
 
     return () => {
+      supabase.removeChannel(channel);
       window.removeEventListener('kpiStatusUpdate', handleKPIStatusUpdate);
-      window.removeEventListener('storage', handleKPIStatusUpdate);
     };
   }, [userId, userRole, user]);
 
