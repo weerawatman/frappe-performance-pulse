@@ -183,7 +183,7 @@ const UpdateKPIStatus: React.FC = () => {
       case 'draft': return 'ร่าง';
       case 'pending_checker': return 'รอ Checker';
       case 'pending_approver': return 'รอ Approver';
-      case 'completed': return 'เสร็จสิ้น';
+      case 'completed': return 'เสร็จสิ้นแล้ว';
       default: return status;
     }
   };
@@ -272,6 +272,13 @@ const UpdateKPIStatus: React.FC = () => {
                     <CheckCircle className="w-4 h-4 mr-2" />
                     {updating === record.id ? 'กำลังอัปเดต...' : getNextAction(record.status)}
                   </Button>
+                )}
+                
+                {record.status === 'completed' && (
+                  <Badge className="bg-green-100 text-green-700">
+                    <CheckCircle className="w-4 h-4 mr-1" />
+                    เสร็จสิ้นแล้ว
+                  </Badge>
                 )}
               </div>
             ))

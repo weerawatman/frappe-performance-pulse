@@ -49,6 +49,12 @@ export const updateKPIStatusToCompleted = async (employeeName: string) => {
     
     console.log(`Successfully updated KPI status for ${employeeName}`);
     
+    // Update localStorage to reflect the changes
+    const currentStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{}');
+    currentStatus.bonus = 'completed';
+    currentStatus.merit = 'completed';
+    localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
+    
     // Trigger refresh events
     window.dispatchEvent(new CustomEvent('kpiStatusUpdate'));
     
@@ -66,4 +72,53 @@ export const autoApproveEmployee = async () => {
     console.log('สมชาย ใจดี KPI has been approved automatically');
   }
   return success;
+};
+
+// Function to specifically update Merit KPI to completed
+export const approveMeritKPI = async (employeeName: string) => {
+  try {
+    console.log(`Approving Merit KPI for ${employeeName}`);
+    
+    // Get employee by name
+    const { data: employee, error: empError } = await supabase
+      .from('employees')
+      .select('id')
+      .eq('employee_name', employeeName)
+      .single();
+      
+    if (empError || !employee) {
+      console.error('Employee not found:', empError);
+      return false;
+    }
+    
+    // Update KPI Merit status to completed
+    const { error: meritError } = await supabase
+      .from('kpi_merit')
+      .update({
+        status: 'completed',
+        approved_date: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq('employee_id', employee.id);
+      
+    if (meritError) {
+      console.error('Error updating KPI Merit:', meritError);
+      return false;
+    }
+    
+    console.log(`Successfully approved Merit KPI for ${employeeName}`);
+    
+    // Update localStorage
+    const currentStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{}');
+    currentStatus.merit = 'completed';
+    localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
+    
+    // Trigger refresh events
+    window.dispatchEvent(new CustomEvent('kpiStatusUpdate'));
+    
+    return true;
+  } catch (error) {
+    console.error('Error in approveMeritKPI:', error);
+    return false;
+  }
 };
