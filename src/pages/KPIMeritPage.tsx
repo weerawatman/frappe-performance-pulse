@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,7 +32,7 @@ const KPIMeritPage = () => {
       id: "1",
       name: "การวิเคราะห์และแก้ไขปัญหา",
       description: "ความสามารถในการวิเคราะห์สถานการณ์และหาทางแก้ไขปัญหาได้อย่างมีประสิทธิภาพ",
-      weight: 25,
+      weight: 7.5,
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
@@ -41,14 +40,14 @@ const KPIMeritPage = () => {
         { level: 2, title: "ระดับพัฒนา", description: "สามารถแก้ไขปัญหาเบื้องต้นได้", behavioral_examples: ["แก้ไขปัญหาง่ายๆ ได้เอง", "เริ่มคิดหาทางเลือก"] },
         { level: 3, title: "ระดับชำนาญ", description: "แก้ไขปัญหาได้ดีและมีประสิทธิภาพ", behavioral_examples: ["วิเคราะห์ปัญหาได้อย่างครบถ้วน", "เสนอทางเลือกหลายแนวทาง"] },
         { level: 4, title: "ระดับเชี่ยวชาญ", description: "แก้ไขปัญหาซับซ้อนได้และช่วยเหลือผู้อื่น", behavioral_examples: ["แก้ไขปัญหาซับซ้อน", "ช่วยเหลือเพื่อนร่วมงาน"] },
-        { level: 5, title: "ระดับผู้เชี่ยวชาญ", description: "เป็นผู้เชี่ยวชาญในการแก้ไขปัญหา", behavioral_examples: ["เป็นที่ปรึกษาของทีม", "สร้างระบบแก้ไขปัญหา"] }
+        { level: 5, title: "ระดับผู้เชี่ยวชาญ", description: "เป็นที่ปรึกษาของทีม", behavioral_examples: ["เป็นที่ปรึกษาของทีม", "สร้างระบบแก้ไขปัญหา"] }
       ]
     },
     {
       id: "2",
       name: "การทำงานเป็นทีม",
       description: "ความสามารถในการทำงานร่วมกับผู้อื่นอย่างมีประสิทธิภาพ",
-      weight: 20,
+      weight: 7.5,
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
@@ -63,7 +62,7 @@ const KPIMeritPage = () => {
       id: "3",
       name: "การเรียนรู้และพัฒนา",
       description: "ความตั้งใจและความสามารถในการเรียนรู้สิ่งใหม่",
-      weight: 25,
+      weight: 7.5,
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
@@ -78,7 +77,7 @@ const KPIMeritPage = () => {
       id: "4",
       name: "การสื่อสาร",
       description: "ความสามารถในการสื่อสารอย่างชัดเจนและมีประสิทธิภาพ",
-      weight: 30,
+      weight: 7.5,
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
