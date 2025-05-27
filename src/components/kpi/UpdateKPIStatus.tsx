@@ -145,6 +145,8 @@ const UpdateKPIStatus: React.FC = () => {
 
       if (error) throw error;
 
+      console.log(`Successfully updated ${type} KPI to status: ${nextStatus}`);
+
       toast({
         title: "อัปเดตสำเร็จ",
         description: `KPI ${type === 'bonus' ? 'Bonus' : 'Merit'} ถูกอัปเดตเป็น ${nextStatus}`,
@@ -164,6 +166,13 @@ const UpdateKPIStatus: React.FC = () => {
         currentKpiStatus.merit = nextStatus;
       }
       localStorage.setItem('kpiStatus', JSON.stringify(currentKpiStatus));
+      
+      // Dispatch storage event manually for cross-component updates
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'kpiStatus',
+        newValue: JSON.stringify(currentKpiStatus),
+        storageArea: localStorage
+      }));
 
     } catch (error) {
       console.error('Error updating KPI status:', error);

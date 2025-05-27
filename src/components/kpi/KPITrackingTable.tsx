@@ -103,8 +103,8 @@ const KPITrackingTable = () => {
           schema: 'public',
           table: 'kpi_bonus'
         },
-        () => {
-          console.log('KPI Bonus changed, reloading status');
+        (payload) => {
+          console.log('KPI Bonus changed, reloading status', payload);
           loadKPIStatus();
         }
       )
@@ -115,8 +115,8 @@ const KPITrackingTable = () => {
           schema: 'public',
           table: 'kpi_merit'
         },
-        () => {
-          console.log('KPI Merit changed, reloading status');
+        (payload) => {
+          console.log('KPI Merit changed, reloading status', payload);
           loadKPIStatus();
         }
       )
