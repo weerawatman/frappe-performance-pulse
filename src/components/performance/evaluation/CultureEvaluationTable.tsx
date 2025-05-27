@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,38 +34,46 @@ interface CultureEvaluationTableProps {
 const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period, userRole }) => {
   const { toast } = useToast();
 
-  // Mock culture evaluation data
+  // Updated culture evaluation data to match the requirements
   const cultureItems: CultureItem[] = [
     {
       id: 'C1',
       type: 'Core Values',
-      item: 'ความซื่อสัตย์และโปร่งใส',
-      weight: 25,
-      inputProcess: 'แสดงความซื่อสัตย์ในการทำงาน มีความโปร่งใสในการสื่อสาร',
+      item: 'สัญญา โปร่งใส (Spirit of Commitment, Intergrity, & Ethic)',
+      weight: 20,
+      inputProcess: 'การปฏิบัติหน้าที่ด้วยความซื่อสัตย์และส่งมอบงานตามข้อตกลงหรือสัญญาที่ได้ตกลงกันไว้ ด้วยความโปร่งใส',
       output: 'ได้รับความไว้วางใจจากเพื่อนร่วมงานและผู้บังคับบัญชา'
     },
     {
       id: 'C2', 
-      type: 'Collaboration',
-      item: 'การทำงานเป็นทีม',
-      weight: 25,
-      inputProcess: 'ร่วมมือกับเพื่อนร่วมงาน แบ่งปันความรู้และประสบการณ์',
-      output: 'ทีมงานมีประสิทธิภาพและบรรยากาศการทำงานที่ดี'
-    },
-    {
-      id: 'C3',
-      type: 'Innovation',
-      item: 'ความคิดสร้างสรรค์และนวัตกรรม',
-      weight: 25,
-      inputProcess: 'เสนอแนวคิดใหม่ๆ และหาวิธีการทำงานที่ดีขึ้น',
+      type: 'Learning & Development',
+      item: 'ใส่ใจเรียนรู้ (Mastery of Learning & Applying Technology)',
+      weight: 20,
+      inputProcess: 'การตั้งใจเรียนรู้สิ่งใหม่ๆ รวมถึงเทคโนโลยี และนำมาใช้ปรับปรุง พัฒนา การทำงาน บริการ หรือผลิตภัณฑ์ ให้ดีขึ้นอย่างต่อเนื่อง',
       output: 'มีการปรับปรุงกระบวนการทำงานหรือสร้างสรรค์สิ่งใหม่'
     },
     {
+      id: 'C3',
+      type: 'Adaptability',
+      item: 'สู่การเปลี่ยนแปลง (Agility)',
+      weight: 20,
+      inputProcess: 'การเปิดรับสิ่งใหม่ วางแผนปรับตัว เตรียมความพร้อมสำหรับการเปลี่ยนแปลงอย่างรวดเร็ว',
+      output: 'สามารถปรับตัวและรับมือกับการเปลี่ยนแปลงได้ดี'
+    },
+    {
       id: 'C4',
+      type: 'Teamwork',
+      item: 'แสดงการยอมรับ (Respect Others & Value Diversity)',
+      weight: 20,
+      inputProcess: 'การยอมรับความแตกต่าง และเปิดใจรับฟังความคิดเห็นของทุกคนในทีมเพื่อหาแนวทางที่ดีที่สุดในการแก้ไขปัญหา',
+      output: 'ทีมงานมีประสิทธิภาพและบรรยากาศการทำงานที่ดี'
+    },
+    {
+      id: 'C5',
       type: 'Customer Focus',
-      item: 'การมุ่งเน้นลูกค้า',
-      weight: 25,
-      inputProcess: 'ใส่ใจและตอบสนองความต้องการของลูกค้า',
+      item: 'สนับสนุนลูกค้า (Think Customers & Think Value)',
+      weight: 20,
+      inputProcess: 'การทำความเข้าใจความคาดหวังของลูกค้า (ทั้งภายในและภายนอก) อย่างถ่องแท้ และใส่ใจในคุณค่าของงานและบริการที่ส่งมอบให้ลูกค้า',
       output: 'ลูกค้ามีความพึงพอใจและกลับมาใช้บริการอีก'
     }
   ];
