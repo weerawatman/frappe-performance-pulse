@@ -1,10 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Target, Building } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { mockCorporateKPIData } from '@/data/mockCorporateKPI';
 
 interface KPIStatus {
@@ -13,6 +14,7 @@ interface KPIStatus {
 }
 
 const KPITrackingTable = () => {
+  const { user } = useAuth();
   const [kpiStatus, setKpiStatus] = useState<KPIStatus>({
     bonus: 'not_started',
     merit: 'not_started'
@@ -22,39 +24,81 @@ const KPITrackingTable = () => {
   useEffect(() => {
     console.log('KPITrackingTable mounted, fetching initial status');
     
-    const loadKPIStatus = () => {
-      const savedStatus = localStorage.getItem('kpiStatus');
-      if (savedStatus) {
-        try {
-          const parsedStatus = JSON.parse(savedStatus);
-          console.log('Found existing localStorage:', parsedStatus);
+    const loadKPIStatus = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        // Get employee data first
+        const { data: employee, error: empError } = await supabase
+          .from('employees')
+          .select('id')
+          .eq('employee_name', user.name)
+          .single();
           
-          const validStatuses = ['not_started', 'draft', 'pending_checker', 'pending_approver', 'completed'];
-          if (validStatuses.includes(parsedStatus.bonus) && validStatuses.includes(parsedStatus.merit)) {
-            console.log('Using valid localStorage data');
-            setKpiStatus(parsedStatus);
-          } else {
-            console.log('Invalid localStorage data, resetting to default');
-            const defaultStatus = { bonus: 'not_started', merit: 'not_started' };
-            localStorage.setItem('kpiStatus', JSON.stringify(defaultStatus));
-            setKpiStatus(defaultStatus);
+        if (empError || !employee) {
+          console.log('Employee not found in database, using localStorage fallback');
+          // Fallback to localStorage
+          const savedStatus = localStorage.getItem('kpiStatus');
+          if (savedStatus) {
+            try {
+              const parsedStatus = JSON.parse(savedStatus);
+              setKpiStatus(parsedStatus);
+            } catch (error) {
+              console.log('Error parsing localStorage, using defaults');
+            }
           }
-        } catch (error) {
-          console.log('Corrupted localStorage data, clearing...');
-          const defaultStatus = { bonus: 'not_started', merit: 'not_started' };
-          localStorage.setItem('kpiStatus', JSON.stringify(defaultStatus));
-          setKpiStatus(defaultStatus);
+          setLoading(false);
+          return;
         }
-      } else {
-        console.log('No localStorage data, using default values');
-        const defaultStatus = { bonus: 'not_started', merit: 'not_started' };
-        localStorage.setItem('kpiStatus', JSON.stringify(defaultStatus));
-        setKpiStatus(defaultStatus);
+        
+        console.log('Found employee:', employee);
+        
+        // Check KPI Bonus status
+        const { data: bonusData, error: bonusError } = await supabase
+          .from('kpi_bonus')
+          .select('status')
+          .eq('employee_id', employee.id)
+          .single();
+          
+        // Check KPI Merit status  
+        const { data: meritData, error: meritError } = await supabase
+          .from('kpi_merit')
+          .select('status')
+          .eq('employee_id', employee.id)
+          .single();
+          
+        const newStatus = {
+          bonus: bonusData?.status || 'not_started',
+          merit: meritData?.status || 'not_started'
+        };
+        
+        console.log('Current KPI status for', user.name + ':', newStatus);
+        setKpiStatus(newStatus);
+        
+        // Also update localStorage for consistency
+        localStorage.setItem('kpiStatus', JSON.stringify(newStatus));
+        
+      } catch (error) {
+        console.error('Error fetching KPI status:', error);
+        // Fallback to localStorage
+        const savedStatus = localStorage.getItem('kpiStatus');
+        if (savedStatus) {
+          try {
+            const parsedStatus = JSON.parse(savedStatus);
+            setKpiStatus(parsedStatus);
+          } catch (parseError) {
+            console.log('Error parsing localStorage, using defaults');
+          }
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
     loadKPIStatus();
-    setLoading(false);
     
     // Add event listeners for status changes
     const handleStorageChange = (e: StorageEvent) => {
@@ -75,7 +119,7 @@ const KPITrackingTable = () => {
     };
     
     const handleFocus = () => {
-      console.log('Window focused, checking localStorage');
+      console.log('Window focused, checking database status');
       loadKPIStatus();
     };
     
@@ -88,7 +132,7 @@ const KPITrackingTable = () => {
       window.removeEventListener('kpiStatusUpdate', handleKPIStatusUpdate as EventListener);
       window.removeEventListener('focus', handleFocus);
     };
-  }, []);
+  }, [user]);
 
   // Select 3 Corporate KPIs from different Balance Score Card categories
   const selectedCorporateKPIs = [
