@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Target, Building } from 'lucide-react';
+import { ArrowRight, Target, Building, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,14 +21,16 @@ const KPITrackingTable = () => {
     merit: 'not_started'
   });
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const loadKPIStatus = async () => {
+  const loadKPIStatus = async (showRefreshing = false) => {
     if (!user) {
       setLoading(false);
       return;
     }
     
     try {
+      if (showRefreshing) setRefreshing(true);
       console.log('Loading KPI status for user:', user.name);
       
       // Get employee data first
@@ -42,9 +44,9 @@ const KPITrackingTable = () => {
         console.log('Employee not found in database, using default status');
         const defaultStatus = { bonus: 'not_started', merit: 'not_started' };
         setKpiStatus(defaultStatus);
-        // Update localStorage to match database
         localStorage.setItem('kpiStatus', JSON.stringify(defaultStatus));
         setLoading(false);
+        if (showRefreshing) setRefreshing(false);
         return;
       }
       
@@ -85,7 +87,14 @@ const KPITrackingTable = () => {
       localStorage.setItem('kpiStatus', JSON.stringify(defaultStatus));
     } finally {
       setLoading(false);
+      if (showRefreshing) setRefreshing(false);
     }
+  };
+
+  // Manual refresh function
+  const handleManualRefresh = () => {
+    console.log('Manual refresh triggered');
+    loadKPIStatus(true);
   };
 
   useEffect(() => {
@@ -291,6 +300,16 @@ const KPITrackingTable = () => {
           <CardTitle className="text-center text-lg font-bold flex items-center justify-center gap-2">
             <Target className="w-5 h-5" />
             Individual KPI
+            <Button
+              onClick={handleManualRefresh}
+              variant="outline"
+              size="sm"
+              disabled={refreshing}
+              className="ml-auto"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+              รีเฟรช
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
