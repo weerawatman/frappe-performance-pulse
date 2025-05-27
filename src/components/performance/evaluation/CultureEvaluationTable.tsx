@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -37,7 +38,7 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
   // Updated culture evaluation data to match the requirements
   const cultureItems: CultureItem[] = [
     {
-      id: 'C1',
+      id: '1',
       type: 'Core Values',
       item: 'สัญญา โปร่งใส (Spirit of Commitment, Intergrity, & Ethic)',
       weight: 20,
@@ -45,7 +46,7 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
       output: 'ได้รับความไว้วางใจจากเพื่อนร่วมงานและผู้บังคับบัญชา'
     },
     {
-      id: 'C2', 
+      id: '2', 
       type: 'Learning & Development',
       item: 'ใส่ใจเรียนรู้ (Mastery of Learning & Applying Technology)',
       weight: 20,
@@ -53,7 +54,7 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
       output: 'มีการปรับปรุงกระบวนการทำงานหรือสร้างสรรค์สิ่งใหม่'
     },
     {
-      id: 'C3',
+      id: '3',
       type: 'Adaptability',
       item: 'สู่การเปลี่ยนแปลง (Agility)',
       weight: 20,
@@ -61,7 +62,7 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
       output: 'สามารถปรับตัวและรับมือกับการเปลี่ยนแปลงได้ดี'
     },
     {
-      id: 'C4',
+      id: '4',
       type: 'Teamwork',
       item: 'แสดงการยอมรับ (Respect Others & Value Diversity)',
       weight: 20,
@@ -69,7 +70,7 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
       output: 'ทีมงานมีประสิทธิภาพและบรรยากาศการทำงานที่ดี'
     },
     {
-      id: 'C5',
+      id: '5',
       type: 'Customer Focus',
       item: 'สนับสนุนลูกค้า (Think Customers & Think Value)',
       weight: 20,
@@ -180,14 +181,9 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
             <CardContent className="p-6">
               {/* Header */}
               <div className="grid grid-cols-12 gap-0 mb-6 border border-gray-300">
-                <div className="col-span-3 border-r border-gray-300 p-3 bg-purple-50">
-                  <div className="font-medium text-sm">ประเภทวัฒนธรรม</div>
-                  <div className="text-sm mt-2">{item.type}</div>
-                </div>
-                <div className="col-span-7 border-r border-gray-300 p-3 bg-purple-50">
-                  <div className="font-medium text-sm">หัวข้อการประเมิน</div>
+                <div className="col-span-10 border-r border-gray-300 p-3 bg-purple-50">
+                  <div className="font-medium text-sm">วัฒนธรรมองค์กร</div>
                   <div className="text-sm mt-2">
-                    <div className="font-medium text-purple-600 mb-1">{item.id}</div>
                     {item.item}
                   </div>
                 </div>
