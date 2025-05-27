@@ -230,49 +230,6 @@ const KPITrackingTable = () => {
 
   return (
     <div className="space-y-6">
-      {/* Status Summary Card for Testing */}
-      {user?.name === 'สมชาย ใจดี' && (
-        <Card className="shadow-lg border-2 border-blue-200 bg-blue-50">
-          <CardHeader>
-            <CardTitle className="text-center text-lg font-bold text-blue-800">
-              สถานะการทดสอบ - {user.name}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4 text-center">
-              <div className="p-3 bg-white rounded border">
-                <h4 className="font-semibold text-gray-700">KPI Bonus</h4>
-                <Badge 
-                  className={
-                    kpiStatus.bonus === 'not_started' ? 'bg-gray-100 text-gray-700' :
-                    kpiStatus.bonus === 'draft' ? 'bg-yellow-100 text-yellow-700' :
-                    kpiStatus.bonus === 'pending_checker' ? 'bg-blue-100 text-blue-700' :
-                    kpiStatus.bonus === 'pending_approver' ? 'bg-purple-100 text-purple-700' :
-                    'bg-green-100 text-green-700'
-                  }
-                >
-                  {kpiStatus.bonus}
-                </Badge>
-              </div>
-              <div className="p-3 bg-white rounded border">
-                <h4 className="font-semibold text-gray-700">KPI Merit</h4>
-                <Badge 
-                  className={
-                    kpiStatus.merit === 'not_started' ? 'bg-gray-100 text-gray-700' :
-                    kpiStatus.merit === 'draft' ? 'bg-yellow-100 text-yellow-700' :
-                    kpiStatus.merit === 'pending_checker' ? 'bg-blue-100 text-blue-700' :
-                    kpiStatus.merit === 'pending_approver' ? 'bg-purple-100 text-purple-700' :
-                    'bg-green-100 text-green-700'
-                  }
-                >
-                  {kpiStatus.merit}
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Corporate KPI Section */}
       <Card className="shadow-lg border-0 border-l-4 border-l-blue-500">
         <CardHeader>
