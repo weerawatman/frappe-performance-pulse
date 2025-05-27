@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +12,7 @@ import CultureTable from "@/components/merit/CultureTable";
 
 const KPIMeritPage = () => {
   const { user } = useAuth();
-  const [status, setStatus<'draft' | 'submitted'>('draft');
+  const [status, setStatus] = useState<'draft' | 'submitted'>('draft');
 
   // Load status from localStorage
   React.useEffect(() => {
