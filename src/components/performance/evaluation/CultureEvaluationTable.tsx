@@ -35,13 +35,13 @@ interface CultureEvaluationTableProps {
 const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period, userRole }) => {
   const { toast } = useToast();
 
-  // Updated culture evaluation data to match the requirements
+  // Updated culture evaluation data with 6% weight per item
   const cultureItems: CultureItem[] = [
     {
       id: '1',
       type: 'Core Values',
       item: 'สัญญา โปร่งใส (Spirit of Commitment, Intergrity, & Ethic)',
-      weight: 20,
+      weight: 6,
       inputProcess: 'การปฏิบัติหน้าที่ด้วยความซื่อสัตย์และส่งมอบงานตามข้อตกลงหรือสัญญาที่ได้ตกลงกันไว้ ด้วยความโปร่งใส',
       output: 'ได้รับความไว้วางใจจากเพื่อนร่วมงานและผู้บังคับบัญชา'
     },
@@ -49,7 +49,7 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
       id: '2', 
       type: 'Learning & Development',
       item: 'ใส่ใจเรียนรู้ (Mastery of Learning & Applying Technology)',
-      weight: 20,
+      weight: 6,
       inputProcess: 'การตั้งใจเรียนรู้สิ่งใหม่ๆ รวมถึงเทคโนโลยี และนำมาใช้ปรับปรุง พัฒนา การทำงาน บริการ หรือผลิตภัณฑ์ ให้ดีขึ้นอย่างต่อเนื่อง',
       output: 'มีการปรับปรุงกระบวนการทำงานหรือสร้างสรรค์สิ่งใหม่'
     },
@@ -57,7 +57,7 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
       id: '3',
       type: 'Adaptability',
       item: 'สู่การเปลี่ยนแปลง (Agility)',
-      weight: 20,
+      weight: 6,
       inputProcess: 'การเปิดรับสิ่งใหม่ วางแผนปรับตัว เตรียมความพร้อมสำหรับการเปลี่ยนแปลงอย่างรวดเร็ว',
       output: 'สามารถปรับตัวและรับมือกับการเปลี่ยนแปลงได้ดี'
     },
@@ -65,7 +65,7 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
       id: '4',
       type: 'Teamwork',
       item: 'แสดงการยอมรับ (Respect Others & Value Diversity)',
-      weight: 20,
+      weight: 6,
       inputProcess: 'การยอมรับความแตกต่าง และเปิดใจรับฟังความคิดเห็นของทุกคนในทีมเพื่อหาแนวทางที่ดีที่สุดในการแก้ไขปัญหา',
       output: 'ทีมงานมีประสิทธิภาพและบรรยากาศการทำงานที่ดี'
     },
@@ -73,7 +73,7 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
       id: '5',
       type: 'Customer Focus',
       item: 'สนับสนุนลูกค้า (Think Customers & Think Value)',
-      weight: 20,
+      weight: 6,
       inputProcess: 'การทำความเข้าใจความคาดหวังของลูกค้า (ทั้งภายในและภายนอก) อย่างถ่องแท้ และใส่ใจในคุณค่าของงานและบริการที่ส่งมอบให้ลูกค้า',
       output: 'ลูกค้ามีความพึงพอใจและกลับมาใช้บริการอีก'
     }

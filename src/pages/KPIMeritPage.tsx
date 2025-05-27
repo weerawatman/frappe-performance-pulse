@@ -11,7 +11,7 @@ import CultureTable from "@/components/merit/CultureTable";
 
 const KPIMeritPage = () => {
   const { user } = useAuth();
-  const [status, setStatus] = useState<'draft' | 'submitted'>('draft');
+  const [status, setStatus<'draft' | 'submitted'>('draft');
 
   // Load status from localStorage
   React.useEffect(() => {
@@ -95,7 +95,7 @@ const KPIMeritPage = () => {
       id: "1",
       name: "สัญญา โปร่งใส",
       description: "การปฏิบัติหน้าที่ด้วยความซื่อสัตย์และส่งมอบงานตามข้อตกลงหรือสัญญาที่ได้ตกลงกันไว้ ด้วยความโปร่งใส",
-      weight: 20,
+      weight: 6,
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
@@ -110,7 +110,7 @@ const KPIMeritPage = () => {
       id: "2",
       name: "ใส่ใจเรียนรู้",
       description: "การตั้งใจเรียนรู้สิ่งใหม่ๆ รวมถึงเทคโนโลยี และนำมาใช้ปรับปรุง พัฒนา การทำงาน บริการ หรือผลิตภัณฑ์ ให้ดีขึ้นอย่างต่อเนื่อง",
-      weight: 20,
+      weight: 6,
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
@@ -125,7 +125,7 @@ const KPIMeritPage = () => {
       id: "3",
       name: "สู่การเปลี่ยนแปลง",
       description: "การเปิดรับสิ่งใหม่ วางแผนปรับตัว เตรียมความพร้อมสำหรับการเปลี่ยนแปลงอย่างรวดเร็ว",
-      weight: 20,
+      weight: 6,
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
@@ -140,7 +140,7 @@ const KPIMeritPage = () => {
       id: "4",
       name: "แสดงการยอมรับ",
       description: "การยอมรับความแตกต่าง และเปิดใจรับฟังความคิดเห็นของทุกคนในทีมเพื่อหาแนวทางที่ดีที่สุดในการแก้ไขปัญหา",
-      weight: 20,
+      weight: 6,
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
@@ -155,7 +155,7 @@ const KPIMeritPage = () => {
       id: "5",
       name: "สนับสนุนลูกค้า",
       description: "การทำความเข้าใจความคาดหวังของลูกค้า (ทั้งภายในและภายนอก) อย่างถ่องแท้ และใส่ใจในคุณค่าของงานและบริการที่ส่งมอบให้ลูกค้า",
-      weight: 20,
+      weight: 6,
       self_score: 0,
       supervisor_score: 0,
       evaluation_levels: [
@@ -284,7 +284,7 @@ const KPIMeritPage = () => {
             <CardHeader>
               <CardTitle>วัฒนธรรมองค์กร (Corporate Culture)</CardTitle>
               <CardDescription>
-                ประเมินการปฏิบัติตามค่านิยมและวัฒนธรรมขององค์กร
+                ประเมินการปฏิบัติตามค่านิยมและวัฒนธรรมขององค์กร (น้ำหนักรวม 30%)
               </CardDescription>
             </CardHeader>
             <CardContent>
