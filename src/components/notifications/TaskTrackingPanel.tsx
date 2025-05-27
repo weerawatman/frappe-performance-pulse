@@ -215,6 +215,13 @@ const TaskTrackingPanel: React.FC<TaskTrackingPanelProps> = ({ userId, userRole 
     return daysDiff;
   };
 
+  const getOverdueDays = (dueDate: Date) => {
+    const now = new Date();
+    const timeDiff = now.getTime() - dueDate.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    return daysDiff;
+  };
+
   // Filter tasks for overdue and upcoming sections
   const overdueTasks = tasks.filter(task => task.isOverdue || task.status === 'overdue');
   const upcomingTasks = tasks.filter(task => !task.isOverdue && task.status !== 'overdue');
