@@ -27,18 +27,18 @@ const BalanceScoreCardInfo: React.FC = () => {
         </p>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           {BALANCE_SCORECARD_CATEGORIES.map((category) => {
             const IconComponent = iconMap[category.icon as keyof typeof iconMap];
             return (
-              <div key={category.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-start gap-3">
+              <div key={category.id} className="border rounded-lg p-3 hover:shadow-md transition-shadow">
+                <div className="flex flex-col items-center text-center gap-2">
                   <div className={`p-2 rounded-lg ${category.color}`}>
-                    <IconComponent className="w-5 h-5" />
+                    <IconComponent className="w-4 h-4" />
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">{category.name}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{category.description}</p>
+                  <div>
+                    <h4 className="font-semibold text-sm text-gray-900">{category.name}</h4>
+                    <p className="text-xs text-gray-600 mt-1">{category.description}</p>
                   </div>
                 </div>
               </div>
