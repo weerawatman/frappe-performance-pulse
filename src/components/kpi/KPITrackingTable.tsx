@@ -25,10 +25,21 @@ const KPITrackingTable = () => {
   useEffect(() => {
     console.log('KPITrackingTable mounted, fetching initial status');
     
+    // Reset localStorage สำหรับการทดสอบใหม่
+    const resetLocalStorage = () => {
+      localStorage.removeItem('kpiStatus');
+      console.log('localStorage cleared for fresh testing');
+    };
+    
     const loadKPIStatus = async () => {
       if (!user) {
         setLoading(false);
         return;
+      }
+      
+      // Reset localStorage เมื่อเริ่มต้น (เฉพาะสมชาย ใจดี)
+      if (user.name === 'สมชาย ใจดี') {
+        resetLocalStorage();
       }
       
       try {
@@ -40,24 +51,17 @@ const KPITrackingTable = () => {
           .single();
           
         if (empError || !employee) {
-          console.log('Employee not found in database, using localStorage fallback');
-          // Fallback to localStorage
-          const savedStatus = localStorage.getItem('kpiStatus');
-          if (savedStatus) {
-            try {
-              const parsedStatus = JSON.parse(savedStatus);
-              setKpiStatus(parsedStatus);
-            } catch (error) {
-              console.log('Error parsing localStorage, using defaults');
-            }
-          }
+          console.log('Employee not found in database, using default status');
+          const defaultStatus = { bonus: 'not_started', merit: 'not_started' };
+          setKpiStatus(defaultStatus);
+          localStorage.setItem('kpiStatus', JSON.stringify(defaultStatus));
           setLoading(false);
           return;
         }
         
         console.log('Found employee:', employee);
         
-        // Check KPI Bonus status - get the latest record regardless of status
+        // Check KPI Bonus status - get the latest record
         const { data: bonusData, error: bonusError } = await supabase
           .from('kpi_bonus')
           .select('status')
@@ -65,7 +69,7 @@ const KPITrackingTable = () => {
           .order('created_at', { ascending: false })
           .limit(1);
           
-        // Check KPI Merit status - get the latest record regardless of status
+        // Check KPI Merit status - get the latest record
         const { data: meritData, error: meritError } = await supabase
           .from('kpi_merit')
           .select('status')
@@ -78,24 +82,18 @@ const KPITrackingTable = () => {
           merit: meritData && meritData.length > 0 ? meritData[0].status : 'not_started'
         };
         
-        console.log('Current KPI status for', user.name + ':', newStatus);
+        console.log('Database KPI status for', user.name + ':', newStatus);
         setKpiStatus(newStatus);
         
-        // Also update localStorage for consistency
+        // Update localStorage for consistency
         localStorage.setItem('kpiStatus', JSON.stringify(newStatus));
         
       } catch (error) {
         console.error('Error fetching KPI status:', error);
-        // Fallback to localStorage
-        const savedStatus = localStorage.getItem('kpiStatus');
-        if (savedStatus) {
-          try {
-            const parsedStatus = JSON.parse(savedStatus);
-            setKpiStatus(parsedStatus);
-          } catch (parseError) {
-            console.log('Error parsing localStorage, using defaults');
-          }
-        }
+        // Fallback to default status
+        const defaultStatus = { bonus: 'not_started', merit: 'not_started' };
+        setKpiStatus(defaultStatus);
+        localStorage.setItem('kpiStatus', JSON.stringify(defaultStatus));
       } finally {
         setLoading(false);
       }
@@ -103,19 +101,7 @@ const KPITrackingTable = () => {
 
     loadKPIStatus();
     
-    // Add event listeners for status changes
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'kpiStatus' && e.newValue) {
-        try {
-          const newStatus = JSON.parse(e.newValue);
-          console.log('Updating status from storage event:', newStatus);
-          setKpiStatus(newStatus);
-        } catch (error) {
-          console.error('Error parsing storage data:', error);
-        }
-      }
-    };
-    
+    // Event listeners for real-time updates
     const handleKPIStatusUpdate = () => {
       console.log('KPI status update event received, reloading from database');
       loadKPIStatus();
@@ -126,20 +112,17 @@ const KPITrackingTable = () => {
       loadKPIStatus();
     };
     
-    window.addEventListener('storage', handleStorageChange);
     window.addEventListener('kpiStatusUpdate', handleKPIStatusUpdate as EventListener);
     window.addEventListener('focus', handleFocus);
     
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('kpiStatusUpdate', handleKPIStatusUpdate as EventListener);
       window.removeEventListener('focus', handleFocus);
     };
   }, [user]);
 
-  // Select 3 Corporate KPIs from different Balance Score Card categories
+  // Corporate KPI data
   const selectedCorporateKPIs = [
-    // Financial Perspective
     {
       id: '1',
       name: 'เพิ่มรายได้องค์กร',
@@ -147,7 +130,6 @@ const KPITrackingTable = () => {
       weight: 40,
       category: 'Financial Perspective'
     },
-    // Customer Excellence  
     {
       id: '4',
       name: 'ลดต้นทุนการดำเนินงาน',
@@ -155,7 +137,6 @@ const KPITrackingTable = () => {
       weight: 30,
       category: 'Internal Process'
     },
-    // People & Culture
     {
       id: '16',
       name: 'ประสิทธิภาพของบุคลากร',
@@ -164,6 +145,31 @@ const KPITrackingTable = () => {
       category: 'Learning & Growth'
     }
   ];
+
+  function getKPIButtonText(type: 'bonus' | 'merit', status: string): string {
+    console.log(`Getting button text for ${type} with status: ${status}`);
+    switch (status) {
+      case 'not_started':
+        return `เริ่มกำหนด KPI ${type === 'bonus' ? 'Bonus' : 'Merit'}`;
+      case 'draft':
+        return 'แก้ไขร่าง';
+      case 'pending_checker':
+        return 'รอ Checker ตรวจสอบ';
+      case 'pending_approver':
+        return 'รอ Approver อนุมัติ';
+      case 'completed':
+        return 'เสร็จสิ้นแล้ว';
+      default:
+        return `เริ่มกำหนด KPI ${type === 'bonus' ? 'Bonus' : 'Merit'}`;
+    }
+  }
+
+  function getEvaluationText(type: 'bonus' | 'merit', status: string, round: number): string {
+    if (status !== 'completed') {
+      return 'Coming Soon';
+    }
+    return `ประเมินตนเอง`;
+  }
 
   // Individual KPI data with dynamic status
   const individualKPIs = [
@@ -191,36 +197,7 @@ const KPITrackingTable = () => {
     }
   ];
 
-  function getKPIButtonText(type: 'bonus' | 'merit', status: string): string {
-    console.log(`Getting button text for ${type} with status: ${status}`);
-    switch (status) {
-      case 'not_started':
-        return `เริ่มกำหนด KPI ${type === 'bonus' ? 'Bonus' : 'Merit'}`;
-      case 'draft':
-        return 'แก้ไขร่าง';
-      case 'pending_checker':
-        return 'รอ Checker';
-      case 'pending_approver':
-        return 'รอ Approve';
-      case 'completed':
-        return 'เสร็จสิ้น';
-      default:
-        return `เริ่มกำหนด KPI ${type === 'bonus' ? 'Bonus' : 'Merit'}`;
-    }
-  }
-
-  function getEvaluationText(type: 'bonus' | 'merit', status: string, round: number): string {
-    // หากยังไม่เสร็จสิ้นการกำหนด KPI ให้แสดง Coming Soon
-    if (status !== 'completed') {
-      return 'Coming Soon';
-    }
-    
-    // หากเสร็จสิ้นแล้วให้แสดงสถานะการประเมิน
-    return `ประเมินตนเอง`;
-  }
-
   const getEvaluationStatus = (status: string, evaluationRound: number) => {
-    // หากยังไม่เสร็จสิ้นการกำหนด KPI
     if (status !== 'completed') {
       return (
         <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">
@@ -229,7 +206,6 @@ const KPITrackingTable = () => {
       );
     }
 
-    // หากเสร็จสิ้นการกำหนด KPI แล้ว ให้แสดงสถานะการประเมิน
     return (
       <Link to={`/employee/evaluation/${status === 'completed' ? 'bonus' : 'merit'}`}>
         <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
@@ -254,6 +230,49 @@ const KPITrackingTable = () => {
 
   return (
     <div className="space-y-6">
+      {/* Status Summary Card for Testing */}
+      {user?.name === 'สมชาย ใจดี' && (
+        <Card className="shadow-lg border-2 border-blue-200 bg-blue-50">
+          <CardHeader>
+            <CardTitle className="text-center text-lg font-bold text-blue-800">
+              สถานะการทดสอบ - {user.name}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 text-center">
+              <div className="p-3 bg-white rounded border">
+                <h4 className="font-semibold text-gray-700">KPI Bonus</h4>
+                <Badge 
+                  className={
+                    kpiStatus.bonus === 'not_started' ? 'bg-gray-100 text-gray-700' :
+                    kpiStatus.bonus === 'draft' ? 'bg-yellow-100 text-yellow-700' :
+                    kpiStatus.bonus === 'pending_checker' ? 'bg-blue-100 text-blue-700' :
+                    kpiStatus.bonus === 'pending_approver' ? 'bg-purple-100 text-purple-700' :
+                    'bg-green-100 text-green-700'
+                  }
+                >
+                  {kpiStatus.bonus}
+                </Badge>
+              </div>
+              <div className="p-3 bg-white rounded border">
+                <h4 className="font-semibold text-gray-700">KPI Merit</h4>
+                <Badge 
+                  className={
+                    kpiStatus.merit === 'not_started' ? 'bg-gray-100 text-gray-700' :
+                    kpiStatus.merit === 'draft' ? 'bg-yellow-100 text-yellow-700' :
+                    kpiStatus.merit === 'pending_checker' ? 'bg-blue-100 text-blue-700' :
+                    kpiStatus.merit === 'pending_approver' ? 'bg-purple-100 text-purple-700' :
+                    'bg-green-100 text-green-700'
+                  }
+                >
+                  {kpiStatus.merit}
+                </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Corporate KPI Section */}
       <Card className="shadow-lg border-0 border-l-4 border-l-blue-500">
         <CardHeader>
