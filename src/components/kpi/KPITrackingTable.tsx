@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -56,23 +57,25 @@ const KPITrackingTable = () => {
         
         console.log('Found employee:', employee);
         
-        // Check KPI Bonus status
+        // Check KPI Bonus status - get the latest record regardless of status
         const { data: bonusData, error: bonusError } = await supabase
           .from('kpi_bonus')
           .select('status')
           .eq('employee_id', employee.id)
-          .single();
+          .order('created_at', { ascending: false })
+          .limit(1);
           
-        // Check KPI Merit status  
+        // Check KPI Merit status - get the latest record regardless of status
         const { data: meritData, error: meritError } = await supabase
           .from('kpi_merit')
           .select('status')
           .eq('employee_id', employee.id)
-          .single();
+          .order('created_at', { ascending: false })
+          .limit(1);
           
         const newStatus = {
-          bonus: bonusData?.status || 'not_started',
-          merit: meritData?.status || 'not_started'
+          bonus: bonusData && bonusData.length > 0 ? bonusData[0].status : 'not_started',
+          merit: meritData && meritData.length > 0 ? meritData[0].status : 'not_started'
         };
         
         console.log('Current KPI status for', user.name + ':', newStatus);
@@ -113,8 +116,8 @@ const KPITrackingTable = () => {
       }
     };
     
-    const handleKPIStatusUpdate = (event: CustomEvent) => {
-      console.log('KPI status update event received:', event.detail);
+    const handleKPIStatusUpdate = () => {
+      console.log('KPI status update event received, reloading from database');
       loadKPIStatus();
     };
     
