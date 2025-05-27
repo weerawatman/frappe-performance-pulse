@@ -157,13 +157,13 @@ const UpdateKPIStatus: React.FC = () => {
       window.dispatchEvent(new CustomEvent('kpiStatusUpdate'));
       
       // Update localStorage for immediate UI update
-      const currentStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{}');
+      const currentKpiStatus = JSON.parse(localStorage.getItem('kpiStatus') || '{}');
       if (type === 'bonus') {
-        currentStatus.bonus = nextStatus;
+        currentKpiStatus.bonus = nextStatus;
       } else {
-        currentStatus.merit = nextStatus;
+        currentKpiStatus.merit = nextStatus;
       }
-      localStorage.setItem('kpiStatus', JSON.stringify(currentStatus));
+      localStorage.setItem('kpiStatus', JSON.stringify(currentKpiStatus));
 
     } catch (error) {
       console.error('Error updating KPI status:', error);
