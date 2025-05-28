@@ -179,31 +179,48 @@ const CultureEvaluationTable: React.FC<CultureEvaluationTableProps> = ({ period,
         return (
           <Card key={item.id} className="border border-gray-300">
             <CardContent className="p-6">
-              {/* Header */}
-              <div className="grid grid-cols-12 gap-0 mb-6 border border-gray-300">
-                <div className="col-span-10 border-r border-gray-300 p-3 bg-purple-50">
-                  <div className="font-medium text-sm">วัฒนธรรมองค์กร</div>
-                  <div className="text-sm mt-2">
-                    {item.item}
+              {/* Header Table with proper column headers and adjusted widths */}
+              <div className="border border-gray-300 mb-6">
+                {/* Column Headers */}
+                <div className="grid grid-cols-12 gap-0 border-b border-gray-300 bg-gray-800 text-white">
+                  <div className="col-span-2 border-r border-gray-300 p-3">
+                    <div className="font-medium text-sm">วัฒนธรรมองค์กร</div>
+                  </div>
+                  <div className="col-span-1 border-r border-gray-300 p-3 text-center">
+                    <div className="font-medium text-sm">น้ำหนัก%</div>
+                  </div>
+                  <div className="col-span-4 border-r border-gray-300 p-3">
+                    <div className="font-medium text-sm text-white">
+                      พฤติกรรมที่คาดหวัง
+                    </div>
+                  </div>
+                  <div className="col-span-5 p-3">
+                    <div className="font-medium text-sm text-white">
+                      ผลลัพธ์ที่คาดหวัง
+                    </div>
                   </div>
                 </div>
-                <div className="col-span-2 p-3 bg-purple-50 text-center">
-                  <div className="font-medium text-sm">น้ำหนัก%</div>
-                  <div className="mt-2">
-                    <Badge variant="outline">{item.weight}%</Badge>
+                
+                {/* Content Row */}
+                <div className="grid grid-cols-12 gap-0">
+                  <div className="col-span-2 border-r border-gray-300 p-3 bg-gray-50">
+                    <div className="text-sm">{item.item}</div>
                   </div>
-                </div>
-              </div>
-
-              {/* Input & Output */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="border border-gray-300 p-3">
-                  <div className="font-medium text-sm mb-2 text-purple-600">พฤติกรรมที่คาดหวัง</div>
-                  <div className="text-xs leading-relaxed">{item.inputProcess}</div>
-                </div>
-                <div className="border border-gray-300 p-3">
-                  <div className="font-medium text-sm mb-2 text-purple-600">ผลลัพธ์ที่คาดหวัง</div>
-                  <div className="text-xs leading-relaxed">{item.output}</div>
+                  <div className="col-span-1 border-r border-gray-300 p-3 bg-gray-50 text-center">
+                    <div className="mt-2">
+                      <Badge variant="outline">{item.weight}%</Badge>
+                    </div>
+                  </div>
+                  <div className="col-span-4 border-r border-gray-300 p-3 bg-gray-50">
+                    <div className="text-xs leading-relaxed">
+                      {item.inputProcess}
+                    </div>
+                  </div>
+                  <div className="col-span-5 p-3 bg-gray-50">
+                    <div className="text-xs leading-relaxed">
+                      {item.output}
+                    </div>
+                  </div>
                 </div>
               </div>
 
