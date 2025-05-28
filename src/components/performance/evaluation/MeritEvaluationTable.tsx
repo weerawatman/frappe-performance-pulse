@@ -187,13 +187,13 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
                     <div className="font-medium text-sm">Weight% (น้ำหนัก)</div>
                   </div>
                   <div className="col-span-3 border-r border-gray-300 p-3">
-                    <div className="font-medium text-sm text-blue-200">
-                      Input & Process - ชี้ให้เห็นความเชื่อมโยงกับเป้าหมายขององค์กรและหน้าที่
+                    <div className="font-medium text-sm text-white">
+                      Input & Process
                     </div>
                   </div>
                   <div className="col-span-4 p-3">
-                    <div className="font-medium text-sm text-blue-200">
-                      Output - ผลลัพธ์ของงานในรูปขอบเขตชัดเจน (มีตัวเลขชี้วัดที่ใช้วัดผลสำเร็จ) ไม่ว่าจะเชิง KPI
+                    <div className="font-medium text-sm text-white">
+                      Output
                     </div>
                   </div>
                 </div>
