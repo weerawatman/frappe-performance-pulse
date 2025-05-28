@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -172,43 +173,60 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
         return (
           <Card key={item.id} className="border border-gray-300">
             <CardContent className="p-6">
-              {/* Header Table - Updated Layout */}
-              <div className="grid grid-cols-5 gap-0 mb-6 border border-gray-300">
-                <div className="border-r border-gray-300 p-3 bg-gray-50">
-                  <div className="font-medium text-sm">ประเภท Competency (Competency Type)</div>
-                  <div className="text-sm mt-2">{item.type}</div>
-                </div>
-                <div className="border-r border-gray-300 p-3 bg-gray-50">
-                  <div className="font-medium text-sm">Item (หัวข้อ)</div>
-                  <div className="text-sm mt-2">
-                    <div className="font-medium text-blue-600 mb-1">{item.id}</div>
-                    {item.item}
+              {/* Header Table with proper column headers and adjusted widths */}
+              <div className="border border-gray-300 mb-6">
+                {/* Column Headers */}
+                <div className="grid grid-cols-12 gap-0 border-b border-gray-300 bg-gray-800 text-white">
+                  <div className="col-span-2 border-r border-gray-300 p-3">
+                    <div className="font-medium text-sm">ประเภท Competency (Competency Type)</div>
+                  </div>
+                  <div className="col-span-2 border-r border-gray-300 p-3">
+                    <div className="font-medium text-sm">Item (หัวข้อ)</div>
+                  </div>
+                  <div className="col-span-1 border-r border-gray-300 p-3 text-center">
+                    <div className="font-medium text-sm">Weight% (น้ำหนัก)</div>
+                  </div>
+                  <div className="col-span-3 border-r border-gray-300 p-3">
+                    <div className="font-medium text-sm text-blue-200">
+                      Input & Process - ชี้ให้เห็นความเชื่อมโยงกับเป้าหมายขององค์กรและหน้าที่
+                    </div>
+                  </div>
+                  <div className="col-span-4 p-3">
+                    <div className="font-medium text-sm text-blue-200">
+                      Output - ผลลัพธ์ของงานในรูปขอบเขตชัดเจน (มีตัวเลขชี้วัดที่ใช้วัดผลสำเร็จ) ไม่ว่าจะเชิง KPI
+                    </div>
                   </div>
                 </div>
-                <div className="border-r border-gray-300 p-3 bg-gray-50 text-center">
-                  <div className="font-medium text-sm">Weight% (น้ำหนัก)</div>
-                  <div className="mt-2">
-                    <Badge variant="outline">{item.weight}%</Badge>
+                
+                {/* Content Row */}
+                <div className="grid grid-cols-12 gap-0">
+                  <div className="col-span-2 border-r border-gray-300 p-3 bg-gray-50">
+                    <div className="text-sm">{item.type}</div>
                   </div>
-                </div>
-                <div className="border-r border-gray-300 p-3 bg-gray-50">
-                  <div className="font-medium text-sm mb-2 text-blue-600">
-                    Input & Process - ชี้ให้เห็นความเชื่อมโยงกับเป้าหมายขององค์กรและหน้าที่
+                  <div className="col-span-2 border-r border-gray-300 p-3 bg-gray-50">
+                    <div className="text-sm">
+                      <div className="font-medium text-blue-600 mb-1">{item.id}</div>
+                      {item.item}
+                    </div>
                   </div>
-                  <div className="text-xs leading-relaxed">
-                    {item.inputProcess.split('\n').map((line, i) => (
-                      <div key={i} className="mb-1">{line}</div>
-                    ))}
+                  <div className="col-span-1 border-r border-gray-300 p-3 bg-gray-50 text-center">
+                    <div className="mt-2">
+                      <Badge variant="outline">{item.weight}%</Badge>
+                    </div>
                   </div>
-                </div>
-                <div className="p-3 bg-gray-50">
-                  <div className="font-medium text-sm mb-2 text-blue-600">
-                    Output - ผลลัพธ์ของงานในรูปขอบเขตชัดเจน (มีตัวเลขชี้วัดที่ใช้วัดผลสำเร็จ) ไม่ว่าจะเชิง KPI
+                  <div className="col-span-3 border-r border-gray-300 p-3 bg-gray-50">
+                    <div className="text-xs leading-relaxed">
+                      {item.inputProcess.split('\n').map((line, i) => (
+                        <div key={i} className="mb-1">{line}</div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="text-xs leading-relaxed">
-                    {item.output.split('\n').map((line, i) => (
-                      <div key={i} className="mb-1">{line}</div>
-                    ))}
+                  <div className="col-span-4 p-3 bg-gray-50">
+                    <div className="text-xs leading-relaxed">
+                      {item.output.split('\n').map((line, i) => (
+                        <div key={i} className="mb-1">{line}</div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -377,3 +395,4 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
 };
 
 export default MeritEvaluationTable;
+
