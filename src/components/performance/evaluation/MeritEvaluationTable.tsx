@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -171,30 +172,26 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
         return (
           <Card key={item.id} className="border border-gray-300">
             <CardContent className="p-6">
-              {/* Header Table */}
-              <div className="grid grid-cols-12 gap-0 mb-6 border border-gray-300">
-                <div className="col-span-3 border-r border-gray-300 p-3 bg-gray-50">
+              {/* Header Table - Updated Layout */}
+              <div className="grid grid-cols-5 gap-0 mb-6 border border-gray-300">
+                <div className="border-r border-gray-300 p-3 bg-gray-50">
                   <div className="font-medium text-sm">ประเภท Competency (Competency Type)</div>
                   <div className="text-sm mt-2">{item.type}</div>
                 </div>
-                <div className="col-span-7 border-r border-gray-300 p-3 bg-gray-50">
+                <div className="border-r border-gray-300 p-3 bg-gray-50">
                   <div className="font-medium text-sm">Item (หัวข้อ)</div>
                   <div className="text-sm mt-2">
                     <div className="font-medium text-blue-600 mb-1">{item.id}</div>
                     {item.item}
                   </div>
                 </div>
-                <div className="col-span-2 p-3 bg-gray-50 text-center">
+                <div className="border-r border-gray-300 p-3 bg-gray-50 text-center">
                   <div className="font-medium text-sm">Weight% (น้ำหนัก)</div>
                   <div className="mt-2">
                     <Badge variant="outline">{item.weight}%</Badge>
                   </div>
                 </div>
-              </div>
-
-              {/* Input & Process */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="border border-gray-300 p-3">
+                <div className="border-r border-gray-300 p-3 bg-gray-50">
                   <div className="font-medium text-sm mb-2 text-blue-600">
                     Input & Process - ชี้ให้เห็นความเชื่อมโยงกับเป้าหมายขององค์กรและหน้าที่
                   </div>
@@ -204,7 +201,7 @@ const MeritEvaluationTable: React.FC<MeritEvaluationTableProps> = ({ period, use
                     ))}
                   </div>
                 </div>
-                <div className="border border-gray-300 p-3">
+                <div className="p-3 bg-gray-50">
                   <div className="font-medium text-sm mb-2 text-blue-600">
                     Output - ผลลัพธ์ของงานในรูปขอบเขตชัดเจน (มีตัวเลขชี้วัดที่ใช้วัดผลสำเร็จ) ไม่ว่าจะเชิง KPI
                   </div>
