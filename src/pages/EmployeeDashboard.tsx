@@ -20,7 +20,7 @@ const EmployeeDashboard = () => {
   const getDashboardTitle = () => {
     if (isChecker) return 'Checker Dashboard';
     if (isApprover) return 'Approver Dashboard';
-    return 'Employee Dashboard';
+    return 'Performance Management';
   };
 
   const getDashboardDescription = () => {
