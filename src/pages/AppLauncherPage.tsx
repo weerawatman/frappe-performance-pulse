@@ -136,7 +136,7 @@ const AppLauncherPage = () => {
                 />
               </div>
               <div>
-                <h1 className="text-xl font-bold">My Access</h1>
+                <h1 className="text-xl font-bold">All Apps</h1>
               </div>
             </div>
             <div className="flex items-center space-x-4">
