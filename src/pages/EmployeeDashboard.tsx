@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Target, FileText, Calendar, Bell, LogOut, TrendingUp, CheckCircle, Clock, Award } from "lucide-react";
+import { ArrowRight, Target, FileText, Calendar, Bell, LogOut, TrendingUp, CheckCircle, Clock, Award, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import NotificationCenter from "@/components/notifications/NotificationCenter";
@@ -48,6 +48,12 @@ const EmployeeDashboard = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
+              <Link to="/">
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <ArrowLeft className="w-4 h-4" />
+                  กลับ
+                </Button>
+              </Link>
               <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
                 <img 
                   src="/lovable-uploads/3ee75ef7-d7d2-4357-8492-aeded3669568.png" 
