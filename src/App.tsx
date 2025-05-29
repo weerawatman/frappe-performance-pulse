@@ -1,9 +1,11 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { MainLayout } from '@/layouts/MainLayout';
 import LoginPage from '@/pages/LoginPage';
+import AppLauncherPage from '@/pages/AppLauncherPage';
 import DashboardPage from '@/pages/DashboardPage';
 import PerformanceEvaluationPage from '@/pages/PerformanceEvaluationPage';
 import AdminReportsDashboard from '@/components/performance/reports/AdminReportsDashboard';
@@ -23,6 +25,11 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={
+            <ProtectedRoute>
+              <AppLauncherPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard" element={
             <ProtectedRoute>
               <MainLayout><DashboardPage /></MainLayout>
             </ProtectedRoute>

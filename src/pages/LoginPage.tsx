@@ -26,16 +26,8 @@ const LoginPage: React.FC = () => {
       const result = await login(email, password);
       
       if (result.success && result.user) {
-        // Navigate based on user role
-        if (result.user.role === 'employee') {
-          navigate('/employee-dashboard');
-        } else if (result.user.role === 'checker') {
-          navigate('/checker-dashboard');
-        } else if (result.user.role === 'approver') {
-          navigate('/approver-dashboard');
-        } else {
-          navigate('/');
-        }
+        // Navigate to the app launcher page for all users
+        navigate('/');
       } else {
         setError(result.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
       }
