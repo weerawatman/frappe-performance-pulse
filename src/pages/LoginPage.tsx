@@ -52,7 +52,7 @@ const LoginPage: React.FC = () => {
             </div>
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Somboon Employee Connect</h1>
-          <p className="text-gray-600 mt-2">ระบบบริหารผลงานและประเมินพนักงาน</p>
+          <p className="text-gray-600 mt-2">ศูนย์รวมบริการในงาน HR ของชาวสมบูรณ์</p>
         </div>
 
         <Card>
