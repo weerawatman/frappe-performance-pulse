@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,13 +9,20 @@ import { useAuth } from '@/contexts/AuthContext';
 const AppLauncherPage = () => {
   const { user, logout } = useAuth();
 
+  // Determine the correct link for Performance based on user role
+  const getPerformanceLink = () => {
+    if (user?.role === 'checker') return '/checker-dashboard';
+    if (user?.role === 'approver') return '/approver-dashboard';
+    return '/employee-dashboard';
+  };
+
   const apps = [
     {
       id: 'performance',
       title: 'Performance',
       description: 'Performance Management System',
       icon: Target,
-      link: '/employee-dashboard',
+      link: getPerformanceLink(),
       color: 'bg-purple-500',
       available: true
     },
