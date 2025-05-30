@@ -11,6 +11,7 @@ const AppLauncherPage = () => {
 
   // Determine the correct link for Performance based on user role
   const getPerformanceLink = () => {
+    if (user?.role === 'admin') return '/admin/reports';
     if (user?.role === 'checker') return '/checker-dashboard';
     if (user?.role === 'approver') return '/approver-dashboard';
     return '/employee-dashboard';
