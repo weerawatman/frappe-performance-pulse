@@ -99,12 +99,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Set appropriate KPI status based on user
       let kpiStatus;
-      if (foundUser.name === 'สมหญิง เรียบร้อย') {
+      let overdueTasks = [];
+      
+      if (foundUser.email === 'somchai@company.com') {
+        // Clear all data for สมชาย ใจดี - reset to fresh state
+        console.log('Clearing all data for สมชาย ใจดี');
+        kpiStatus = {
+          bonus: 'not_started',
+          merit: 'not_started'
+        };
+        // Set overdue tasks for fresh start
+        overdueTasks = [
+          { id: 'kpi-bonus', title: 'กำหนด KPI Bonus', type: 'kpi' },
+          { id: 'kpi-merit', title: 'กำหนด KPI Merit', type: 'kpi' }
+        ];
+      } else if (foundUser.email === 'somying@company.com') {
         // For สมหญิง เรียบร้อย - both KPIs completed, ready for evaluation
         kpiStatus = {
           bonus: 'completed',
           merit: 'completed'
         };
+      } else if (foundUser.role === 'checker' || foundUser.role === 'approver') {
+        // For checker and approver roles - they can set their own KPIs and evaluate others
+        kpiStatus = {
+          bonus: 'not_started',
+          merit: 'not_started'
+        };
+        // They also have overdue tasks for their own KPIs
+        overdueTasks = [
+          { id: 'kpi-bonus', title: 'กำหนด KPI Bonus', type: 'kpi' },
+          { id: 'kpi-merit', title: 'กำหนด KPI Merit', type: 'kpi' }
+        ];
       } else {
         // Default status for other users
         kpiStatus = {
@@ -115,12 +140,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       localStorage.setItem('kpiStatus', JSON.stringify(kpiStatus));
       
-      // Set overdue tasks for employee (except สมหญิง who has completed KPIs)
-      if (foundUser.role === 'employee' && foundUser.name !== 'สมหญิง เรียบร้อย') {
-        const overdueTasks = [
-          { id: 'kpi-bonus', title: 'กำหนด KPI Bonus', type: 'kpi' },
-          { id: 'kpi-merit', title: 'กำหนด KPI Merit', type: 'kpi' }
-        ];
+      // Set overdue tasks for employees and managers who haven't completed their KPIs
+      if (overdueTasks.length > 0) {
         localStorage.setItem('overdueTasks', JSON.stringify(overdueTasks));
       }
       
@@ -129,6 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       console.log('User logged in:', foundUser.name);
       console.log('KPI status set to:', kpiStatus);
+      console.log('Overdue tasks:', overdueTasks);
       
       return { success: true, user: foundUser };
     } catch (error) {

@@ -56,7 +56,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     } else if (user?.role === 'employee') {
       return <Navigate to="/employee-dashboard" replace />;
     } else if (user?.role === 'approver') {
-      return <Navigate to="/employee-dashboard" replace />;
+      return <Navigate to="/approver-dashboard" replace />;
     }
     return <Navigate to="/" replace />;
   }
@@ -68,7 +68,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     } else if (user?.role === 'employee') {
       return <Navigate to="/employee-dashboard" replace />;
     } else if (user?.role === 'checker') {
-      return <Navigate to="/employee-dashboard" replace />;
+      return <Navigate to="/checker-dashboard" replace />;
     }
     return <Navigate to="/" replace />;
   }
@@ -83,7 +83,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/" replace />;
   }
 
-  // Check for employee-only access
+  // Check for employee-only access (strict employee only)
   if (requireEmployee && user?.role !== 'employee') {
     if (user?.role === 'admin' || user?.role === 'checker' || user?.role === 'approver') {
       return <Navigate to="/" replace />;

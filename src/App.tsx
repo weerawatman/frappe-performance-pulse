@@ -35,7 +35,7 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="/employee-dashboard" element={
-            <ProtectedRoute requireEmployee>
+            <ProtectedRoute>
               <EmployeeDashboard />
             </ProtectedRoute>
           } />
@@ -59,16 +59,18 @@ function App() {
               <MainLayout><KPIAlignmentPage /></MainLayout>
             </ProtectedRoute>
           } />
+          {/* Employee KPI Routes - accessible by employees, checkers, and approvers */}
           <Route path="/employee/kpi-bonus" element={
-            <ProtectedRoute requireEmployee>
+            <ProtectedRoute>
               <KPIBonusPage />
             </ProtectedRoute>
           } />
           <Route path="/employee/kpi-merit" element={
-            <ProtectedRoute requireEmployee>
+            <ProtectedRoute>
               <KPIMeritPage />
             </ProtectedRoute>
           } />
+          {/* Manager KPI Routes */}
           <Route path="/manager/kpi-checker" element={
             <ProtectedRoute requireChecker>
               <KPICheckerPage />
@@ -79,23 +81,24 @@ function App() {
               <KPIApproverPage />
             </ProtectedRoute>
           } />
+          {/* Evaluation Routes - updated to allow proper access */}
           <Route path="/employee/evaluation" element={
-            <ProtectedRoute requireEmployee>
+            <ProtectedRoute>
               <MainLayout><PerformanceEvaluationPage userRole="employee" /></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/employee/evaluation/bonus" element={
-            <ProtectedRoute requireEmployee>
+            <ProtectedRoute>
               <MainLayout><PerformanceEvaluationPage userRole="employee" /></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/employee/evaluation/merit" element={
-            <ProtectedRoute requireEmployee>
+            <ProtectedRoute>
               <MainLayout><PerformanceEvaluationPage userRole="employee" /></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/manager/evaluation" element={
-            <ProtectedRoute requireManager>
+            <ProtectedRoute requireManagerOrAdmin>
               <MainLayout><PerformanceEvaluationPage userRole="checker" /></MainLayout>
             </ProtectedRoute>
           } />
