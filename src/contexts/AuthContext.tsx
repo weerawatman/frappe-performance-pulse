@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { autoApproveEmployee } from '@/components/kpi/KPIStatusUpdater';
 
 export interface User {
   id: string;
@@ -64,12 +65,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Clear all localStorage data when the app starts
-    console.log('Clearing all localStorage data for fresh start');
-    localStorage.removeItem('kpiStatus');
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('overdueTasks');
-    
     // Check for existing user session
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
@@ -102,17 +97,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let overdueTasks = [];
       
       if (foundUser.email === 'somchai@company.com') {
-        // Clear all data for สมชาย ใจดี - reset to fresh state
-        console.log('Clearing all data for สมชาย ใจดี');
+        console.log('Creating complete KPI data for สมชาย ใจดี');
+        
+        // Create complete KPI data in database
+        await autoApproveEmployee();
+        
+        // Set status to completed
         kpiStatus = {
-          bonus: 'not_started',
-          merit: 'not_started'
+          bonus: 'completed',
+          merit: 'completed'
         };
-        // Set overdue tasks for fresh start
-        overdueTasks = [
-          { id: 'kpi-bonus', title: 'กำหนด KPI Bonus', type: 'kpi' },
-          { id: 'kpi-merit', title: 'กำหนด KPI Merit', type: 'kpi' }
-        ];
+        
+        // No overdue tasks since KPIs are completed
+        overdueTasks = [];
       } else if (foundUser.email === 'somying@company.com') {
         // For สมหญิง เรียบร้อย - both KPIs completed, ready for evaluation
         kpiStatus = {
